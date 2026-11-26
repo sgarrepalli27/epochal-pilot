@@ -1,7 +1,8 @@
 """Command line.
 
 epochal-pilot list | check
-epochal-pilot run <scenario> [--context epochal|public] [--mode backtest|live] [--dry-run] [--estimate]
+epochal-pilot run <scenario> [--backend jev|jev-rules|rules|...] [--context epochal|public]
+                              [--no-context] [--mask-dates] [--mode backtest|live]
 epochal-pilot plan <scenario> --requests N [--only IDS_OR_TAGS]
 epochal-pilot report <run_dir> | --latest [--share]
 epochal-pilot score <live_run_dir> | --latest
@@ -42,8 +43,16 @@ def cmd_list(args) -> int:
 def cmd_check(args) -> int:
     config.load_dotenv(args.env_file)
     print(f"epochal-pilot {__version__}")
-    for name in (config.EPOCHAL_KEY_ENV, config.OPENROUTER_KEY_ENV, config.ANTHROPIC_KEY_ENV):
-        print(f"  {name:20} {config.mask(os.environ.get(name))}")
+    for name in (
+        config.EPOCHAL_KEY_ENV,
+        config.TYPESAFE_KEY_ENV,
+        config.OPENAI_KEY_ENV,
+        config.GEMINI_KEY_ENV,
+        config.GOOGLE_KEY_ENV,
+        config.OPENROUTER_KEY_ENV,
+        config.ANTHROPIC_KEY_ENV,
+    ):
+        print(f"  {name:28} {config.mask(os.environ.get(name))}")
     claude = find_claude()
     print(
         f"  {'claude (Claude Code)':20} "
@@ -75,15 +84,67 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--model", action="append", help="model id; repeat for several (default per backend)")
     r.add_argument(
         "--backend",
+        choices=[
+            "jev-rules",
+            "jev",
+            "rules",
+            "openai-decisions",
+            "gemini-decisions",
+            "openai",
+            "gemini",
+            "openrouter",
+            "anthropic",
+            "ollama",
+            "claude-cli",
+        ],
+        default=None,
+        help=(
+            "predictor. Default: jev-rules when TYPESAFE_API_KEY is set, otherwise rules. "
+            "System One Decisions APIs: jev-rules, jev, openai-decisions, gemini-decisions, rules. "
+            "Structured-output fallback (not calibration-trained): openai, gemini. "
+            "System Two (analysis): openrouter, anthropic, "
+            "ollama, claude-cli. All previous --backend values still work."
+        ),
+    )
+    r.add_argument(
+        "--with-rules",
+        action="store_true",
+        help="include in-code rule analysis in the System One state (jev-rules always does this)",
+    )
+    r.add_argument(
+        "--analyst",
         choices=["openrouter", "anthropic", "ollama", "claude-cli"],
-        default="openrouter",
-        help="openrouter (key), anthropic (key), ollama (local), claude-cli (local Claude Code login, tools off)",
+        default=None,
+        help="optional System Two helper: write a rationale after the System One forecast "
+        "(does not change probabilities)",
+    )
+    r.add_argument(
+        "--structured-api",
+        choices=["responses", "chat"],
+        default="responses",
+        help="OpenAI structured-output fallback only: Responses (default) or Chat Completions",
     )
     r.add_argument(
         "--context",
         choices=["epochal", "public"],
-        default="epochal",
-        help="gated-mode context: the Epochal time-gated web, or the shipped public-domain pack (0 requests)",
+        default=None,
+        help=(
+            "gated-mode context: the Epochal time-gated web, or the shipped public-domain pack "
+            "(0 requests). Default: public for System One predictors, else epochal"
+        ),
+    )
+    r.add_argument(
+        "--no-context",
+        action="store_true",
+        help=(
+            "blind leak check: same question with as-of date and current range only; "
+            "no documents, derived facts, or rule analysis (0 requests). Overrides --context"
+        ),
+    )
+    r.add_argument(
+        "--mask-dates",
+        action="store_true",
+        help="rewrite calendar years in the System One state as Year 0 / Year -1, to reduce recall of dated events",
     )
     r.add_argument("--baseline-csv", help="extra baseline forecasts you supply (name,event,<choice>...)")
     r.add_argument("--dry-run", action="store_true", help="offline fixtures + mock model; no keys, no spend")
