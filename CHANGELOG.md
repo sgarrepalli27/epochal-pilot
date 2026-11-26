@@ -38,6 +38,9 @@ All notable changes are documented here. The format follows
   [docs/adding-a-provider.md](docs/adding-a-provider.md).
 
 ### Changed
+- **README tightened**: cut repeated quickstart and budget text (~40% shorter); added a
+  comparison of `--context public` vs `--context epochal`; moved the command reference,
+  budget ledger, leak-check detail, and state example to `docs/`.
 - **README rewrite** for developers: one-line purpose, Get started (Windows and macOS/Linux),
   the official 6-step pipeline, backtest vs live forecast (score in January), System One vs
   System Two vs rules, how state is built from the public pack or a time-portal API, leak

@@ -81,7 +81,7 @@ epochal-pilot run fed-quarterly --only fq_2022q1 --backend rules --out runs/fq-r
 ```
 
 Live forecasts (`--mode live`) cannot have been memorised, because the outcome does not exist yet.
-See also the [Leak check](../README.md#leak-check) section in the README.
+See also [Leak checks](../README.md#leak-checks) in the README and [leak-checks.md](leak-checks.md). For `--context public` vs `--context epochal`, see the [README comparison](../README.md#where-the-data-comes-from---context-public-vs---context-epochal).
 
 ## Minimum setup per option
 

@@ -48,8 +48,8 @@ Epochal freezes the web, not the model. A model trained after 2020 has read what
   analysis + rules text. `--backend jev` is the same Choice without the rule analysis; `--backend rules`
   is the checklist alone (no model). Other official System One Decisions APIs (`openai-decisions`,
   `gemini-decisions`) can use the same code analysis via `--with-rules`. See
-  [System One vs System Two](../../README.md#system-one-vs-system-two) and the
-  [jev-rules flow](../../README.md#jev-rules-flow) in the project README.
+  [Model choices](../../README.md#model-choices) and
+  [How it works](../../README.md#how-it-works) in the project README.
 
 ```powershell
 epochal-pilot run fed-quarterly --only fq_2022q1 --context public --backend ollama --model qwen2.5:3b --out runs\fq-public
