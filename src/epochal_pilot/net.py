@@ -6,6 +6,8 @@ import json
 import urllib.error
 import urllib.request
 
+from epochal_pilot import __version__
+
 
 class HTTPError(RuntimeError):
     def __init__(self, status: int, message: str):
@@ -17,7 +19,7 @@ def post_json(url: str, body: dict, headers: dict | None = None, timeout: float 
     data = json.dumps(body).encode("utf-8")
     req = urllib.request.Request(url, data=data, method="POST")
     req.add_header("Content-Type", "application/json")
-    req.add_header("User-Agent", "epochal-pilot/0.1")
+    req.add_header("User-Agent", f"epochal-pilot/{__version__}")
     for k, v in (headers or {}).items():
         req.add_header(k, v)
     try:
