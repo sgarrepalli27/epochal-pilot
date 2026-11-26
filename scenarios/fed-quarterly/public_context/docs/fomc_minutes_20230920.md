@@ -1,0 +1,15 @@
+Policy discussion (excerpt):
+
+All participants agreed that policy should remain restrictive for some time until the Committee is confident that inflation is moving down sustainably toward its objective. A few participants noted that the pace at which inflation was returning to the Committee's 2 percent goal would influence their views of the sufficiently restrictive level of the policy rate and how long to keep policy restrictive. Several participants commented that, with the policy rate likely at or near its peak, the focus of monetary policy decisions and communications should shift from how high to raise the policy rate to how long to hold the policy rate at restrictive levels. A few participants noted that it would be important to monitor the real federal funds rate in gauging the stance of monetary policy over time. Most participants observed that postmeeting communications, including the SEP, would help clarify to the public how participants assessed the likely evolution of the stance of monetary policy. Participants observed that the continuing process of reducing the size of the Federal Reserve's balance sheet was an important part of the overall approach to achieving their macroeconomic objectives. Several participants noted that the process of balance sheet runoff could continue for some time, even after the Committee begins to reduce the target range for the federal funds rate.
+
+A vast majority of participants continued to judge the future path of the economy as highly uncertain. Many noted data volatility and potential data revisions, or the difficulty of estimating the neutral policy rate, as supporting the case for proceeding carefully in determining the extent of additional policy firming that may be appropriate.
+
+[...trimmed]
+
+Staff review of the economic situation (excerpt):
+
+The data available at the time of the September 19-20 meeting suggested that real gross domestic product (GDP) was rising at a solid pace in the third quarter. The labor market continued to be tight, with the unemployment rate low and job gains slowing but remaining strong. Consumer price inflation was still elevated.
+
+The imbalance between labor demand and supply appeared to be easing. Total nonfarm payroll employment increased at a slower pace over July and August than in the second quarter. The private-sector job openings rate and the quits rate, both measured by the Job Openings and Labor Turnover Survey, moved down further through July. Over July and August, the unemployment rate edged up, on net, and stood at 3.8 percent in August, and both the labor force participation rate (LFPR) and the employment-to-population ratio rose slightly. The unemployment rate for African Americans declined, while the jobless rate for Hispanics rose, and both rates were still above the national average. The easing of labor market imbalances was also evident in the recent wage data, with the 12-month changes in average hourly earnings and the employment cost index, and the four-quarter change in business-sector compensation per hour all lower than their year-earlier levels.
+
+[...trimmed]
