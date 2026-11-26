@@ -8,6 +8,10 @@ from pathlib import Path
 EPOCHAL_KEY_ENV = "EPOCHAL_API_KEY"
 OPENROUTER_KEY_ENV = "OPENROUTER_API_KEY"
 ANTHROPIC_KEY_ENV = "ANTHROPIC_API_KEY"
+TYPESAFE_KEY_ENV = "TYPESAFE_API_KEY"
+OPENAI_KEY_ENV = "OPENAI_API_KEY"
+GEMINI_KEY_ENV = "GEMINI_API_KEY"
+GOOGLE_KEY_ENV = "GOOGLE_API_KEY"  # fallback for Gemini
 
 
 class MissingKeyError(RuntimeError):
@@ -56,3 +60,8 @@ def require_key(name: str, hint: str) -> str:
 def mask(value: str | None) -> str:
     """Safe representation of a secret for logs: only whether it is set."""
     return "set" if value else "not set"
+
+
+def gemini_key() -> str | None:
+    """GEMINI_API_KEY, or GOOGLE_API_KEY as a fallback. Never logs the value."""
+    return (os.environ.get(GEMINI_KEY_ENV) or os.environ.get(GOOGLE_KEY_ENV) or "").strip() or None
