@@ -40,7 +40,7 @@ class Cache:
 
 
 class Budget:
-    """Counts real (uncached) Epochal requests.
+    """Counts real (uncached) Epochal requests that Epochal bills (2xx responses only).
 
     * ``per_run``: max new requests in this run (the ``--budget`` flag).
     * ``max_total``: lifetime cap stored next to the cache (protects a free tier across runs).
@@ -62,10 +62,22 @@ class Budget:
             raise BudgetExceeded(f"lifetime cap reached: {self.total}/{self.max_total} (see --max-total)")
         self.this_run += 1
         self.total += 1
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps({"used": self.total}), encoding="utf-8")
+        self._save()
         if self.verbose:
             print(
                 f"  [epochal] request {self.this_run}/{self.per_run} this run, {self.total} lifetime",
                 file=sys.stderr,
             )
+
+    def refund(self) -> None:
+        """Give back a reserved request that Epochal did not bill (non-2xx response)."""
+        if self.this_run > 0:
+            self.this_run -= 1
+            self.total = max(0, self.total - 1)
+            self._save()
+            if self.verbose:
+                print("  [epochal] request failed: not billed, refunded to the budget", file=sys.stderr)
+
+    def _save(self) -> None:
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.path.write_text(json.dumps({"used": self.total}), encoding="utf-8")

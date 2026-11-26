@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
 from epochal_pilot.cache import BudgetExceeded
-from epochal_pilot.epochal import Epochal
+from epochal_pilot.epochal import Epochal, SearchOptions
 from epochal_pilot.net import HTTPError
 from epochal_pilot.scenario import LETTERS
 
@@ -40,6 +40,7 @@ class Retrieval:
     dropped_future: int = 0  # results dated after as-of (leak guard)
     undated: int = 0
     fetch_failures: int = 0
+    search_failures: int = 0
 
     @property
     def urls(self) -> list[str]:
@@ -53,12 +54,40 @@ class Retrieval:
         return "\n\n---\n\n".join(parts)
 
 
-def retrieve(ep: Epochal, queries: list[str], as_of: str, num_results: int, max_fetches: int) -> Retrieval:
-    """Search the web as of ``as_of``; fetch full pages for thin results; drop anything dated later."""
+def fetch_candidates(results: list[dict], as_of: str, max_fetches: int) -> list[str]:
+    """URLs ``retrieve`` would send to Fetch for these search results (thin text, not future-dated)."""
+    gate = parse_ts(as_of)
+    out, seen = [], set()
+    for r in results:
+        url = r.get("url") or ""
+        if not url or url in seen:
+            continue
+        pub = parse_ts(r.get("published_at"))
+        if pub is not None and gate and pub > gate:
+            continue
+        seen.add(url)
+        if len(r.get("text") or "") < MIN_TEXT_CHARS and len(out) < max_fetches:
+            out.append(url)
+    return out
+
+
+def retrieve(ep: Epochal, queries: list[str], as_of: str, opts: SearchOptions | None, max_fetches: int) -> Retrieval:
+    """Search the web as of ``as_of``; fetch full pages for thin results; drop anything dated later.
+
+    Date checks use the document's own ``published_at`` (search result, then the fetched copy's
+    metadata), never the echoed ``as_of`` field, which only repeats the request header.
+    """
     gate = parse_ts(as_of)
     out, seen, fetches = Retrieval(), set(), 0
     for q in queries:
-        res = ep.search(q, as_of, num_results)
+        try:
+            res = ep.search(q, as_of, opts)
+        except BudgetExceeded:
+            raise
+        except HTTPError as e:
+            print(f"  [epochal] search failed (not billed): {e}", file=sys.stderr)
+            out.search_failures += 1
+            continue
         for r in res.get("results", []):
             url = r.get("url") or ""
             if url in seen:
@@ -71,6 +100,7 @@ def retrieve(ep: Epochal, queries: list[str], as_of: str, num_results: int, max_
                 continue
             seen.add(url)
             text = r.get("text") or ""
+            published = r.get("published_at")
             if len(text) < MIN_TEXT_CHARS and fetches < max_fetches and url:
                 fetches += 1
                 try:
@@ -78,21 +108,22 @@ def retrieve(ep: Epochal, queries: list[str], as_of: str, num_results: int, max_
                 except BudgetExceeded:
                     raise
                 except HTTPError as e:  # keep going with the snippet
-                    print(f"  [epochal] fetch failed: {e}", file=sys.stderr)
+                    print(f"  [epochal] fetch failed (not billed): {e}", file=sys.stderr)
                     f = {"status": "error"}
                 if f.get("status") == "success":  # error -> no archived copy by as_of
-                    snap = parse_ts(f.get("as_of"))
-                    if snap and gate and snap > gate:
-                        out.dropped_future += 1
+                    fpub = parse_ts(f.get("published_at"))
+                    if fpub and gate and fpub > gate:
+                        out.dropped_future += 1  # the copy's own metadata says it is from later
+                        if pub is None:
+                            continue  # nothing trustworthy left for this URL
                     else:
                         text = f.get("content") or text
+                        published = published or f.get("published_at")
                 else:
                     out.fetch_failures += 1
             text = text or r.get("snippet") or ""
             if text:
-                out.docs.append(
-                    {"title": r.get("title", ""), "url": url, "published_at": r.get("published_at"), "text": text}
-                )
+                out.docs.append({"title": r.get("title", ""), "url": url, "published_at": published, "text": text})
     return out
 
 
