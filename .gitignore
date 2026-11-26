@@ -1,0 +1,21 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# caches, runs, logs
+.epochal-pilot-cache/
+runs/
+*.log
+logs/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
