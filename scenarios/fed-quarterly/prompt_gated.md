@@ -6,6 +6,8 @@ Policy rate today: the FOMC target range for the federal funds rate is $range_at
 Forecast date: the end of the quarter, $event_date_long.
 Scheduled FOMC meetings between today and then: $meetings_in_window.
 
+$derived_facts
+
 DATA POINTS TO WEIGH
 - Inflation: core PCE (the Fed targets 2% PCE inflation) and core CPI, level and trend.
 - Labor market: unemployment rate and payroll growth.

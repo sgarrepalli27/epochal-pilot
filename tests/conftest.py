@@ -13,5 +13,13 @@ def scenarios_dir() -> Path:
 @pytest.fixture(autouse=True)
 def _no_keys(monkeypatch):
     """Tests run offline: no real keys, and no stray .env from the developer's checkout."""
-    for k in ("EPOCHAL_API_KEY", "OPENROUTER_API_KEY", "ANTHROPIC_API_KEY"):
+    for k in (
+        "EPOCHAL_API_KEY",
+        "OPENROUTER_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "TYPESAFE_API_KEY",
+        "OPENAI_API_KEY",
+        "GEMINI_API_KEY",
+        "GOOGLE_API_KEY",
+    ):
         monkeypatch.delenv(k, raising=False)
