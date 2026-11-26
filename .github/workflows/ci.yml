@@ -45,3 +45,9 @@ jobs:
           epochal-pilot run fed-rates --dry-run --limit 3 --out runs/ci-fed
           epilot run future-leak --dry-run --limit 3 --out runs/ci-leak
           epochal-pilot run fed-rates --estimate
+          epochal-pilot run fed-rates --dry-run --context public --out runs/ci-pub
+          epochal-pilot report runs/ci-fed --share
+          epochal-pilot compare runs/ci-pub runs/ci-fed --out runs/ci-compare
+          epochal-pilot validate fed-rates
+          epochal-pilot validate future-leak
+          epochal-pilot plan fed-rates --requests 20
