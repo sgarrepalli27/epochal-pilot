@@ -26,16 +26,44 @@ When the quarter ends, add any new change to `fomc_changes.csv` (none needed if 
 `python tools/build_fed_quarterly.py events`, then `epochal-pilot score <live run folder>` (or
 `score --latest`). You can also type the outcome into the live row of `events.csv` by hand.
 
-## Leak analysis: is it forecasting or remembering?
+## Leak check: is it forecasting or remembering?
 
 Epochal freezes the web, not the model. A model trained after 2020 has read what the Fed did in 2020.
 
-* Run the same events with an **old-cutoff** model and a **recent** one. `pre/post cutoff` columns in
-  the report split each model's accuracy at its training cutoff (`--cutoff MODEL=YYYY-MM` sets it).
-  Accuracy that drops after the cutoff is memory, not skill.
-* `--modes gated,ungated` asks the same question with and without the context. A model that does as
-  well with no context is answering from memory.
+* **With context vs blind.** `--context public` (or `epochal`) gives documents released before T plus
+  a derived SEP-gap line (year-end median vs the current midpoint, implied 25 bp moves, remaining
+  meetings). `--no-context` asks the same question with only the as-of date and the current range —
+  no documents, no derived facts, and no rule analysis. A confidently correct blind answer is a sign
+  of memorisation, not reading.
+* **`--mask-dates`.** Same documents, but calendar years are rewritten relative to T (`Year 0`,
+  `Year -1`, …). Use this for TypeSafe Jev, whose training cutoff is unpublished.
+* **Pre- vs post-cutoff.** Run the same events with an **old-cutoff** model and a **recent** one.
+  `pre/post cutoff` columns in the report split each model's accuracy at its training cutoff
+  (`--cutoff MODEL=YYYY-MM` sets it). Accuracy that drops after the cutoff is memory, not skill.
+* `--modes gated,ungated` is a related check (ungated drops the documents but not the derived line's
+  sibling fields already in the template). Prefer `--no-context` for a clean blind run.
 * `--mode live` is the clean test: forecasts made before the outcome exists.
+* **Official jev-rules flow** (`--backend jev-rules`): gather the first-release pack published strictly
+  before T, analyse it against business rules **in code**, then ask Jev (Choice) on context + rule
+  analysis + rules text. `--backend jev` is the same Choice without the rule analysis; `--backend rules`
+  is the checklist alone (no model). Other official System One Decisions APIs (`openai-decisions`,
+  `gemini-decisions`) can use the same code analysis via `--with-rules`. See
+  [System One vs System Two](../../README.md#system-one-vs-system-two) and the
+  [jev-rules flow](../../README.md#jev-rules-flow) in the project README.
+
+```powershell
+epochal-pilot run fed-quarterly --only fq_2022q1 --context public --backend ollama --model qwen2.5:3b --out runs\fq-public
+epochal-pilot run fed-quarterly --only fq_2022q1 --no-context --backend ollama --model qwen2.5:3b --out runs\fq-blind
+
+# TypeSafe Jev / official pipeline (0 Epochal requests; needs TYPESAFE_API_KEY for jev / jev-rules)
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend jev --out runs\fq-jev
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend jev --no-context --out runs\fq-jev-blind
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend jev --mask-dates --out runs\fq-jev-mask
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend jev-rules --out runs\fq-jev-rules
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend openai-decisions --out runs\fq-openai-decisions
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend gemini-decisions --out runs\fq-gemini-decisions
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend rules --out runs\fq-rules
+```
 
 ## Data points and triggers the model is given
 
@@ -54,7 +82,11 @@ Triggers: core inflation well above 2% with low unemployment leans toward a hike
 weak growth or a shock leans toward a cut (shocks can bring unscheduled moves); a change in statement
 language ("patient", "further policy firming") usually comes before a turn; the 2-year yield shows what
 markets expect. The prompt also lists the **scheduled** FOMC meetings between T and the quarter-end
-(the calendar is published a year ahead; unscheduled meetings are never listed).
+(the calendar is published a year ahead; unscheduled meetings are never listed). The prompt also
+includes a **derived SEP-gap line** computed only from the latest SEP published before T: the median
+year-end funds rate versus the current range midpoint, the gap in bp, the implied number of 25 bp
+moves, and how many scheduled meetings remain. If no SEP is available before T, the line says so
+instead of guessing.
 
 ## Context sources
 
@@ -62,6 +94,9 @@ markets expect. The prompt also lists the **scheduled** FOMC meetings between T 
 |---|---|---|
 | `public` | For each kind below, the latest public-domain document released strictly before T | **0** |
 | `epochal` | 10 web search results as of T (published in the 45 days before T), no page fetches | **1 per T** |
+| `--no-context` | Blind: as-of date and current range only; no documents, derived facts, or rule analysis | **0** |
+| `--mask-dates` | Same context; calendar years rewritten relative to T | same as the context flag |
+| `--backend jev`, `jev-rules`, or `rules` | Official / comparison judgment path; defaults to `public` | **0** |
 
 ### Public first-release pack (`public_context/`)
 

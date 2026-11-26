@@ -4,6 +4,50 @@ All notable changes are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.1] - Unreleased
+
+### Added
+- **SEP-gap derived facts** in the `fed-quarterly` gated prompt: from the latest SEP published
+  strictly before T, the median year-end funds rate vs the current range midpoint (gap in bp and the
+  implied number of 25 bp moves), plus how many scheduled FOMC meetings remain before the target.
+  Missing SEP tables (or a cancelled meeting with no projection) are reported as "no SEP median
+  available", never guessed. The SEP median is a year-end projection, not a quarter-end forecast.
+- **`run --no-context`** (blind leak check): the same question with the as-of date and current range
+  only — no retrieved documents, no derived facts, and no rule analysis, 0 Epochal requests. Overrides
+  `--context`.
+- **TypeSafe Jev backends** (`--backend jev` and `--backend jev-rules`): System One Choice over the
+  eight fed-quarterly buckets, via `TYPESAFE_API_KEY`. `--backend jev` sends as-of context only.
+  `--backend jev-rules` is the official pipeline: first-release documents published strictly before T
+  are analysed against business rules **in code** (inflation gap, unemployment trend, SEP gap,
+  statement tone, shocks); Jev then judges a state of context + rule outputs + the rules text.
+  `--backend rules` maps the same code signals to a distribution with no model (hindsight-documented
+  checklist). Judgment backends default to `--context public` so a forgotten flag cannot spend Epochal
+  requests. Optional atomic Noul questions are recorded in the run but are not the forecast.
+- **`run --mask-dates`**: rewrite calendar years in the Jev state relative to T (`Year 0`, `Year -1`,
+  …) so a leak check can quantify recall of dated outcomes without dropping the documents.
+- **Probability timeline** in `report.html`: a stdlib SVG of p(true) vs as-of date (green/red by
+  top-choice correctness), alongside the existing calibration chart.
+- **System One vs System Two backends**: default predictor is `jev-rules` when `TYPESAFE_API_KEY` is
+  set, otherwise `rules` (with a short how-to). Official Decisions APIs are first-class System One
+  predictors: `--backend openai-decisions` (`gpt-6-luna`, `POST https://api.openai.com/v1/decisions`)
+  and `--backend gemini-decisions` (`gemini-decision-1`, `POST .../v1beta/decisions`,
+  `x-goog-api-key` header). Schema-locked `--backend openai` / `gemini` remain a labeled fallback
+  (“LLM as System One (not calibration-trained)”). `--with-rules` includes the in-code checklist in
+  any System One state. `--analyst` attaches a System Two rationale after the forecast without
+  changing probabilities. Existing System Two `--backend` values still work. See
+  [docs/adding-a-provider.md](docs/adding-a-provider.md).
+
+### Changed
+- **README rewrite** for developers: one-line purpose, Get started (Windows and macOS/Linux),
+  the official 6-step pipeline, backtest vs live forecast (score in January), System One vs
+  System Two vs rules, how state is built from the public pack or a time-portal API, leak
+  checks, Epochal budget, scenarios, contributing, and Epochal terms. Developers pick one
+  System One provider and supply their own key.
+- **Provider docs:** TypeSafe Jev was tested live; `openai-decisions` and `gemini-decisions` have
+  only been tested against mocked or simulated responses, not yet run live. Model IDs, input
+  prices, and calibration wording were re-checked against official docs on 2026-11-26 and are
+  linked from the README provider table.
+
 ## [0.3.0] - 2026-11-26
 
 Rolling quarterly Fed forecasts, with a backtest and a live forward test.

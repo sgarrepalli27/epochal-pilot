@@ -31,6 +31,10 @@ It depends on the question you're asking. A model's **training cutoff** decides 
 | **Claude via Claude Code** (`--backend claude-cli`) | Uses your Claude subscription | Sent to Anthropic | Recent (after most events) | **Leak detection**: does it already know? | Seconds | No key; tools disabled so it can't search the answer |
 | **Anthropic API** (`--backend anthropic`) | Pay per token, cents per run | Sent to Anthropic | Recent | Leak detection; scripted runs | Seconds | Needs `ANTHROPIC_API_KEY` |
 | **OpenRouter** (`--backend openrouter`) | Cents per run | Sent to the model's provider | Mixed: pick old or new | Both; many models with one key | Seconds | Needs `OPENROUTER_API_KEY`; `gpt-4.1-mini` cutoff 2024-06, `gemini-2.5-flash` 2025-01 |
+| **TypeSafe Jev** (`--backend jev` or `jev-rules`; recommended System One default) | $0.042 / 1M input tokens; output free (as of 2026-11-26; [models](https://docs.typesafe.ai/models)) | Sent to TypeSafe | Cutoff unpublished ([Jev 1.14](https://docs.typesafe.ai/models), Oct 2026) | Judgment over options; official `jev-rules` flow is code analysis then Choice | Seconds | Needs `TYPESAFE_API_KEY`; defaults to `--context public`. TypeSafe documents that Jev is [trained to return calibrated decisions](https://docs.typesafe.ai/models). **Tested live.** Use `--no-context` and `--mask-dates` to quantify leak, not a pre/post cutoff split. |
+| **OpenAI Decisions** (`--backend openai-decisions`) | Uncached input $0.10 / 1M tokens; output not charged (as of 2026-11-26; [Decisions guide](https://developers.openai.com/api/docs/guides/decisions), [pricing](https://developers.openai.com/api/docs/pricing)) | Sent to OpenAI | Unpublished ([`gpt-6-luna`](https://developers.openai.com/api/docs/guides/decisions)) | Official Decisions API as a System One predictor | Seconds | Needs `OPENAI_API_KEY`. Official docs describe probability estimates and do not claim they are calibrated. **Tested only against mocked/simulated responses, not yet run live.** |
+| **Gemini Decisions** (`--backend gemini-decisions`) | Paid input $0.10 / 1M tokens; output N/A; free tier free of charge (as of 2026-11-26; [pricing](https://aistudio.google.com/docs/pricing), [model page](https://aistudio.google.com/docs/models/gemini-decision-1)) | Sent to Google | Unpublished ([`gemini-decision-1`](https://aistudio.google.com/docs/models/gemini-decision-1)) | Official Decisions API as a System One predictor | Seconds | Needs `GEMINI_API_KEY` (or `GOOGLE_API_KEY`). Official docs state that the API [returns calibrated probabilities](https://aistudio.google.com/docs/decisions-api). **Tested only against mocked/simulated responses, not yet run live.** |
+| **Rules checklist** (`--backend rules`; default when no TypeSafe key) | Free | Stays on your PC | n/a (no model) | A no-model baseline from the same code signals | Instant | No key; the checklist was written with 2016–2026 hindsight |
 
 Cutoffs used for the pre/post split are in [`models.json`](../src/epochal_pilot/models.json). For any
 other model, pass `--cutoff MODEL=YYYY-MM`.
@@ -46,6 +50,38 @@ Run **two kinds of model on the same events with the same context**:
 `epochal-pilot compare` gives a paired test on the shared events, so you can tell a real gap from noise.
 The `future-leak` scenario adds an `ungated` mode (no context at all) for a direct "does it already
 know?" check.
+
+## Leak check
+
+Two complementary tests, both 0 Epochal requests when you use the public pack or go blind:
+
+1. **With context vs `--no-context` (blind).** Run the same events twice. With `--context public` the
+   model sees documents released before T (and, for `fed-quarterly`, a derived SEP-gap line). With
+   `--no-context` it gets only the as-of date and the current policy range — no documents, no derived
+   facts, and no rule analysis. A confidently correct blind answer is a strong sign of memorisation.
+2. **`--mask-dates`.** Same documents, but calendar years are rewritten relative to T (`Year 0`,
+   `Year -1`, …). Use this when a cutoff is unpublished (Jev).
+3. **Pre- vs post-cutoff.** The report splits accuracy at the model's training cutoff
+   (`--cutoff MODEL=YYYY-MM`). Accuracy that holds after the cutoff is skill; a collapse after the
+   cutoff is memory. Compare an old-cutoff model with a recent one on the same events.
+
+```bash
+epochal-pilot run fed-quarterly --only fq_2022q1 --context public --backend ollama --model qwen2.5:3b --out runs/fq-public
+epochal-pilot run fed-quarterly --only fq_2022q1 --no-context --backend ollama --model qwen2.5:3b --out runs/fq-blind
+epochal-pilot compare runs/fq-public runs/fq-blind
+
+# TypeSafe Jev / official jev-rules pipeline (0 Epochal requests; needs TYPESAFE_API_KEY)
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend jev --out runs/fq-jev
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend jev --no-context --out runs/fq-jev-blind
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend jev --mask-dates --out runs/fq-jev-mask
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend jev-rules --out runs/fq-jev-rules
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend openai-decisions --out runs/fq-openai-decisions
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend gemini-decisions --out runs/fq-gemini-decisions
+epochal-pilot run fed-quarterly --only fq_2022q1 --backend rules --out runs/fq-rules
+```
+
+Live forecasts (`--mode live`) cannot have been memorised, because the outcome does not exist yet.
+See also the [Leak check](../README.md#leak-check) section in the README.
 
 ## Minimum setup per option
 
@@ -64,6 +100,10 @@ cp .env.example .env        # Windows: copy .env.example .env
 | Claude Code | [code.claude.com](https://code.claude.com); run `claude` once to log in | — (optional `CLAUDE_CLI_TIMEOUT=300`) | `epochal-pilot run fed-rates --context public --backend claude-cli --cutoff default=2026-06` |
 | Anthropic API | — | `ANTHROPIC_API_KEY=` | `epochal-pilot run fed-rates --context public --backend anthropic` |
 | OpenRouter | — | `OPENROUTER_API_KEY=` | `epochal-pilot run fed-rates --context public --model openai/gpt-4.1-mini` |
+| TypeSafe Jev | — | `TYPESAFE_API_KEY=` | `epochal-pilot run fed-quarterly --only fq_2022q1 --backend jev-rules` |
+| OpenAI Decisions | — | `OPENAI_API_KEY=` | `epochal-pilot run fed-quarterly --only fq_2022q1 --backend openai-decisions` |
+| Gemini Decisions | — | `GEMINI_API_KEY=` | `epochal-pilot run fed-quarterly --only fq_2022q1 --backend gemini-decisions` |
+| Rules checklist | — | — | `epochal-pilot run fed-quarterly --only fq_2022q1 --backend rules` |
 | Epochal (frozen web) | — | `EPOCHAL_API_KEY=` (US only) | `epochal-pilot plan fed-rates --requests 25`, then `run ... --estimate` |
 
 `epochal-pilot check` shows which keys are set (never their values) and whether `claude` is on your PATH.

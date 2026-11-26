@@ -5,594 +5,346 @@
 ![Python](https://img.shields.io/badge/python-3.10%E2%80%933.12-blue)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 
-**Forecast the Fed's next move from public data, keep a scored track record, and backtest the method
-on ten years of history without leaking the answer.**
+**Backtest and forecast agents as of any date, with leak-aware context so the future cannot sneak into the prompt.**
 
-`epochal-pilot` is an evaluation harness for LLM forecasters, not an API wrapper. Its flagship scenario,
-[`fed-quarterly`](scenarios/fed-quarterly), forecasts the FOMC target range at the next quarter-end.
-The first live forecast is for **31 Dec 2026** (covering the 8–9 Dec 2026 FOMC). Each quarter adds one
-scored, metrics-only result to a public track record. The same rules and data points can be
-stress-tested on 2016–2026 as of any past date, with the web frozen at that date by the
-[Epochal Time Portal](https://epochal.com), or with a shipped public-domain data pack that needs no requests.
+`epochal-pilot` is an evaluation harness, not an API wrapper. Pick a System One predictor, supply your
+own key, and run the same pipeline on history (backtest) or on events that have not resolved yet
+(live forecast). The flagship scenario, [`fed-quarterly`](scenarios/fed-quarterly), forecasts the
+FOMC target range at quarter-end from each as-of date T.
 
-## Two modes
+## Get started
 
-| Mode | Command | What it tests | Strength | Limit |
-|---|---|---|---|---|
-| **Forecast (live)** | `run fed-quarterly --mode live` | Next quarter-end, forecast before it happens; `score` grades it afterwards | No leakage possible: the real proof | One result per quarter |
-| **Backtest** | `run fed-quarterly` | Your rules and data points on past regime changes: 43 as-of dates 2016–2026, 10 tagged turning points | Fast, many points, wide range of regimes | The model may remember outcomes (see below) |
+Python 3.10+. Clone, create a venv, install, and copy [`.env.example`](.env.example) to `.env`.
+`.env` is gitignored. `epochal-pilot check` shows which keys are set, never their values.
 
-Publish each scored quarter with `epochal-pilot report <run> --share`: metrics only, no Epochal content.
+`EPOCHAL_API_KEY` is optional (needed only for `--context epochal`). For predictions, set **one**
+System One key — `TYPESAFE_API_KEY`, `OPENAI_API_KEY`, or `GEMINI_API_KEY` (`GOOGLE_API_KEY` is
+accepted as a Gemini fallback). System Two keys (`OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`) are
+optional and used for `--analyst` rationales. No key is required for `--backend rules`,
+`--backend ollama`, or `--backend claude-cli`.
 
-### Epochal freezes the web, not the model
+The first run below uses the shipped public first-release pack (**0 Epochal requests**). The default
+predictor is `jev-rules` when `TYPESAFE_API_KEY` is set, otherwise `rules`. Pass `--backend` to pick
+another provider.
 
-The as-of context can't contain the answer, but a model trained after the event may already know it.
-So, for backtests, prefer a model whose training cutoff is **before** the events (for example a local
-Ollama model with a 2023 cutoff). Run a recent model such as Claude too: its score is an upper bound on
-memory. The report splits accuracy at each model's cutoff (`--cutoff MODEL=YYYY-MM`), and
-`--modes gated,ungated` compares answers with and without context. Accuracy that holds after the cutoff
-is skill; accuracy that collapses is memory. Live forecasts sidestep the problem entirely.
-
-### How fed-quarterly works
-
-| | |
-|---|---|
-| As-of dates T | Feb 15, May 15, Aug 15, Nov 15 each year |
-| Forecast target | Target range at the following quarter-end: Mar 31, Jun 30, Sep 30, Dec 31 (about 6 weeks ahead) |
-| Answer | Net change from T in 8 buckets (`Cut 100+ bp` … `No change` … `Hike 75+ bp`) with a probability for each |
-| Scored by | Accuracy, Brier and Brier skill vs the best non-hindsight baseline, log loss, calibration, direction (down/hold/up) accuracy, error in bp, bootstrap CIs |
-
-| Data points the model weighs | Triggers (rules of thumb in the prompt) |
-|---|---|
-| Inflation: core PCE, CPI and core CPI | Core inflation well above 2% with low unemployment: lean hike |
-| Labor: unemployment rate, payrolls | Rising unemployment, weak growth or a shock: lean cut (shocks can bring unscheduled moves) |
-| Fed signals: statement wording, dot plot, minutes | A shift in statement language ("patient", "further firming") usually precedes a turn |
-| Markets: 2-year Treasury yield, curve (10y-2y, 10y-3m) | A 2-year yield well above/below the range: markets expect hikes/cuts |
-| Growth: GDP, surveys, consumer spending | No scheduled meeting before quarter-end: only an emergency move can change the range |
-| Shocks: financial stress, bank failures, pandemics | The Fed rarely surprises: it usually signals a move a meeting ahead |
-
-### Budget
-
-| Context | Source | Epochal requests |
-|---|---|---|
-| `--context public` | 307 public-domain Fed, BLS, BEA and Treasury documents, first-release only, each released before T | **0** |
-| `--context epochal --only turning-point` | 1 web search as of each of the 10 turning-point dates | **exactly 10** (cached after) |
-| `--mode live --context epochal` | 1 search for the live quarter | 1 |
-
-### Quickstart (Windows PowerShell)
+### Windows (PowerShell)
 
 ```powershell
-git clone https://github.com/sgarrepalli27/epochal-pilot.git; cd epochal-pilot
-py -m venv .venv; .\.venv\Scripts\Activate.ps1; pip install -e .
-epochal-pilot validate fed-quarterly                                       # 0 requests: leak check of the public pack
-# Forecast: the next quarter-end (31 Dec 2026), 0 requests
-epochal-pilot run fed-quarterly --mode live --context public --backend claude-cli
-# Backtest: 43 quarters on public first-release data, 0 requests
-epochal-pilot run fed-quarterly --context public --backend ollama --model qwen2.5:3b
-epochal-pilot report --latest                                              # HTML + markdown report of the newest run
-# Turning points with the as-of web: exactly 10 requests (EPOCHAL_API_KEY in .env)
-epochal-pilot run fed-quarterly --only turning-point --estimate
-epochal-pilot run fed-quarterly --only turning-point --budget 10
-# After 31 Dec 2026: add any change to fomc_changes.csv, rebuild, score the live forecast
-python tools\build_fed_quarterly.py events
-epochal-pilot score --latest
+git clone https://github.com/sgarrepalli27/epochal-pilot.git
+cd epochal-pilot
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -e .
+Copy-Item .env.example .env
+# Edit .env and add one System One key (optional: EPOCHAL_API_KEY, System Two keys).
+epochal-pilot check
+epochal-pilot run fed-quarterly --context public --only fq_2022q1
+epochal-pilot report --latest
 ```
 
-No keys at all? `epochal-pilot run fed-quarterly --dry-run --context public` runs the whole pipeline
-with a mock model. macOS/Linux: same commands with `source .venv/bin/activate` and forward slashes.
+### macOS / Linux
 
-## How it flows
+```bash
+git clone https://github.com/sgarrepalli27/epochal-pilot.git
+cd epochal-pilot
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+cp .env.example .env
+# Edit .env and add one System One key (optional: EPOCHAL_API_KEY, System Two keys).
+epochal-pilot check
+epochal-pilot run fed-quarterly --context public --only fq_2022q1
+epochal-pilot report --latest
+```
 
-Both modes share one pipeline; only the as-of date and the moment of scoring differ.
+`--context public` is already the default for System One predictors; it is spelled out here so the
+first run cannot spend Epochal requests. To try a provider explicitly:
+
+```bash
+epochal-pilot run fed-quarterly --context public --only fq_2022q1 --backend jev-rules
+epochal-pilot run fed-quarterly --context public --only fq_2022q1 --backend openai-decisions
+epochal-pilot run fed-quarterly --context public --only fq_2022q1 --backend gemini-decisions
+epochal-pilot run fed-quarterly --context public --only fq_2022q1 --backend rules
+```
+
+No keys at all? `epochal-pilot run fed-quarterly --dry-run --context public --only fq_2022q1` walks
+the pipeline with a mock predictor.
+
+<details>
+<summary>Illustrative <code>epochal-pilot check</code> output (values are never printed)</summary>
+
+```
+epochal-pilot 0.3.1
+  EPOCHAL_API_KEY              missing
+  TYPESAFE_API_KEY             set
+  OPENAI_API_KEY               missing
+  GEMINI_API_KEY               missing
+  GOOGLE_API_KEY               missing
+  OPENROUTER_API_KEY           missing
+  ANTHROPIC_API_KEY            missing
+  claude (Claude Code)         not found (needed only for --backend claude-cli)
+  Epochal requests used (lifetime, this cache): 0 (free tier: 100 per account)
+  scenarios: fed-quarterly, fed-rates, future-leak
+```
+
+</details>
+
+## How it works
+
+The official pipeline keeps analysis in code and uses a System One predictor only for the judgment.
+
+1. Pick an as-of date T.
+2. Gather state published strictly before T (public pack or a time-portal API).
+3. Analyse that state against business rules **in code** (inflation gap, unemployment trend, SEP gap,
+   statement tone, shocks).
+4. Ask a System One predictor for a distribution over the options (`jev-rules` always includes the
+   rule analysis; other System One backends do so with `--with-rules`).
+5. Repeat for every as-of date.
+6. Compare to ground truth and write the report (table, analysis, p(true) timeline, calibration).
+
+`--backend jev` skips step 3 and omits rule analysis from the state. `--backend rules` stops after
+step 3 and maps the same signals to a distribution with no model.
 
 ```mermaid
-flowchart LR
-    T["As-of date T"] --> C["Context published before T<br/>public pack or Epochal"]
-    C --> M["Model applies<br/>data points + triggers"]
-    M --> P["Probabilities for<br/>8 change buckets"]
-    P --> B{"Mode"}
-    B -->|backtest| S1["Score now against<br/>the answer key"]
-    B -->|live| S2["Save timestamped forecast<br/>score after the quarter ends"]
-    S1 --> R["Metrics vs baselines<br/>report.html"]
-    S2 --> R
+flowchart TD
+    S1["1. As-of date T"] --> S2["2. Gather state published strictly before T"]
+    S2 --> S3["3. Rules analysis in code"]
+    S3 --> S4["4. System One prediction"]
+    S4 --> S5["5. Repeat for every as-of date"]
+    S5 --> S6["6. Score and report"]
 ```
+
+## Modes
+
+| Mode | Command | When it scores | What it tests |
+|---|---|---|---|
+| **Backtest** (default) | `epochal-pilot run fed-quarterly --context public` | Immediately, against the answer key | 43 as-of dates (2016–2026) and, optionally, 10 `turning-point` dates |
+| **Forecast (live)** | `epochal-pilot run fed-quarterly --mode live --context public` | After the quarter ends, in January, via `epochal-pilot score --latest` | The unresolved event (2026 Q4: as-of 15 Nov 2026, target 31 Dec 2026) |
+
+Both modes share the six steps; only the as-of date and the moment of scoring change.
 
 ### Backtest
 
 ```mermaid
 flowchart TD
-    A["Pick as-of T<br/>e.g. 2022-02-15"] --> B["Gather context published before T<br/>--context public or epochal"]
-    B --> C["Model applies data points + triggers"]
-    C --> D["Predicts the quarter-end range<br/>as a probability distribution"]
-    D --> E["Compare with the answer key<br/>events.csv from fomc_changes.csv"]
-    E --> F["Metrics vs baselines<br/>Brier skill, direction, bp error"]
-    F --> G["Leak check<br/>accuracy before vs after the model cutoff"]
+    B1["1. Pick as-of date T in the past"] --> B2["2. Gather state published before T"]
+    B2 --> B3["3. Rules analysis in code"]
+    B3 --> B4["4. System One prediction"]
+    B4 --> B5["5. Repeat for every as-of date"]
+    B5 --> B6["6. Score now against the answer key<br/>report.html"]
 ```
-
-<details><summary><b>1. Pick the as-of dates</b>: all 43, one, or the 10 turning points</summary>
-
-```powershell
-epochal-pilot run fed-quarterly --only fq_2022q1 --context public --backend claude-cli
-epochal-pilot run fed-quarterly --only turning-point --estimate     # Epochal cost: exactly 10
-```
-</details>
-
-<details><summary><b>2. Gather context</b>: only documents released before T</summary>
-
-```powershell
-epochal-pilot validate fed-quarterly
-```
-```text
-public context: 307 docs, 678,854 chars, ...; leak check: every doc predates its as-of date
-OK: 0 error(s), 0 warning(s)
-```
-</details>
-
-<details><summary><b>3-4. Model predicts</b>: one probability per bucket</summary>
-
-Each prediction is a row in `predictions.csv` with `answer`, `probabilities` (all 8 buckets),
-`p_outcome`, `brier`, `n_docs` and a one-line `rationale`.
-</details>
-
-<details><summary><b>5-6. Score and compare</b>: answer key, baselines, direction</summary>
-
-```powershell
-epochal-pilot report --latest
-```
-Writes `report.html` and `summary.md`: accuracy and Brier with 95% CIs, Brier skill against the best
-non-hindsight baseline (`no-change`, `persistence`, `uniform`), calibration, and direction accuracy
-with mean error in bp.
-</details>
-
-<details><summary><b>7. Leak check</b>: forecasting or remembering?</summary>
-
-```powershell
-epochal-pilot run fed-quarterly --context public --backend ollama --model qwen2.5:3b --modes gated,ungated
-```
-The `pre/post cutoff` columns split accuracy at the model's training cutoff; the ungated rows show
-what the model answers with no context at all.
-</details>
 
 ### Forecast (live)
 
 ```mermaid
 flowchart TD
-    A["T = latest quarter date<br/>2026-11-15"] --> B["Gather context published before T"]
-    B --> C["Model predicts the 31 Dec 2026 range"]
-    C --> D["forecast.csv saved with a timestamp<br/>status: pending"]
-    D --> E["Wait for the FOMC<br/>8-9 Dec 2026"]
-    E --> F["Add the truth<br/>fomc_changes.csv, rebuild events"]
-    F --> G["epochal-pilot score --latest"]
-    G --> H["Append to the track record<br/>report --share, metrics only"]
+    L1["1. Pick the unresolved event<br/>as-of 15 Nov 2026, target 31 Dec 2026"] --> L2["2. Gather state published before T"]
+    L2 --> L3["3. Rules analysis in code"]
+    L3 --> L4["4. System One prediction"]
+    L4 --> L5["5. Write timestamped forecast.csv<br/>outcome still pending"]
+    L5 --> L6["6. After the quarter ends, score in January"]
+    L6 --> L7["Add the outcome to the scenario"]
+    L7 --> L8["epochal-pilot score --latest<br/>then report --latest"]
 ```
 
-<details><summary><b>1-3. Forecast now</b></summary>
+For `fed-quarterly`, add any FOMC change to `scenarios/fed-quarterly/fomc_changes.csv`, rebuild events
+with `python tools/build_fed_quarterly.py events`, then run `epochal-pilot score --latest`.
 
-```powershell
-epochal-pilot run fed-quarterly --mode live --context public --backend claude-cli
+## Model choices
+
+**System One** is the recommended predictor: a typed choice over the option set, with a probability
+for every bucket. Developers pick one provider and supply their own key.
+
+**System Two** models are for analysis. Use `--analyst {openrouter,anthropic,ollama,claude-cli}` to
+attach a rationale *after* the forecast; it does not change probabilities. They remain valid
+`--backend` values for compatibility, but they are not the recommended default predictor.
+
+**Rules** (`--backend rules`) is a no-model baseline: the same in-code checklist, mapped to a
+distribution. The checklist is honest about 2016–2026 hindsight.
+
+TypeSafe Jev (`--backend jev` and `jev-rules`) has been tested live against the TypeSafe API.
+`--backend openai-decisions` and `--backend gemini-decisions` have only been tested against
+mocked or simulated responses and have not yet been run live. Prices below are as of 2026-11-26
+and are linked to the official page that states them.
+
+| Provider | `--backend` | Role | Key | Default model | Notes |
+|---|---|---|---|---|---|
+| TypeSafe Jev | `jev-rules` | System One (recommended default) | `TYPESAFE_API_KEY` | [`jev-latest`](https://docs.typesafe.ai/models) | Official pipeline: code analysis, then Choice. Default when the TypeSafe key is set. Input $0.042 / 1M tokens; output free (as of 2026-11-26; [TypeSafe models](https://docs.typesafe.ai/models)). TypeSafe documents that Jev is [trained to return calibrated decisions](https://docs.typesafe.ai/models). Tested live. |
+| TypeSafe Jev | `jev` | System One | `TYPESAFE_API_KEY` | [`jev-latest`](https://docs.typesafe.ai/models) | Choice on as-of context only (no rule analysis unless `--with-rules`). Same model, price, and live testing as `jev-rules`. |
+| OpenAI Decisions | `openai-decisions` | System One | `OPENAI_API_KEY` | [`gpt-6-luna`](https://developers.openai.com/api/docs/guides/decisions) | Official [Decisions API](https://developers.openai.com/api/docs/guides/decisions) (`POST /v1/decisions`). Uncached input $0.10 / 1M tokens; output not charged (as of 2026-11-26; [Decisions guide](https://developers.openai.com/api/docs/guides/decisions), [pricing](https://developers.openai.com/api/docs/pricing)). Official docs describe probability estimates and do not claim they are calibrated. Tested only against mocked/simulated responses, not yet run live. |
+| Gemini Decisions | `gemini-decisions` | System One | `GEMINI_API_KEY` or `GOOGLE_API_KEY` | [`gemini-decision-1`](https://aistudio.google.com/docs/models/gemini-decision-1) | Official [Decisions API](https://aistudio.google.com/docs/decisions-api) (`x-goog-api-key`). Paid input $0.10 / 1M tokens; output not applicable (0 output tokens); free tier free of charge (as of 2026-11-26; [pricing](https://aistudio.google.com/docs/pricing), [model page](https://aistudio.google.com/docs/models/gemini-decision-1)). Official docs state that the API [returns calibrated probabilities](https://aistudio.google.com/docs/decisions-api). Tested only against mocked/simulated responses, not yet run live. |
+| Rules checklist | `rules` | Baseline | — | `rules` | No model. Default when no TypeSafe key is set. |
+| OpenAI (structured) | `openai` | System One fallback | `OPENAI_API_KEY` | `gpt-4o-mini` | Schema-locked LLM output, labeled “not calibration-trained”. `--structured-api responses` (default) or `chat`. |
+| Gemini (structured) | `gemini` | System One fallback | `GEMINI_API_KEY` or `GOOGLE_API_KEY` | `gemini-2.0-flash` | Schema-locked `generateContent`. Same fallback label. |
+| OpenRouter | `openrouter` | System Two | `OPENROUTER_API_KEY` | `openai/gpt-4.1-mini` | Prefer `--analyst openrouter` for a rationale only. |
+| Anthropic | `anthropic` | System Two | `ANTHROPIC_API_KEY` | `claude-haiku-5-5` | Claude API. |
+| Claude Code | `claude-cli` | System Two | Claude Code login (no API key) | your Claude Code default | Tools disabled so it cannot look up the answer. |
+| Ollama | `ollama` | System Two | — (local daemon) | `llama3.2:3b` | Local, free. Useful as an old-cutoff leak probe when used as `--backend`. |
+
+Pick a predictor with `--backend`. Add `--with-rules` to include the in-code checklist in any System
+One state (`jev-rules` always does this). Add `--model` to override the default model id. To add a
+third-party System One provider, see [docs/adding-a-provider.md](docs/adding-a-provider.md).
+
+## Building state
+
+Context is gathered as of T, then reduced to a JSON state for the predictor.
+
+- **Public first-release pack** (`--context public`, default for System One): shipped US-government
+  documents (Fed, BLS, BEA, Treasury), first-release only. Used only if released strictly before T.
+  **0 Epochal requests.**
+- **Epochal Time Portal** (`--context epochal`): date-gated web search and fetch.
+  `POST https://api.epochal.com/v1/time-portal/{search,fetch}` with `x-api-key` and
+  `Accept-Datetime: T`. Results published at or after T are dropped. Needs `EPOCHAL_API_KEY`.
+
+Derived facts (for example the SEP gap and remaining FOMC meetings) and in-code rule signals are
+then attached, producing the state JSON.
+
+```mermaid
+flowchart TD
+    T["As-of date T"] --> Src{"Context source"}
+    Src -->|"--context epochal"| E["Epochal Time Portal<br/>POST /v1/time-portal/search and fetch<br/>x-api-key and Accept-Datetime: T"]
+    Src -->|"--context public"| P["Shipped first-release pack<br/>Fed, BLS, BEA, Treasury"]
+    E --> F["Keep documents published strictly before T"]
+    P --> F
+    F --> D["Derived facts"]
+    F --> R["Rule signals in code"]
+    D --> S["State JSON"]
+    R --> S
+    S --> J["System One predictor"]
 ```
+
+<details>
+<summary>Illustrative state (not a live payload)</summary>
+
+The shape matches `build_state` in `src/epochal_pilot/jev.py`. Numbers and text below are
+**illustrative**, not copied from a live API response or a real run.
+
+```json
+{
+  "as_of": "2022-02-15",
+  "forecast_date": "2022-03-31",
+  "policy_range": "0.00-0.25%",
+  "question": "What will the net change in the FOMC target range be by quarter-end?",
+  "scheduled_meetings_before_target": "16 March 2022",
+  "derived_facts": "SEP median end-2022 0.9% vs current midpoint 0.125% = +77.5 bp (illustrative).",
+  "documents": [
+    {
+      "title": "FOMC Statement",
+      "published": "2022-01-26",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/example.htm",
+      "text": "…"
+    }
+  ],
+  "rule_analysis": {
+    "inflation": {"core_pce_yoy_pct": 5.2, "gap_vs_2pct_goal_pp": 3.2, "measure_used": "core_pce"},
+    "labour": {"unemployment_pct": 4.0, "unemployment_trend": "stable"},
+    "shock_present": false,
+    "rules_point_estimate": {"expected_bp": 25, "nearest_bucket": "Hike 25 bp"}
+  },
+  "business_rules": "Core inflation well above 2% with a tight labour market: lean hike. …"
+}
+```
+
+Blind runs (`--no-context`) omit `documents`, `derived_facts`, `rule_analysis`, and `business_rules`.
+
 </details>
 
-<details><summary><b>4. Saved forecast</b>: <code>runs\fed-quarterly-live-public-&lt;time&gt;\forecast.csv</code></summary>
+### Adding another time-portal source
 
-Columns: `status, forecast_created, model, mode, context, event, event_date, as_of, answer,
-probabilities, ...`, with `status = pending` and the outcome blank. `summary.md` shows the forecast.
-</details>
+Epochal is the built-in time-portal client (`src/epochal_pilot/epochal.py`). To add another
+date-gated source:
 
-<details><summary><b>5-7. After the meeting: add the truth and score</b></summary>
+1. Implement a client that gates every request on T (Epochal uses the `Accept-Datetime` header).
+2. Filter results so only documents published **strictly before T** are kept.
+3. Return documents as `{title, published_at, url, text}` so they can enter `build_state`.
+4. Wire a new `--context` value in the runner, or contribute a first-release pack under
+   `public_context/` (see [docs/adding-a-scenario.md](docs/adding-a-scenario.md)).
 
-```powershell
-# Only if the Fed changed the range on 9 Dec 2026: add that row to scenarios\fed-quarterly\fomc_changes.csv
-python tools\build_fed_quarterly.py events
-epochal-pilot score --latest
-epochal-pilot report --latest --share
-```
-`score` marks the forecast `resolved`, writes `predictions.csv`, `scores.csv` and `report.html` in
-the same folder, and `--share` writes a metrics-only copy you can publish.
-</details>
+Do not include API keys in URLs, errors, logs, or cache keys.
 
-## Worked examples
+## Leak checks
 
-### Backtest: as-of 15 Feb 2022, target 31 Mar 2022
+The as-of context cannot contain the answer, but a model trained after the event may already know it.
+Live forecasts sidestep that problem. For backtests:
 
-The truth: **Hike 25 bp**, from 0.00-0.25% to 0.25-0.50% at the 16 Mar 2022 FOMC, the first hike after
-two years at zero (a `turning-point`). The one scheduled meeting before quarter-end is 16 March.
+| Check | Flag | What it does |
+|---|---|---|
+| Blind | `--no-context` | Same question with the as-of date and current policy range only. No documents, derived facts, or rule analysis. 0 Epochal requests. Overrides `--context`. |
+| Date masking | `--mask-dates` | Keeps the documents but rewrites calendar years relative to T (`Year 0`, `Year -1`, …). |
+| Pre/post cutoff | report split; `--cutoff MODEL=YYYY-MM` | Accuracy is split at the model's training cutoff ([models.json](src/epochal_pilot/models.json)). Accuracy that holds after the cutoff is skill; a collapse suggests memory. |
+| Gated vs ungated | `--modes gated,ungated` | Compare answers with as-of context vs memory only. |
 
-What the model sees with `--context public` (real values from the shipped pack, each released before T):
+## Budget
 
-| Document (released) | Key line |
+Epochal accounts include **100 free requests**. Only 2xx responses count; failed requests are
+refunded locally. Responses are cached, so reruns with more models or seeds do not spend again.
+`--budget` defaults to 10 new requests this run; `--max-total` defaults to 90 for this cache
+(leave a margin under the free-tier cap). Run `--estimate` before you spend.
+
+| Context | Epochal requests |
 |---|---|
-| FOMC statement (26 Jan 2022) | "With inflation well above 2 percent and a strong labor market, the Committee expects it will soon be appropriate to raise the target range" |
-| SEP / dot plot (15 Dec 2021) | Median federal funds rate: 0.9% at end-2022, 1.6% end-2023, 2.1% end-2024 |
-| BLS CPI (10 Feb 2022) | CPI +7.5% over 12 months; core +6.0%, the largest since 1982 |
-| BLS jobs (4 Feb 2022) | Payrolls +467,000 in January; unemployment 4.0% |
-| BEA PCE (28 Jan 2022) | Core PCE +4.9% from a year ago (December) |
-| Treasury yields (14 Feb 2022) | 2-year 1.58%, up from 0.53% three months earlier; 10y-2y spread +0.40 |
-| FOMC minutes (released 5 Jan 2022) | Policy discussion and staff review from the December meeting |
+| `--context public` or `--no-context` or `--dry-run` | **0** |
+| `--context epochal --only turning-point` | **exactly 10** (one search per turning-point date; cached after) |
+| `--mode live --context epochal` | 1 |
+| `plan <scenario> --requests N` | 0 (prints a `run` command that fits N) |
 
-Every trigger in the prompt points to a hike: core inflation far above 2%, low unemployment, the
-statement's "soon be appropriate", and a 2-year yield well above the 0-0.25% range.
-
-```powershell
-epochal-pilot run fed-quarterly --only fq_2022q1 --context public --backend ollama --model qwen2.5:3b
-```
-
-Output folder: `predictions.csv`, `baseline_predictions.csv`, `scores.csv`, `stats.json`, `run.json`,
-`summary.md`, `report.html`. The baselines on this point are fixed: `no-change` and `persistence` both
-say No change (Brier 2.00, direction wrong) and `uniform` scores 0.875, so a model that puts most of its
-probability on Hike 25 bp beats all three. One point is a demonstration, not evidence; run all 10 turning
-points or all 43 quarters for statistics.
-
-### Forecast: as-of 15 Nov 2026, target 31 Dec 2026
-
-The range is **3.75-4.00%** after the 16 Sep 2026 hike and a hold on 28 Oct. The one scheduled meeting
-before quarter-end is **8-9 Dec 2026**. What the model sees (real values from the pack):
-
-| Document (released) | Key line |
-|---|---|
-| FOMC statement (28 Oct 2026) | Range maintained at 3-3/4 to 4 percent; two dissents (Cook, Hammack) preferred a 1/4 point hike |
-| SEP / dot plot (16 Sep 2026) | Median federal funds rate 4.1% at end-2026, 4.1% end-2027, 3.9% end-2028 |
-| BLS CPI (10 Nov 2026) | CPI +0.4% in October after +0.6% in September |
-| BLS jobs (6 Nov 2026) | Payrolls +165,000 in October; unemployment 4.1% |
-| BEA PCE (29 Oct 2026) | PCE +3.6%, core +3.1% from a year ago (September) |
-| Treasury yields (13 Nov 2026) | 3-month 4.32%, 2-year 4.88%, 10-year 5.15% |
-
-```powershell
-epochal-pilot run fed-quarterly --mode live --context public --backend claude-cli
-```
-
-This writes `runs\fed-quarterly-live-public-<time>\forecast.csv` and a `summary.md` like the one
-below (**illustrative**: the format is real, the answer and probability are placeholders):
-
-```text
-| event     | as-of      | resolves after | model   | answer     | p    |
-| fq_2026q4 | 2026-11-15 | 2026-12-31     | default | Hike 25 bp | 0.55 |
-```
-
-In January 2027: add the 9 Dec decision to `fomc_changes.csv` if the range changed (nothing to add on a
-hold), run `python tools\build_fed_quarterly.py events`, then `epochal-pilot score --latest`. The
-forecast is graded with the same metrics as the backtest and becomes the first point of the track record.
-
-## What else is in the box
-
-- **Honest statistics.** Bootstrap 95% intervals, Brier skill vs the best non-hindsight baseline,
-  log loss, calibration (reliability) tables, paired bootstrap and McNemar tests, small-sample warnings.
-- **Two context sources.** The time-gated web (Epochal), or shipped public-domain packs
-  (`--context public`, 0 requests). Compare them on the same events.
-- **Leak checks.** Results dated after the as-of moment are dropped; scores split by each model's
-  training cutoff; question wording checked for answer leaks.
-- **Reports.** Self-contained HTML (inline SVG, no JavaScript) and markdown, a cross-run leaderboard,
-  and a metrics-only `--share` export that is safe to publish.
-- **Request planner.** `plan --requests N` picks the events that carry the most signal per request.
-- **More scenarios.** `fed-rates` (23 FOMC decisions, 2024–2026) and `future-leak` (20 resolved events).
-- **Zero dependencies.** Python 3.10+ standard library only. Windows, macOS, Linux (x64 and ARM64).
-
-## What you need and why
-
-| You need | Why | Cost |
-|---|---|---|
-| **A model** (the forecaster under test) | It reads the as-of context and gives probabilities for each option. That is what gets scored. | Free (local) to cents |
-| **Epochal key** (optional at first) | The web frozen before the event, so the model can't read the outcome. | 100 free requests |
-| **Nothing else** | Public-context mode, reports, stats, planning and validation are offline. | 0 |
-
-Pick the model by the question you're asking:
-
-| Question | Use | Why |
-|---|---|---|
-| Can a model **forecast** from evidence? | A model whose training cutoff is **before** the events (local Ollama, `gpt-4.1-mini`) | It can't have memorised outcomes |
-| Does a model **already know** the outcome (leak)? | A model trained **after** the events (Claude via `claude-cli` or `anthropic`) | Compare with the gated score and with old-cutoff models |
-| Best signal | **Both**, on the same events | Old-cutoff vs new-cutoff on the same evidence separates skill from memory |
-
-Setup per option, plus the 0-request path, is in **[docs/what-you-need.md](docs/what-you-need.md)**.
-`epilot` is a short alias for `epochal-pilot`; `python -m epochal_pilot` works too.
-Full Windows setup is in [Replicate on Windows](#replicate-on-windows).
-
-## Your 100 requests
-
-Epochal's free tier is 100 search/fetch requests per account. Spend them last, and only where they add signal.
-
-| Step | Command | Epochal requests |
-|---|---|---|
-| 1. Check setup | `epochal-pilot check` | 0 |
-| 2. Validate scenarios | `epochal-pilot validate fed-rates` | 0 |
-| 3. Try everything offline | `epochal-pilot run fed-rates --dry-run` | 0 |
-| 4. Real model, public context | `epochal-pilot run fed-rates --context public --backend ollama --model qwen2.5:3b` | 0 |
-| 5. Plan | `epochal-pilot plan fed-rates --requests 25 --model qwen2.5:3b --model openai/gpt-4.1-mini` | 0 |
-| 6. Estimate | `epochal-pilot run fed-rates --estimate` | 0 |
-| 7. Full fed-rates run, several models | `epochal-pilot run fed-rates --model openai/gpt-4.1-mini --model google/gemini-2.5-flash --budget 30` | ~23-30 |
-| 8. Full future-leak run | `epochal-pilot run future-leak --budget 25` | ~20-25 |
-| 8b. fed-quarterly turning points | `epochal-pilot run fed-quarterly --only turning-point --budget 10` | 10 |
-| 8c. fed-quarterly live forecast (Dec 2026) | `epochal-pilot run fed-quarterly --mode live --budget 1` | 1 |
-| 9. Compare and report | `epochal-pilot compare runs/a runs/b` and `report <run> --share` | 0 |
-
-That is a full, high-signal run for about **50 requests**, leaving about 50 for your own scenario
-(`epochal-pilot new my-scenario`). Responses are cached, so rerunning with more models, prompts or
-seeds costs nothing. Searches return 10 results for the price of one; only 2xx responses are counted
-(failed requests are refunded locally, as Epochal doesn't bill them).
-
-## Epochal terms: what you may share
-
-Read the [Time Portal Product Terms](https://epochal.com/legal/time-portal-product-terms). In short:
-
-- **Don't publish Results**: no cached responses, URLs, titles, snippets or page text from Epochal,
-  and no evaluation datasets built from them (§3.3, §3.4). The cache (`.epochal-pilot-cache/`) and
-  `runs/` are gitignored for this reason. Don't commit them or hand them to others.
-- **Share metrics only.** `epochal-pilot report <run> --share` writes `share/` with scores, event
-  ids, outcomes and the options models chose: no Epochal content, request ids or model rationales.
-- **US only.** Epochal currently refuses requests from outside the United States.
-- **Each person uses their own key.** A clone pays for its own requests; there is no shared cache.
-
-The public-domain context pack is different: it's US-government work, shipped in this repo, and free to reuse.
-
-## Commands
-
-| Command | What it does | Requests |
-|---|---|---|
-| `list`, `check` | Scenarios; which keys are set (never values); whether `claude` is on PATH | 0 |
-| `run <scenario>` | Run models on events; writes predictions, scores, stats, report | 0 with `--context public` or `--dry-run` |
-| `run ... --estimate` | Exact new searches; fetches exact when a search is cached, else a range | 0 |
-| `plan <scenario> --requests N` | Picks events and lead times for most signal per request; prints the `run` command | 0 |
-| `run ... --mode live` | Forecast events whose outcome isn't known yet; writes a timestamped `forecast.csv` | 0 with `--context public` |
-| `run/plan ... --only <ids or tags>` | Select events by id or tag, e.g. `--only turning-point` | — |
-| `score <run_dir>` / `score --latest` | Resolve and score a live forecast once its outcome is in the scenario | 0 |
-| `report <run_dir> [--share]` / `report --latest` | HTML + markdown report (`--latest`: newest folder in `runs/`); `--share` adds a metrics-only folder | 0 |
-| `compare <run_dir>...` | Leaderboard plus paired tests on shared events (e.g. public vs Epochal context) | 0 |
-| `validate <scenario>` | Schema, dates vs model cutoffs, source URLs, wording, public-pack leak check | 0 |
-| `new <name>` | Scaffold a scenario folder | 0 |
-
-### Backends
-
-| `--backend` | Needs | Default model | Notes |
-|---|---|---|---|
-| `openrouter` (default) | `OPENROUTER_API_KEY` | `openai/gpt-4.1-mini` | Hundreds of models; cents per run |
-| `anthropic` | `ANTHROPIC_API_KEY` | `claude-haiku-5-5` | Claude API |
-| `claude-cli` | [Claude Code](https://code.claude.com) installed and logged in | your Claude Code default | No key; uses your Claude subscription; **all tools disabled** |
-| `ollama` | [Ollama](https://ollama.com) running | `llama3.2:3b` | Local, free, private |
-
-**`claude-cli`.** Runs `claude -p --output-format json --max-turns 1 --no-session-persistence
---strict-mcp-config --disallowedTools "*"` with the prompt on stdin, from an empty temporary folder.
-Every tool (WebSearch, WebFetch, Bash, file reads) and every MCP server is removed, so the model
-can't look up the outcome: its answer must come from the prompt. Use `--model sonnet` (or any Claude
-Code model name) to choose a model. Claude's training cutoff is after most shipped events, so this is a
-**leak probe**, not a fair forecast test; pass `--cutoff default=YYYY-MM` (or `--cutoff sonnet=...`)
-for the right pre/post split. `CLAUDE_CLI_TIMEOUT` (seconds, default 300) sets the timeout.
-
-## Replicate on Windows
-
-Works on Windows 11, x64 or ARM64 (e.g. Surface Pro with Snapdragon X), in PowerShell with Python 3.10+.
-CI runs the test suite on `windows-latest` and `windows-11-arm`.
-
-**1. Install Python and Git** (skip what you already have)
-
-```powershell
-winget install --id Python.Python.3.12 -e
-winget install --id Git.Git -e
-# Close and reopen PowerShell, then check:
-py --version
-git --version
-```
-
-Or use the installers from [python.org](https://www.python.org/downloads/windows/) (pick the ARM64
-installer on Snapdragon devices) and [git-scm.com](https://git-scm.com/download/win).
-
-**2. Clone and create a virtual environment**
-
-```powershell
-cd $HOME
-git clone https://github.com/sgarrepalli27/epochal-pilot.git
-cd epochal-pilot
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
-
-If PowerShell says running scripts is disabled, allow it for your user once, then activate again:
-
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-.\.venv\Scripts\Activate.ps1
-```
-
-**3. Install**
-
-```powershell
-python -m pip install --upgrade pip
-pip install -e .
-```
-
-**4. Zero-request steps first**
-
-```powershell
-epochal-pilot check
-epochal-pilot validate fed-rates
-epochal-pilot run fed-rates --dry-run --context public --out runs\pub-dry
-epochal-pilot report runs\pub-dry
-start runs\pub-dry\report.html
-```
-
-**5. Add keys (only the ones you need)**
-
-```powershell
-copy .env.example .env
-notepad .env
-```
-
-`EPOCHAL_API_KEY` for the frozen web; `OPENROUTER_API_KEY` or `ANTHROPIC_API_KEY` for cloud models;
-nothing for `ollama` or `claude-cli`. `.env` is gitignored; never commit it.
-
-**6. Local or Claude Code models, still 0 Epochal requests**
-
-```powershell
-# Ollama: install from https://ollama.com/download, then
-ollama pull qwen2.5:3b
-epochal-pilot run fed-rates --context public --backend ollama --model qwen2.5:3b
-
-# Claude Code: install from https://code.claude.com, run `claude` once to log in, then
-epochal-pilot run fed-rates --context public --backend claude-cli --cutoff default=2026-06
-```
-
-Small 1-3B models suit a 16 GB laptop; close other apps if memory is tight, and set
-`OLLAMA_NUM_CTX=8192` in `.env` if Ollama runs out of memory.
-
-**7. Spend Epochal requests**
-
-```powershell
-epochal-pilot plan fed-rates --requests 25 --model openai/gpt-4.1-mini
-epochal-pilot run fed-rates --estimate
-epochal-pilot run fed-rates --model openai/gpt-4.1-mini --model google/gemini-2.5-flash --budget 30 --out runs\fed-epochal
-epochal-pilot run fed-rates --context public --model openai/gpt-4.1-mini --model google/gemini-2.5-flash --out runs\fed-public
-epochal-pilot compare runs\fed-public runs\fed-epochal --out runs\compare
-```
-
-**8. fed-quarterly: 10-year backtest, turning points, and a live forecast**
-
-```powershell
-# 43 quarters from public first-release data: 0 Epochal requests
-epochal-pilot run fed-quarterly --context public --backend claude-cli --cutoff default=2026-06 --out runs\fq-public
-epochal-pilot report --latest
-# 10 turning points with the as-of web: exactly 10 requests (check first with --estimate)
-epochal-pilot plan fed-quarterly --requests 10 --only turning-point
-epochal-pilot run fed-quarterly --only turning-point --estimate
-epochal-pilot run fed-quarterly --only turning-point --backend claude-cli --budget 10 --out runs\fq-epochal-tp
-epochal-pilot run fed-quarterly --only turning-point --context public --backend claude-cli --out runs\fq-public-tp
-epochal-pilot compare runs\fq-public-tp runs\fq-epochal-tp --out runs\fq-compare
-# Live: forecast 31 Dec 2026 now (0 requests with public context), score it in January
-epochal-pilot run fed-quarterly --mode live --context public --backend claude-cli
-epochal-pilot score --latest
-```
-
-### macOS and Linux
-
-The same steps with `python3 -m venv .venv && source .venv/bin/activate`, `cp .env.example .env`,
-and forward slashes in paths.
-
-## Outputs
-
-Each run writes `runs/<scenario>-<context>-<time>/` (choose with `--out`):
-
-| File | Contents | Shareable |
-|---|---|---|
-| `report.html`, `summary.md` | Scores with CIs, paired tests, reliability chart, per-event table, cost ledger | Metrics only, but regenerate with `--share` to be safe |
-| `scores.csv` | One row per forecaster, with CIs, skill, calibration, pre/post-cutoff split | Yes |
-| `stats.json` | Calibration bins, reference baseline, paired tests | Yes |
-| `predictions.csv` | Per event: answer, probabilities, **cited URLs, rationale** | **No** (Epochal content) |
-| `baseline_predictions.csv` | Baseline probabilities per event | Yes |
-| `run.json` | Manifest: git SHA, version, events/prompt hashes, model + params, seed, search settings, Epochal ledger with request/copy ids | Local; `share/run.json` drops ids |
-| `share/` | Written by `report --share`: metrics-only copies | Yes |
-
-## Interpreting results
-
-- **Look at intervals first.** With 23 events, one event moves accuracy by about 4 points. Overlapping
-  intervals mean "can't tell".
-- **Skill, not accuracy.** `brier_skill` (BSS) compares with the best *non-hindsight* baseline on the
-  same events (`no-change`, `persistence`, `uniform`, or your own `--baseline-csv`). BSS > 0 with an
-  interval above 0 is real skill. `majority(hindsight)` uses the outcomes being scored: context only.
-- **Paired tests for differences.** `p vs ref`, and the gated-vs-ungated and run-vs-run tables, test
-  differences on the same events (bootstrap of Brier differences, exact McNemar on right/wrong).
-- **Calibration.** In the reliability chart, points on the diagonal are well calibrated; below it is
-  overconfident. ECE summarises the gap.
-- **Leakage.** High accuracy *before* the cutoff with a drop *after* it, or ungated accuracy close to
-  gated accuracy, points to memorised outcomes. Accuracy that holds up after the cutoff is skill.
-- **Public vs Epochal context.** `compare` on the same events shows what the time-gated web adds over
-  official documents alone.
-
-| Column | Meaning |
-|---|---|
-| `accuracy` [`_ci_low`, `_ci_high`] | Share of events where the top answer was right; 95% bootstrap CI |
-| `brier` | Multi-class Brier, Σ(p − outcome)²: 0 perfect, 2 confidently wrong; uniform over k options = 1 − 1/k |
-| `log_loss` | −ln p(outcome), floored at 1e-6 (a confident miss costs ~13.8) |
-| `brier_skill`, `reference` | 1 − Brier / reference Brier, vs the best non-hindsight baseline |
-| `p_vs_reference` | Paired bootstrap p-value, model vs reference Brier |
-| `ece` | Expected calibration error over 5 confidence bins |
-| `acc_pre_cutoff` / `acc_post_cutoff` | Split at the model's training cutoff ([models.json](src/epochal_pilot/models.json); `--cutoff MODEL=YYYY-MM`) |
-| `leak_score_upper_bound` | Gated accuracy minus chance (an upper bound, not proof) |
-| `always_fav_letter_acc` | Accuracy of always picking the favourite option letter (position bias) |
-| `small_n` | 1 when n < 30 |
+System One backends default to `--context public`, so a forgotten flag cannot spend Epochal requests.
 
 ## Scenarios
 
-| Scenario | Events | Question | Context packs |
+| Scenario | Events | Question | Context |
 |---|---|---|---|
-| [`fed-rates`](scenarios/fed-rates) | 23 FOMC meetings, Jan 2024 – Oct 2026 (10 from Sep 2025, incl. the Sep 2026 hike) | Hold / cut 25 / cut 50 / cut 75 / hike 25 | Epochal, public |
-| [`fed-quarterly`](scenarios/fed-quarterly) | 43 quarter-ends 2016 Q1 – 2026 Q3 + 1 live (2026 Q4), each forecast from Feb/May/Aug/Nov 15 | Net change in the target range by quarter-end: cut 100+ … hike 75+ | Public first-release (0 requests), Epochal (1 per T) |
-| [`future-leak`](scenarios/future-leak) | 20 resolved 2024–25 events (elections, Fed, launches, earnings) | Does the model already know the outcome? | Epochal (+ ungated) |
+| [`fed-quarterly`](scenarios/fed-quarterly) | 43 quarter-ends (2016 Q1–2026 Q3) + 1 live (2026 Q4) | Net change in the FOMC target range by quarter-end (8 buckets) | Public first-release (0 requests) or Epochal (1 per T) |
+| [`fed-rates`](scenarios/fed-rates) | 23 FOMC meetings, Jan 2024–Oct 2026 | Hold / cut / hike at that meeting | Public pack or Epochal |
+| [`future-leak`](scenarios/future-leak) | 20 resolved 2024–25 events | Does the model already know the outcome? | Epochal, gated + ungated |
 
-Every outcome links to its public source. The `fed-rates` public pack holds 114 trimmed documents
-(FOMC statements and minutes, BLS CPI and jobs releases), each dated by public release; a document is
-used only if released strictly before the as-of date ([details](scenarios/fed-rates/README.md)).
+Every outcome links to a public source. Optional market baselines you are allowed to use can be
+passed with `--baseline-csv` (columns `name,event,<one column per option>`).
 
-**`fed-quarterly`** walks forward through ten years of Fed policy. At each as-of date T the model gets
-the latest FOMC statement, minutes, dot plot, CPI, jobs, PCE and Treasury-curve data released before T
-(first-release numbers, no later revisions), a list of the data points and triggers rates desks weigh,
-and the scheduled meetings before quarter-end. It is scored on the bucket, on direction (down / hold /
-up) and on error in bp. Spend Epochal requests only on the 10 `turning-point` dates (`--only
-turning-point`, 1 request each), and run `--mode live` for the Dec 2026 quarter
-([details and budget guide](scenarios/fed-quarterly/README.md)).
-
-**Market baseline.** Not shipped: Kalshi's and Polymarket's terms don't allow redistributing their
-price histories. If you have data you're allowed to use, pass it with `--baseline-csv my.csv`
-(columns `name,event,<one column per option>`); it becomes a non-hindsight skill reference.
-
-## How it works
-
-```
-event (date, question, options)
-   │  as_of = event_date − lead_days
-   ▼
-context: Epochal search/fetch (Accept-Datetime: as_of)  or  public pack (docs released < as_of)
-   │  drop anything dated after as_of (search published_at, then the fetched copy's published_at)
-   ▼
-prompt: "Today is <as_of>. Use only this context." + shuffled options
-   ▼
-model ──► {"answer": "C", "probabilities": {...}, "citations": [...], "rationale": "..."}
-   │  no option picked → one forced-choice retry → else abstain (scored wrong, uniform probs)
-   ▼
-score: accuracy, Brier, log loss + CIs, skill vs baselines, calibration, paired tests, cutoff split
-```
-
-### Budget and retrieval
-
-| Setting | Default | Where |
-|---|---|---|
-| `num_results` | 10 (API max, same cost as 1) | `scenario.json`, `--num-results` |
-| `published_after_days` | 30 (search window before as-of); `null` for none | `scenario.json` |
-| `categories` | all (`news`, `finance` = SEC filings, ...) | `scenario.json` |
-| `domains` / `exclude_domains` | none | `scenario.json` |
-| `max_fetches` | 2 per event, only for results with little text | `scenario.json`, `--max-fetches` |
-| `--budget N` | 10 new requests per run | CLI |
-| `--max-total N` | 90 lifetime for this cache | CLI, `EPOCHAL_PILOT_MAX_TOTAL` |
-
-## Add a scenario
+### Adding a scenario
 
 ```bash
-epochal-pilot new my-scenario          # scaffold
-# edit scenarios/my-scenario/events.csv (future-tense questions, source_url per event)
+epochal-pilot new my-scenario
+# Edit scenarios/my-scenario/events.csv (future-tense questions, a public source_url per event).
 epochal-pilot validate my-scenario
 epochal-pilot run my-scenario --dry-run
 ```
 
 See [docs/adding-a-scenario.md](docs/adding-a-scenario.md).
 
-## Caveats
+<details>
+<summary>Command reference</summary>
 
-- **Small samples.** Tens of events give wide intervals. The tool says so; believe it.
-- **Stated cutoffs are claims.** Vendors' training cutoffs can be vague or understated.
-- **Newer models saw the outcomes.** Use them to measure leakage, not forecasting skill.
-- **A week out, markets usually know.** Fed decisions are mostly priced in; try `--lead-days 28`.
-- **The archive is not the whole web.** Epochal coverage varies; undated results are kept and counted.
-- **Not investment advice.** This is a research benchmark.
+| Command | What it does | Epochal requests |
+|---|---|---|
+| `list`, `check` | Scenarios; which keys are set (never values); whether `claude` is on PATH | 0 |
+| `run <scenario>` | Run the pipeline; writes predictions, scores, and `report.html` | 0 with `--context public`, `--no-context`, or `--dry-run` |
+| `run ... --mode live` | Forecast unresolved events; writes `forecast.csv` | 0 with `--context public` |
+| `run ... --estimate` | Show Epochal cost and exit | 0 |
+| `run/plan ... --only <ids or tags>` | Select events, e.g. `--only turning-point` | — |
+| `plan <scenario> --requests N` | Choose events and lead times for N requests; prints a `run` command | 0 |
+| `score <run_dir>` / `score --latest` | Score a live forecast once its outcome is in the scenario | 0 |
+| `report <run_dir> [--share]` / `report --latest` | HTML + markdown report; `--share` writes a metrics-only folder | 0 |
+| `compare <run_dir>...` | Leaderboard and paired tests across run folders | 0 |
+| `validate <scenario>` | Schema, cutoffs, wording, public-pack leak check | 0 |
+| `new <name>` | Scaffold a scenario folder | 0 |
 
-## Security
-
-Keys are read from the environment or `.env` (gitignored) and are never printed, logged or written
-to outputs. See [SECURITY.md](SECURITY.md).
+</details>
 
 ## Contributing
 
-Issues and pull requests are welcome, especially new scenarios. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Issues and pull requests are welcome, especially new scenarios and System One providers. See
+[CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Keys are never
+printed, logged, or written to outputs ([SECURITY.md](SECURITY.md)).
 
-## License
+**License.** [Apache-2.0](LICENSE). The public context pack is US-government work in the public
+domain ([Federal Reserve Board](https://www.federalreserve.gov/disclaimer.htm),
+[BLS](https://www.bls.gov/opub/copyright-information.htm)). Not affiliated with Epochal, TypeSafe,
+OpenAI, Google, OpenRouter, Anthropic, Ollama, the Federal Reserve, or BLS.
 
-[Apache-2.0](LICENSE). The public context pack is US-government work in the public domain
-([Federal Reserve Board](https://www.federalreserve.gov/disclaimer.htm),
-[BLS](https://www.bls.gov/opub/copyright-information.htm)). Not affiliated with Epochal, OpenRouter,
-Anthropic, Ollama, the Federal Reserve or BLS.
+**Epochal terms.** Read the [Time Portal Product Terms](https://epochal.com/legal/time-portal-product-terms).
+Do not publish Results: no cached responses, URLs, titles, snippets, or page text from Epochal, and
+no evaluation datasets built from them. `.epochal-pilot-cache/` and `runs/` are gitignored for this
+reason. Share metrics only — `epochal-pilot report <run> --share` writes a `share/` folder with
+scores and choices, without Epochal content or rationales. Epochal currently serves US traffic only.
+Each person uses their own key; there is no shared cache.
