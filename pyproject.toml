@@ -1,0 +1,50 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "epochal-pilot"
+dynamic = ["version"]
+description = "Backtest LLM agents against the web as it was on a past date (Epochal Time Portal)."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "Suman Garrepalli" }]
+keywords = ["llm", "agents", "backtesting", "evaluation", "forecasting", "data-leakage", "epochal"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = []  # stdlib only
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.5"]
+
+[project.scripts]
+epochal-pilot = "epochal_pilot.cli:main"
+epilot = "epochal_pilot.cli:main"
+
+[tool.hatch.version]
+path = "src/epochal_pilot/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/epochal_pilot"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["E731"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
