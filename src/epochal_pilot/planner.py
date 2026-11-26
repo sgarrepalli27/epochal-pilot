@@ -16,7 +16,7 @@ from epochal_pilot import config
 from epochal_pilot.agent import fetch_candidates
 from epochal_pilot.cache import Budget, Cache
 from epochal_pilot.epochal import Epochal
-from epochal_pilot.runner import DEFAULT_MODELS, search_options
+from epochal_pilot.runner import DEFAULT_MODELS, search_options, select_events
 from epochal_pilot.scenario import Event, Scenario, load_scenario
 from epochal_pilot.scoring import cutoff_for, is_post_cutoff
 
@@ -29,17 +29,24 @@ def contested(ev: Event, sc: Scenario) -> bool:
     return bool(col and ev.extra.get(col) and ev.extra[col] != ev.outcome)
 
 
-def candidates(sc: Scenario, models: list[str], leads: list[int], ep: Epochal, fetches_per_event: float) -> list[dict]:
+def candidates(
+    sc: Scenario,
+    models: list[str],
+    leads: list[int],
+    ep: Epochal,
+    fetches_per_event: float,
+    events: list[Event] | None = None,
+) -> list[dict]:
     opts = search_options(sc)
     today = date.today()
     out = []
-    for ev in sc.events:
-        if ev.event_date >= today:
+    for ev in sc.events if events is None else events:
+        if ev.event_date >= today or not ev.resolved:
             continue
         cuts = [cutoff_for(m) for m in models]
         post = [c is not None and is_post_cutoff(ev.event_date, c) for c in cuts]
         post_frac = sum(post) / len(post) if post else 0.0
-        for lead in leads:
+        for lead in leads[:1] if ev.fixed_as_of else leads:  # a fixed as-of date has one lead only
             as_of = ev.as_of(lead)
             hit = ep.cached("search", as_of, Epochal.search_body(ev.search_query, as_of, opts))
             if hit is not None:
@@ -89,7 +96,8 @@ def cmd_plan(args) -> int:
     cache = Cache(Path(args.cache_dir) / "live")
     budget = Budget(Path(args.cache_dir) / "live" / "budget.json", per_run=0, max_total=0, verbose=False)
     ep = Epochal(cache, budget, None)
-    cands = candidates(sc, models, leads, ep, args.fetches_per_event)
+    evs = select_events(sc, args.only, None) if getattr(args, "only", None) else None
+    cands = candidates(sc, models, leads, ep, args.fetches_per_event, evs)
     chosen, spent = choose(cands, args.requests)
     unknown = [m for m in models if not cutoff_for(m)]
     print(
@@ -114,12 +122,11 @@ def cmd_plan(args) -> int:
     )
     if n_cont and n_cont < len(chosen):
         print("Contested events are over-sampled on purpose: report scores per stratum, not as a base rate.")
-    for lead in leads:
+    fixed = all(e.fixed_as_of for e in sc.events)
+    for lead in leads[:1] if fixed else leads:
         ids = [c["event"] for c in chosen if c["lead"] == lead]
         if ids:
             mflags = " ".join(f"--model {m}" for m in models)
-            print(
-                f"\n  epochal-pilot run {sc.name} --only {','.join(ids)} --lead-days {lead} {mflags} "
-                f"--budget {args.requests}"
-            )
+            lflag = "" if fixed else f" --lead-days {lead}"
+            print(f"\n  epochal-pilot run {sc.name} --only {','.join(ids)}{lflag} {mflags} --budget {args.requests}")
     return 0

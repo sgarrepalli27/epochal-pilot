@@ -1,9 +1,10 @@
 """Command line.
 
 epochal-pilot list | check
-epochal-pilot run <scenario> [--context epochal|public] [--dry-run] [--estimate]
-epochal-pilot plan <scenario> --requests N
-epochal-pilot report <run_dir> [--share]
+epochal-pilot run <scenario> [--context epochal|public] [--mode backtest|live] [--dry-run] [--estimate]
+epochal-pilot plan <scenario> --requests N [--only IDS_OR_TAGS]
+epochal-pilot report <run_dir> | --latest [--share]
+epochal-pilot score <live_run_dir> | --latest
 epochal-pilot compare <run_dir> <run_dir> ...
 epochal-pilot validate <scenario>
 epochal-pilot new <name>
@@ -96,7 +97,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     r.add_argument("--lead-days", type=int, help="as-of = event date minus this (default from scenario)")
     r.add_argument("--modes", help="comma list: gated,ungated (default from scenario)")
-    r.add_argument("--only", help="comma-separated event ids")
+    r.add_argument(
+        "--mode",
+        choices=["backtest", "live"],
+        default="backtest",
+        help="backtest: events with a known outcome (default). live: forecast unresolved events now, score later",
+    )
+    r.add_argument("--only", help="comma-separated event ids and/or tags (e.g. turning-point)")
     r.add_argument("--limit", type=int, help="first N events")
     r.add_argument("--seed", type=int, default=0, help="answer-shuffle and bootstrap seed")
     r.add_argument("--no-shuffle", action="store_true", help="show options in file order")
@@ -118,13 +125,22 @@ def build_parser() -> argparse.ArgumentParser:
     pl.add_argument("--requests", type=int, required=True, help="Epochal requests you want to spend")
     pl.add_argument("--model", action="append", help="model(s) you will run (for cutoffs); repeatable")
     pl.add_argument("--lead-days", help="comma list, e.g. 7,28 (default from scenario)")
+    pl.add_argument("--only", help="comma-separated event ids and/or tags (e.g. turning-point)")
     pl.add_argument("--fetches-per-event", type=float, default=1.0, help="expected fetches per new search")
     pl.set_defaults(func=lambda a: __import__("epochal_pilot.planner", fromlist=["cmd_plan"]).cmd_plan(a))
 
     rp = sub.add_parser("report", help="HTML + markdown report for a run folder (offline)")
-    rp.add_argument("run_dir")
+    rp.add_argument("run_dir", nargs="?", help="run folder (omit with --latest)")
+    rp.add_argument("--latest", action="store_true", help="use the newest run folder under --runs-dir")
+    rp.add_argument("--runs-dir", default="runs", help="where --latest looks (default runs)")
     rp.add_argument("--share", action="store_true", help="also write share/: metrics only, no Epochal content")
     rp.set_defaults(func=lambda a: __import__("epochal_pilot.report", fromlist=["cmd_report"]).cmd_report(a))
+
+    sc_ = sub.add_parser("score", help="resolve and score a live forecast once its outcome is known (offline)")
+    sc_.add_argument("run_dir", nargs="?", help="a `run --mode live` folder (omit with --latest)")
+    sc_.add_argument("--latest", action="store_true", help="use the newest live forecast folder under --runs-dir")
+    sc_.add_argument("--runs-dir", default="runs")
+    sc_.set_defaults(func=lambda a: __import__("epochal_pilot.runner", fromlist=["cmd_score"]).cmd_score(a))
 
     cp = sub.add_parser("compare", help="leaderboard + paired tests across run folders")
     cp.add_argument("run_dirs", nargs="+")

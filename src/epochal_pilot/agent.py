@@ -46,11 +46,11 @@ class Retrieval:
     def urls(self) -> list[str]:
         return [d["url"] for d in self.docs if d.get("url")]
 
-    def context(self) -> str:
+    def context(self, max_chars_per_doc: int = CONTEXT_CHARS_PER_DOC) -> str:
         parts = []
         for d in self.docs:
             head = f"[{d['title']}] ({d['published_at'] or 'date unknown'}) {d['url']}"
-            parts.append(head + "\n" + d["text"][:CONTEXT_CHARS_PER_DOC])
+            parts.append(head + "\n" + d["text"][:max_chars_per_doc])
         return "\n\n---\n\n".join(parts)
 
 
