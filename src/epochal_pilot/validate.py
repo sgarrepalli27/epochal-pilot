@@ -43,6 +43,8 @@ def validate_scenario(scenarios_dir: Path, name: str, today: date | None = None)
     except (FileNotFoundError, ValueError, KeyError) as e:
         return [f"cannot load: {e}"], [], {}
     info["events"] = len(sc.events)
+    info["live"] = sum(not e.resolved for e in sc.events)
+    info["tags"] = sorted({t for e in sc.events for t in e.tags})
     if not sc.events:
         errors.append("no events")
     try:
@@ -56,8 +58,12 @@ def validate_scenario(scenarios_dir: Path, name: str, today: date | None = None)
             errors.append(f"{ev.id}: empty question")
         if len(set(ev.choices)) != len(ev.choices):
             errors.append(f"{ev.id}: duplicate choices")
-        if ev.event_date >= today:
+        if ev.resolved and ev.event_date >= today:
             errors.append(f"{ev.id}: event date {ev.event_date} is not in the past (outcome unknown)")
+        if not ev.resolved and ev.event_date < today:
+            warnings.append(f"{ev.id}: live event's date {ev.event_date} has passed; add its outcome, then `score`")
+        if ev.fixed_as_of and ev.fixed_as_of >= ev.event_date:
+            errors.append(f"{ev.id}: as_of {ev.fixed_as_of} is not before the event date {ev.event_date}")
         for issue in wording_issues(ev.question, ev.outcome, ev.choices):
             warnings.append(f"{ev.id}: {issue}")
         if "gated" in sc.modes and not ev.search_query:
@@ -71,8 +77,9 @@ def validate_scenario(scenarios_dir: Path, name: str, today: date | None = None)
     table = models_table()
     per_model = {}
     for m, v in table.items():
-        post = [e.id for e in sc.events if is_post_cutoff(e.event_date, v["cutoff"])]
-        per_model[m] = {"cutoff": v["cutoff"], "post_cutoff": len(post), "pre_cutoff": len(sc.events) - len(post)}
+        done = [e for e in sc.events if e.resolved]
+        post = [e.id for e in done if is_post_cutoff(e.event_date, v["cutoff"])]
+        per_model[m] = {"cutoff": v["cutoff"], "post_cutoff": len(post), "pre_cutoff": len(done) - len(post)}
     info["cutoffs"] = per_model
     if per_model and not any(v["post_cutoff"] for v in per_model.values()):
         warnings.append("every event is before every known model cutoff: results can't separate skill from memory")
@@ -89,7 +96,12 @@ def validate_scenario(scenarios_dir: Path, name: str, today: date | None = None)
 
 def cmd_validate(args) -> int:
     errors, warnings, info = validate_scenario(Path(args.scenarios_dir), args.scenario)
-    print(f"Scenario {args.scenario}: {info.get('events', 0)} events")
+    live = info.get("live", 0)
+    print(
+        f"Scenario {args.scenario}: {info.get('events', 0)} events"
+        + (f" ({info['events'] - live} backtest, {live} live)" if live else "")
+        + (f"; tags: {', '.join(info['tags'])}" if info.get("tags") else "")
+    )
     if info.get("cutoffs"):
         print(f"\n{'model':36} {'cutoff':8} {'pre':>4} {'post':>4}")
         for m, v in info["cutoffs"].items():

@@ -2,6 +2,7 @@ import csv
 import json
 from pathlib import Path
 
+from epochal_pilot import __version__
 from epochal_pilot.cli import main
 
 
@@ -83,7 +84,7 @@ def test_dry_run_end_to_end(scenarios_dir, tmp_path, capsys):
     assert scores["mock-model"]["reference"] in {"baseline:no-change", "baseline:persistence"}
     assert (out / "report.html").is_file() and (out / "stats.json").is_file()
     meta = json.loads((out / "run.json").read_text(encoding="utf-8"))
-    assert meta["dry_run"] and meta["lead_days"] == 7 and meta["environment"]["version"] == "0.2.0"
+    assert meta["dry_run"] and meta["lead_days"] == 7 and meta["environment"]["version"] == __version__
     assert meta["hashes"]["events_sha256"] and meta["epochal_ledger"]["searches_new"] == 3
     assert "key" not in json.dumps(meta).lower()
 
