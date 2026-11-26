@@ -28,6 +28,8 @@ def test_missing_keys_exit_cleanly(scenarios_dir, tmp_path, capsys):
             str(tmp_path / "none"),
             "run",
             "fed-rates",
+            "--backend",
+            "openrouter",
             "--limit",
             "1",
         ]
@@ -47,6 +49,8 @@ def test_estimate_needs_no_keys(scenarios_dir, tmp_path, capsys):
             str(tmp_path / "none"),
             "run",
             "fed-rates",
+            "--backend",
+            "openrouter",
             "--estimate",
         ]
     )
@@ -66,6 +70,8 @@ def test_dry_run_end_to_end(scenarios_dir, tmp_path, capsys):
             str(tmp_path / "none"),
             "run",
             "fed-rates",
+            "--backend",
+            "openrouter",
             "--dry-run",
             "--limit",
             "3",
@@ -101,6 +107,8 @@ def test_dry_run_future_leak_both_modes(scenarios_dir, tmp_path):
             str(tmp_path / "none"),
             "run",
             "future-leak",
+            "--backend",
+            "openrouter",
             "--dry-run",
             "--limit",
             "2",
