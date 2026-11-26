@@ -231,7 +231,15 @@ def markdown(meta: dict, scores: list[dict], detail: dict, rows: list[dict]) -> 
                 f"[{_f(d['ci_low'], 2)}, {_f(d['ci_high'], 2)}] "
                 f"| {_f(d['p_value'])} | {_f((p.get('mcnemar') or {}).get('p_value'))} |"
             )
-    L += ["", "## Calibration (top-choice confidence vs hit rate)", ""]
+    L += [
+        "",
+        "## Predicted probability of the actual outcome over time",
+        "",
+        "See `report.html` for the SVG: p(true) at each as-of date, coloured by whether the top choice was correct.",
+        "",
+        "## Calibration (top-choice confidence vs hit rate)",
+        "",
+    ]
     for key, g in detail.get("groups", {}).items():
         L += [f"**{key}**", "", "| bin | n | mean confidence | hit rate |", "|---|---|---|---|"]
         L += [f"| {b['bin']} | {b['n']} | {_f(b['mean_confidence'])} | {_f(b['hit_rate'])} |" for b in g["calibration"]]
@@ -308,6 +316,83 @@ def reliability_svg(detail: dict, width: int = 360, height: int = 360) -> str:
         parts.append(
             f'<text x="{pad + 6}" y="{legend_y + 13 * i}" font-size="10" fill="{color}">{html.escape(key[:48])}</text>'
         )
+    parts.append("</svg>")
+    return "".join(parts)
+
+
+def probability_timeline_svg(rows: list[dict], width: int = 720, height: int = 280) -> str:
+    """p(true outcome) over as-of date, stdlib SVG. Green = top choice was correct; red = not."""
+    points = []
+    for r in rows:
+        if str(r.get("model") or "").startswith("baseline"):
+            continue
+        raw = r.get("p_outcome")
+        if raw in (None, ""):
+            continue
+        try:
+            p = float(raw)
+        except (TypeError, ValueError):
+            continue
+        stamp = (r.get("as_of") or r.get("event_date") or "")[:10]
+        if not stamp:
+            continue
+        correct = str(r.get("correct")) in {"1", "True", "true"}
+        points.append((stamp, p, correct, r.get("event") or "", r.get("model") or ""))
+    if not points:
+        return ""
+    points.sort(key=lambda x: x[0])
+    pad_l, pad_r, pad_t, pad_b = 48, 16, 16, 44
+    W, H = width - pad_l - pad_r, height - pad_t - pad_b
+    n = len(points)
+    xs = [pad_l + (i / max(n - 1, 1)) * W for i in range(n)]
+
+    def y(val: float) -> float:
+        return pad_t + (1 - val) * H
+
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}" '
+        'role="img" aria-label="Predicted probability of the actual outcome over time">',
+        f'<rect x="{pad_l}" y="{pad_t}" width="{W}" height="{H}" fill="#fafafa" stroke="#999"/>',
+    ]
+    for tval in (0, 0.25, 0.5, 0.75, 1.0):
+        yy = y(tval)
+        parts.append(f'<line x1="{pad_l}" y1="{yy:.1f}" x2="{pad_l + W}" y2="{yy:.1f}" stroke="#eee"/>')
+        parts.append(f'<text x="{pad_l - 6}" y="{yy + 3:.1f}" font-size="10" text-anchor="end">{tval:.2f}</text>')
+    # actual realized = 1
+    parts.append(
+        f'<line x1="{pad_l}" y1="{y(1):.1f}" x2="{pad_l + W}" y2="{y(1):.1f}" '
+        'stroke="#16a34a" stroke-dasharray="3 3" stroke-opacity="0.5"/>'
+    )
+    coords = list(zip(xs, (y(p) for _, p, _, _, _ in points), strict=True))
+    if len(coords) > 1:
+        path = " ".join(f"{x:.1f},{yy:.1f}" for x, yy in coords)
+        parts.append(
+            f'<polyline points="{path}" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-opacity="0.7"/>'
+        )
+    for (x, yy), (stamp, p, ok, ev, _model) in zip(coords, points, strict=True):
+        color = "#16a34a" if ok else "#dc2626"
+        title = html.escape(f"{stamp} {ev}: p(true)={p:.2f} ({'correct' if ok else 'miss'})")
+        parts.append(
+            f'<circle cx="{x:.1f}" cy="{yy:.1f}" r="4" fill="{color}" fill-opacity="0.85">'
+            f"<title>{title}</title></circle>"
+        )
+    # sparse date labels
+    step = max(1, n // 8)
+    for i, (stamp, *_rest) in enumerate(points):
+        if i % step != 0 and i != n - 1:
+            continue
+        parts.append(
+            f'<text x="{xs[i]:.1f}" y="{pad_t + H + 14}" font-size="9" text-anchor="middle" '
+            f'transform="rotate(-40 {xs[i]:.1f} {pad_t + H + 14})">{html.escape(stamp)}</text>'
+        )
+    parts.append(
+        f'<text x="{pad_l + W / 2}" y="{height - 4}" font-size="11" text-anchor="middle">'
+        "as-of date (p(true); green = top choice matched the outcome)</text>"
+    )
+    parts.append(
+        f'<text x="12" y="{pad_t + H / 2}" font-size="11" text-anchor="middle" '
+        f'transform="rotate(-90 12 {pad_t + H / 2})">predicted probability of actual outcome</text>'
+    )
     parts.append("</svg>")
     return "".join(parts)
 
@@ -425,6 +510,15 @@ def html_report(meta: dict, scores: list[dict], detail: dict, rows: list[dict], 
                 ]
             )
         out.append(_table(["A", "B", "n", "Brier A - B [95% CI]", "p (bootstrap)", "McNemar p"], pb, num_from=2))
+    timeline = probability_timeline_svg(rows)
+    if timeline:
+        out.append("<h2>Predicted probability of the actual outcome over time</h2>")
+        out.append(timeline)
+        out.append(
+            "<p class='muted'>Each point is the model's probability on the outcome that actually happened "
+            "(p(true)) at that as-of date. Green means the top choice was correct; red means it was not. "
+            "The dashed line is 1 (the realized outcome).</p>"
+        )
     out.append("<h2>Calibration</h2><div style='display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start'>")
     out.append(reliability_svg(detail))
     cal = []

@@ -19,9 +19,23 @@ from epochal_pilot.agent import (
     retrieve,
 )
 from epochal_pilot.cache import Budget, BudgetExceeded, Cache
+from epochal_pilot.derived import build_sep_gap
 from epochal_pilot.epochal import Epochal, SearchOptions, fixture_transport
+from epochal_pilot.jev import DEFAULT_MODEL as JEV_DEFAULT_MODEL
+from epochal_pilot.jev import JevClient, build_state, mock_jev_transport, usage_summary
 from epochal_pilot.llm import LLM, ClaudeCLIError, find_claude, mock_transport
+from epochal_pilot.masking import mask_value
+from epochal_pilot.net import HTTPError
+from epochal_pilot.providers import (
+    SYSTEM_ONE_BACKENDS,
+    JevPredictor,
+    get_predictor_class,
+    resolve_backend,
+    system_two_notice,
+    uses_rules_analysis,
+)
 from epochal_pilot.public_context import load_public_context
+from epochal_pilot.rules import analyse_event, rules_forecast
 from epochal_pilot.scenario import LETTERS, Event, Scenario, load_scenario
 from epochal_pilot.scoring import analyse, baseline_forecasts, brier, direction_summary, load_user_baseline
 
@@ -30,7 +44,17 @@ DEFAULT_MODELS = {
     "anthropic": "claude-haiku-5-5",
     "ollama": "llama3.2:3b",
     "claude-cli": "default",
+    "jev": JEV_DEFAULT_MODEL,
+    "jev-rules": JEV_DEFAULT_MODEL,
+    "rules": "rules",
+    "openai": "gpt-4o-mini",
+    "gemini": "gemini-2.0-flash",
+    "openai-decisions": "gpt-6-luna",
+    "gemini-decisions": "gemini-decision-1",
 }
+
+# System One predictors default to public context (0 Epochal requests).
+JUDGMENT_BACKENDS = SYSTEM_ONE_BACKENDS
 
 PLAN_PROMPT = """Today's date is $today. You are researching this question using a web search engine
 that only returns pages published on or before $today.
@@ -135,16 +159,35 @@ NO_RESULTS = (
 )
 
 
+def _default_model(backend: str) -> str:
+    return DEFAULT_MODELS.get(backend) or "mock-model"
+
+
 def _keys_for(args, need_epochal: bool) -> tuple[str | None, str | None]:
     ekey = config.require_key(config.EPOCHAL_KEY_ENV, "Get one at https://epochal.com.") if need_epochal else None
     okey = None
     if args.estimate_only:
         return ekey, None
-    if args.backend == "openrouter":
+    b = args.backend
+    if b == "openrouter":
         okey = config.require_key(config.OPENROUTER_KEY_ENV, "Get one at https://openrouter.ai/keys.")
-    elif args.backend == "anthropic":
+    elif b == "anthropic":
         okey = config.require_key(config.ANTHROPIC_KEY_ENV, "Get one at https://console.anthropic.com/.")
-    elif args.backend == "claude-cli" and not find_claude():
+    elif b in {"jev", "jev-rules"}:
+        okey = config.require_key(
+            config.TYPESAFE_KEY_ENV,
+            "Get one at https://typesafe.ai (TypeSafe / Jev). See https://docs.typesafe.ai",
+        )
+    elif b in {"openai", "openai-decisions"}:
+        okey = config.require_key(config.OPENAI_KEY_ENV, "Get one at https://platform.openai.com/api-keys.")
+    elif b in {"gemini", "gemini-decisions"}:
+        okey = config.gemini_key()
+        if not okey:
+            raise config.MissingKeyError(
+                "GEMINI_API_KEY is not set. Get one at https://aistudio.google.com "
+                "(GOOGLE_API_KEY is also accepted). Or run with --dry-run."
+            )
+    elif b == "claude-cli" and not find_claude():
         raise config.MissingKeyError(
             "claude (Claude Code) is not on PATH. Install it from https://code.claude.com, run `claude` once "
             "to log in, then retry. (No API key is needed for this backend.)"
@@ -152,8 +195,57 @@ def _keys_for(args, need_epochal: bool) -> tuple[str | None, str | None]:
     return ekey, okey
 
 
+def _analyst_key(args) -> str | None:
+    name = getattr(args, "analyst", None)
+    if not name:
+        return None
+    if name == "openrouter":
+        return config.require_key(config.OPENROUTER_KEY_ENV, "Get one at https://openrouter.ai/keys.")
+    if name == "anthropic":
+        return config.require_key(config.ANTHROPIC_KEY_ENV, "Get one at https://console.anthropic.com/.")
+    if name == "claude-cli" and not find_claude():
+        raise config.MissingKeyError("claude (Claude Code) is not on PATH (needed for --analyst claude-cli).")
+    return None
+
+
+def _make_predictor(args, model: str, cache, api_key: str | None, *, dry_run: bool):
+    """Build a System One predictor. ``rules`` is handled in ``_judgment_forecast``."""
+    b = args.backend
+    if b in {"jev", "jev-rules"}:
+        client = JevClient(
+            None if dry_run else api_key,
+            cache=cache,
+            transport=mock_jev_transport if dry_run else None,
+        )
+        return JevPredictor(client, model)
+    if b == "rules":
+        return None
+    cls = get_predictor_class(b)
+    kwargs: dict = {"api_key": None if dry_run else api_key, "model": model, "cache": cache}
+    if b in {"openai-decisions", "gemini-decisions"}:
+        from epochal_pilot.decisions import mock_decisions_transport
+
+        if dry_run:
+            kwargs["transport"] = mock_decisions_transport
+    else:
+        from epochal_pilot.structured import mock_structured_transport
+
+        if dry_run:
+            kwargs["transport"] = mock_structured_transport
+        if b == "openai":
+            kwargs["api"] = getattr(args, "structured_api", "responses")
+    return cls(**kwargs)
+
+
 def run(args) -> int:
     config.load_dotenv(args.env_file)
+    chosen, notice = resolve_backend(getattr(args, "backend", None))
+    args.backend = chosen
+    if notice:
+        print(notice)
+    two = system_two_notice(args.backend)
+    if two:
+        print(two)
     sc = load_scenario(Path(args.scenarios_dir), args.scenario)
     run_mode = getattr(args, "mode", None) or "backtest"
     evs = select_events(sc, args.only, args.limit, run_mode)
@@ -173,12 +265,22 @@ def run(args) -> int:
     for m in modes:
         if m not in sc.templates:
             raise SystemExit(f"scenario '{sc.name}' has no prompt for mode '{m}' (has: {', '.join(sc.templates)})")
-    context = getattr(args, "context", None) or "epochal"
+    judgment = args.backend in JUDGMENT_BACKENDS
+    if getattr(args, "no_context", False):
+        context = "blind"
+    elif getattr(args, "context", None):
+        context = args.context
+    else:
+        context = "public" if judgment else "epochal"
     pack = None
+    sep_pack = None
     if context == "public":
         pack = load_public_context(sc.path, sc.public_context)
         if pack is None:
             raise SystemExit(f"scenario '{sc.name}' ships no public context pack (scenario.json 'public_context')")
+        sep_pack = pack
+    elif context != "blind":
+        sep_pack = load_public_context(sc.path, sc.public_context)
     shuffle = sc.shuffle and not args.no_shuffle
     opts = search_options(sc, args.num_results)
     max_fetches = sc.max_fetches if args.max_fetches is None else args.max_fetches
@@ -191,15 +293,36 @@ def run(args) -> int:
         budget = Budget(cache_root / "budget.json", per_run=10**9, max_total=10**9, verbose=False)
     else:
         budget = Budget(cache_root / "budget.json", per_run=args.budget, max_total=args.max_total)
+    jev_client = None
+    predictor_key = None
     if args.dry_run:
         ep = Epochal(cache, budget, None, transport=fixture_transport)
-        llm = LLM(cache, backend="mock", transport=mock_transport)
-        models = args.model or ["mock-model"]
+        if judgment:
+            models = args.model or [_default_model(args.backend)]
+            llm = LLM(cache, backend="mock", transport=mock_transport)
+        else:
+            llm = LLM(cache, backend="mock", transport=mock_transport)
+            models = args.model or ["mock-model"]
     else:
         ekey, okey = _keys_for(args, uses_epochal and not args.estimate_only)
+        predictor_key = okey
         ep = Epochal(cache, budget, ekey)
-        llm = LLM(cache, backend=args.backend, api_key=okey)
-        models = args.model or [DEFAULT_MODELS[args.backend]]
+        if judgment:
+            llm = LLM(cache, backend="mock")  # unused unless --analyst
+            models = args.model or [_default_model(args.backend)]
+        else:
+            llm = LLM(cache, backend=args.backend, api_key=okey)
+            models = args.model or [DEFAULT_MODELS.get(args.backend) or "mock-model"]
+    if (not args.dry_run) and getattr(args, "analyst", None):
+        akey = _analyst_key(args)
+        llm = LLM(
+            cache,
+            backend=args.analyst if not args.dry_run else "mock",
+            api_key=akey,
+            transport=mock_transport if args.dry_run else None,
+        )
+    elif args.dry_run and getattr(args, "analyst", None):
+        llm = LLM(cache, backend="mock", transport=mock_transport)
 
     asof_txt = "fixed per event (as_of column)" if all(e.fixed_as_of for e in evs) else f"event - {lead} days"
     print(
@@ -232,8 +355,22 @@ def run(args) -> int:
                 "Use --limit/--only, `epochal-pilot plan`, or raise --budget.",
                 file=sys.stderr,
             )
-    elif "gated" in modes:
+    elif context == "public":
         print(f"Context: public-domain pack '{sc.public_context}' ({len(pack.docs)} docs). Epochal requests: 0.")
+    elif context == "blind":
+        print(
+            "Context: none (blind: as-of date and current range only; "
+            "no documents, derived facts, or rule analysis). Epochal requests: 0."
+        )
+    if judgment:
+        mask = "on" if getattr(args, "mask_dates", False) else "off"
+        print(
+            f"Pipeline: {args.backend}; --mask-dates {mask}. "
+            "System One predictor; jev-rules / --with-rules = analyse first-release data in code, "
+            "then a Decisions/Jev Choice. rules = the same analysis with no model. "
+            "openai/gemini without -decisions = schema-locked LLM fallback "
+            "(not calibration-trained)."
+        )
     if args.estimate_only:
         return 0
 
@@ -243,6 +380,11 @@ def run(args) -> int:
     for model in models:
         if stopped:
             break
+        pred = None
+        if judgment:
+            pred = _make_predictor(args, model, cache, predictor_key, dry_run=args.dry_run)
+            if args.backend in {"jev", "jev-rules"} and pred is not None:
+                jev_client = pred.client  # type: ignore[attr-defined]
         for ev in evs:
             as_of = ev.as_of(lead)
             today = as_of[:10]
@@ -252,7 +394,7 @@ def run(args) -> int:
                 ret = Retrieval()
                 if mode == "gated" and context == "public":
                     ret = pack.retrieval(as_of)
-                elif mode == "gated":
+                elif mode == "gated" and context == "epochal":
                     queries = [ev.search_query]
                     if args.plan_queries:
                         queries += plan_queries(llm, model, ev, today, args.plan_queries)
@@ -264,6 +406,13 @@ def run(args) -> int:
                         stopped = str(e)
                         break
                     ret = retrievals[rkey]
+                if mode == "gated" and context == "blind":
+                    ctx_text = (
+                        "(no documents; this is a blind forecast — use only the as-of date "
+                        "and the policy range stated above)"
+                    )
+                else:
+                    ctx_text = ret.context(sc.context_chars_per_doc) or "(no documents found)"
                 fields = {k: v for k, v in ev.extra.items() if v}  # event columns; core fields win
                 fields.update(
                     today=today,
@@ -271,19 +420,29 @@ def run(args) -> int:
                     question=ev.question,
                     options=format_options(shown),
                     letters=letters,
-                    context=ret.context(sc.context_chars_per_doc) or "(no documents found)",
+                    context=ctx_text,
+                    derived_facts=_derived_facts(mode, context, ev, as_of, sep_pack, sc.path),
                     response_format=RESPONSE_FORMAT.replace("$letters", letters),
                 )
                 prompt = sc.template(mode).safe_substitute(fields)
+                extra_row: dict = {}
                 try:
-                    reply = llm.ask(model, prompt)
-                    fc = parse_forecast(reply, shown)
-                    if fc.answer is None:
-                        reply2 = llm.ask(model, force_choice_prompt(prompt, reply, shown))
-                        fc = parse_forecast(reply2, shown)
-                        fc.retried = True
+                    if judgment and mode == "gated":
+                        fc, extra_row = _judgment_forecast(
+                            args, ev, as_of, shown, fields, ret, pack or sep_pack, sc, pred, model, context, llm
+                        )
+                    else:
+                        reply = llm.ask(model, prompt)
+                        fc = parse_forecast(reply, shown)
+                        if fc.answer is None:
+                            reply2 = llm.ask(model, force_choice_prompt(prompt, reply, shown))
+                            fc = parse_forecast(reply2, shown)
+                            fc.retried = True
                 except ClaudeCLIError as e:
                     stopped = f"claude-cli: {e}"
+                    break
+                except HTTPError as e:
+                    stopped = f"{args.backend}: {e}"
                     break
                 ctx_urls = set(ret.urls)
                 cited_ok = (sum(c in ctx_urls for c in fc.citations) / len(fc.citations)) if fc.citations else None
@@ -307,6 +466,7 @@ def run(args) -> int:
                         "probabilities": json.dumps({k: round(v, 4) for k, v in fc.probabilities.items()}),
                         "citations": " ".join(fc.citations),
                         "rationale": fc.rationale,
+                        **extra_row,
                     }
                 )
                 if not ev.outcome:
@@ -328,9 +488,50 @@ def run(args) -> int:
     meta["estimate"] = est
     meta["run_mode"] = run_mode
     meta["stopped"] = stopped
+    meta["mask_dates"] = bool(getattr(args, "mask_dates", False))
+    meta["pipeline"] = args.backend if args.backend in JUDGMENT_BACKENDS else None
+    with_rules = uses_rules_analysis(args.backend, getattr(args, "with_rules", False))
+    meta["role"] = "system-one" if args.backend in JUDGMENT_BACKENDS else "system-two"
+    meta["with_rules"] = bool(with_rules)
+    meta["analyst"] = getattr(args, "analyst", None)
+    if args.backend in {"jev", "jev-rules"}:
+        meta["model_params"] = {
+            "endpoint": "https://api.typesafe.ai/v1/systemone",
+            "price_per_mtok_input": 0.042,
+            "output_tokens_billed": False,
+            "mask_dates": bool(getattr(args, "mask_dates", False)),
+            "includes_rule_analysis": with_rules,
+        }
+    elif args.backend == "openai-decisions":
+        meta["model_params"] = {
+            "endpoint": "https://api.openai.com/v1/decisions",
+            "model": "gpt-6-luna",
+            "price_per_mtok_input": 0.10,
+            "output_tokens_billed": False,
+            "includes_rule_analysis": with_rules,
+        }
+    elif args.backend == "gemini-decisions":
+        meta["model_params"] = {
+            "endpoint": "https://generativelanguage.googleapis.com/v1beta/decisions",
+            "model": "gemini-decision-1",
+            "price_per_mtok_input": 0.10,
+            "output_tokens_billed": False,
+            "calibrated_claim": True,
+            "includes_rule_analysis": with_rules,
+        }
+    elif args.backend in {"openai", "gemini"}:
+        meta["model_params"] = {
+            "label": "LLM as System One (not calibration-trained)",
+            "structured_output": True,
+            "includes_rule_analysis": with_rules,
+        }
+    elif args.backend == "rules":
+        meta["model_params"] = {"deterministic": True, "hindsight_checklist": True}
+    if jev_client is not None:
+        meta["jev_usage"] = usage_summary(jev_client)
     if run_mode == "live":
         write_live(out_dir, sc, rows, meta)
-        _print_spend(args, uses_epochal, budget, cache_root)
+        _print_spend(args, uses_epochal, budget, cache_root, jev_client)
         if not rows:
             print(NO_RESULTS.format(why=f" ({stopped})" if stopped else ""))
             return 1
@@ -353,18 +554,123 @@ def run(args) -> int:
     else:
         print_table(scores, detail)
         print_direction(detail.get("direction"))
-    _print_spend(args, uses_epochal, budget, cache_root)
+    _print_spend(args, uses_epochal, budget, cache_root, jev_client)
     print(f"Wrote {out_dir / 'report.html'}, predictions.csv, scores.csv, stats.json, summary.md")
     return 0 if rows else 1
 
 
-def _print_spend(args, uses_epochal: bool, budget: Budget, cache_root: Path) -> None:
+def _judgment_forecast(args, ev, as_of, shown, fields, ret, pack, sc, predictor, model, context, llm=None):
+    """Official pipeline (steps 2-4): gather, analyse in code, then a System One predictor."""
+    include_docs = context != "blind"
+    include_rules = uses_rules_analysis(args.backend, getattr(args, "with_rules", False)) and include_docs
+    meetings_path = sc.path / "fomc_meetings.csv"
+    signals = None
+    if include_docs and include_rules:
+        signals = analyse_event(
+            ev=ev,
+            as_of=as_of,
+            pack=pack,
+            meetings_path=meetings_path if meetings_path.is_file() else None,
+            choices=shown,
+        )
+    extra = {"mask_dates": int(bool(getattr(args, "mask_dates", False)))}
+    if signals is not None:
+        extra["rules_bucket"] = signals.bucket
+        extra["rules_expected_bp"] = signals.expected_bp
+        extra["rule_signals"] = json.dumps(signals.as_state())
+    if args.backend == "rules":
+        if signals is None:
+            from datetime import date as _date
+
+            from epochal_pilot.rules import RuleSignals
+
+            signals = RuleSignals(as_of=_date.fromisoformat(as_of[:10]), target=ev.event_date)
+            signals.notes = ["blind or no pack: defaulting to no change"]
+        fc = rules_forecast(signals, shown)
+        return fc, extra
+    state = build_state(
+        as_of=as_of,
+        target=ev.event_date.isoformat(),
+        range_at_asof=fields.get("range_at_asof") or "",
+        question=ev.question,
+        meetings=fields.get("meetings_in_window") or "",
+        derived_facts=fields.get("derived_facts") or "",
+        documents=ret.docs,
+        signals=signals,
+        include_docs=include_docs,
+        include_rules=include_rules,
+        max_chars_per_doc=sc.context_chars_per_doc,
+    )
+    if getattr(args, "mask_dates", False):
+        state = mask_value(state, as_of)
+    if predictor is None:
+        raise RuntimeError(f"no System One predictor for backend {args.backend!r}")
+    result = predictor.predict(state, ev.question, shown)
+    fc = result.as_forecast()
+    meta = result.metadata or {}
+    if meta.get("jev_model"):
+        extra["jev_model"] = meta["jev_model"]
+    if meta.get("model"):
+        extra["jev_model"] = extra.get("jev_model") or meta["model"]
+    if meta.get("confidence") is not None:
+        extra["jev_confidence"] = meta["confidence"]
+    if meta.get("input_tokens") is not None:
+        extra["input_tokens"] = meta["input_tokens"]
+    if meta.get("output_tokens") is not None:
+        extra["output_tokens"] = meta["output_tokens"]
+    if meta.get("provider"):
+        extra["provider"] = meta["provider"]
+    judgments = meta.get("judgments") or {}
+    if judgments:
+        extra["judgments"] = json.dumps(judgments)
+    if getattr(args, "analyst", None) and llm is not None:
+        analyst_model = DEFAULT_MODELS.get(args.analyst, "mock-model")
+        prompt = (
+            "You are a System Two analyst. The System One predictor already produced a forecast. "
+            "Write a short rationale. Do not change the probabilities or pick a new option.\n\n"
+            f"Question: {ev.question}\nTop choice: {fc.answer}\n"
+            f"Probabilities: {json.dumps(fc.probabilities)}\n"
+        )
+        note = llm.ask(analyst_model, prompt)
+        extra["analyst"] = (note or "")[:2000]
+        extra["analyst_backend"] = args.analyst
+        fc.rationale = ((fc.rationale or "") + " | analyst: " + (note or ""))[:500]
+    return fc, extra
+
+
+def _derived_facts(mode: str, context: str, ev: Event, as_of: str, pack, scenario_path: Path) -> str:
+    """SEP-gap and remaining-meeting line for gated, non-blind runs. Empty otherwise (no leakage path)."""
+    if mode != "gated" or context == "blind":
+        return ""
+    meetings = scenario_path / "fomc_meetings.csv"
+    has_sep = pack is not None and any(d.kind == "fomc_sep" for d in pack.docs)
+    if not meetings.is_file() and not has_sep:
+        return ""
+    return build_sep_gap(
+        as_of=as_of,
+        target=ev.event_date,
+        range_at_asof=(ev.extra.get("range_at_asof") or ""),
+        pack=pack,
+        meetings=meetings if meetings.is_file() else None,
+    ).text
+
+
+def _print_spend(args, uses_epochal: bool, budget: Budget, cache_root: Path, jev_client=None) -> None:
     if args.dry_run:
         print(f"\nDry run: {budget.this_run} fixture requests (no network, nothing spent)")
     elif uses_epochal:
         print(f"\nEpochal requests: {budget.this_run} this run, {budget.total} lifetime (cache: {cache_root})")
+    elif getattr(args, "no_context", False):
+        print("\nEpochal requests: 0 (blind, no context)")
     else:
         print("\nEpochal requests: 0 (public context)")
+    if jev_client is not None and jev_client.calls:
+        u = usage_summary(jev_client)
+        print(
+            f"Jev usage: {u['calls']} call(s), {u['input_tokens']} input tokens, "
+            f"{u['output_tokens']} output tokens (free); approx ${u['approx_cost_usd']:.4f} "
+            f"at ${u['price_per_mtok_input']}/Mtok input"
+        )
 
 
 def print_direction(d: dict | None) -> None:
