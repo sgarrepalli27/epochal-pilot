@@ -1,0 +1,15 @@
+Policy discussion (excerpt):
+
+Escalation of trade tensions and soft economic data also weighed on foreign financial markets. Most major global equity price indexes declined, on net, and EME sovereign spreads widened modestly. In the AFEs, policy expectations and sovereign yields declined notably, in part reflecting more-accommodative monetary policy communications by major central banks.
+
+Participants judged that uncertainties and downside risks surrounding the economic outlook had increased significantly over recent weeks. While they continued to view a sustained expansion of economic activity, strong labor market conditions, and inflation near the Committee's symmetric 2 percent objective as the most likely outcomes, many participants attached significant odds to scenarios with less favorable outcomes. 5 Moreover, nearly all participants in their submissions to the Summary of Economic Projections (SEP), had revised down their assessment of the appropriate path of the federal funds rate over the projection period that would be consistent with their modal economic outlook. Many participants noted that, since the Committee's previous meeting, the economy appeared to have lost some momentum and pointed to a number of factors supporting that view including recent weak indicators for business confidence, business spending and manufacturing activity; trade developments; and signs of slowing global economic growth. Many participants noted that they viewed the risks to their growth and inflation projections, such as those emanating from greater uncertainty about trade, as shifting notably over recent weeks and that risks were now weighted to the downside.
+
+[...trimmed]
+
+Staff review of the economic situation (excerpt):
+
+The information available for the June 18–19 meeting indicated that labor market conditions remained strong. Real gross domestic product (GDP) appeared to be rising at a moderate rate in the second quarter, as household spending growth picked up from the weak first quarter while business fixed investment was soft. Consumer price inflation, as measured by the 12-month percentage change in the price index for personal consumption expenditures (PCE), was below 2 percent in April. Survey-based measures of longer-run inflation expectations were little changed.
+
+Total nonfarm payroll employment expanded solidly, on average, in April and May; however, job gains slowed sharply in May after a strong increase in April. The unemployment rate declined to 3.6 percent in April and remained there in May, its lowest level in 50 years. The labor force participation rate moved down somewhat in April and held steady in May, remaining close to its average over the previous few years; the employment-to-population ratio stayed flat in April and May. The unemployment rates for African Americans, Asians, and Hispanics decreased, on net, over April and May and were below their levels at the end of the previous economic expansion, though persistent differentials in unemployment rates across groups remained. The average share of workers employed part tim
+
+[...trimmed]
