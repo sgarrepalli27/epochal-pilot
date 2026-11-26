@@ -19,6 +19,7 @@ optional `--analyst` rationales, not the recommended default predictor.
 ```python
 from epochal_pilot.providers import Predictor, PredictResult, register
 
+
 @register("myco")
 class MyPredictor(Predictor):
     name = "myco"

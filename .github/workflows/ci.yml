@@ -42,10 +42,12 @@ jobs:
         run: |
           epochal-pilot list
           epochal-pilot check
-          epochal-pilot run fed-rates --dry-run --limit 3 --out runs/ci-fed
-          epilot run future-leak --dry-run --limit 3 --out runs/ci-leak
-          epochal-pilot run fed-rates --estimate
-          epochal-pilot run fed-rates --dry-run --context public --out runs/ci-pub
+          # System Two + Epochal fixtures: explicit so the new System One default (rules + public)
+          # cannot break scenarios without a public pack, or Epochal --estimate / compare.
+          epochal-pilot run fed-rates --backend openrouter --dry-run --limit 3 --out runs/ci-fed
+          epilot run future-leak --backend openrouter --dry-run --limit 3 --out runs/ci-leak
+          epochal-pilot run fed-rates --backend openrouter --estimate
+          epochal-pilot run fed-rates --backend openrouter --dry-run --context public --out runs/ci-pub
           epochal-pilot report runs/ci-fed --share
           epochal-pilot compare runs/ci-pub runs/ci-fed --out runs/ci-compare
           epochal-pilot validate fed-rates
@@ -53,7 +55,7 @@ jobs:
           epochal-pilot plan fed-rates --requests 20
           epochal-pilot validate fed-quarterly
           epochal-pilot run fed-quarterly --dry-run --context public --out runs/ci-fq
-          epochal-pilot run fed-quarterly --only turning-point --estimate
+          epochal-pilot run fed-quarterly --backend openrouter --only turning-point --estimate
           epochal-pilot run fed-quarterly --mode live --dry-run --context public --out runs/ci-fq-live
           epochal-pilot plan fed-quarterly --requests 10 --only turning-point
           epochal-pilot report --latest
