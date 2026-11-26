@@ -1,6 +1,6 @@
 # epochal-pilot
 
-**Backtest LLM agents against the web as it was on a past date.**
+**Backtest LLM forecasters against the web as it was on a past date, and score them honestly.**
 
 [![CI](https://github.com/sgarrepalli27/epochal-pilot/actions/workflows/ci.yml/badge.svg)](https://github.com/sgarrepalli27/epochal-pilot/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
@@ -8,46 +8,125 @@
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 
 You can't fairly backtest an agent that browses the web: today's web already contains the answer.
-`epochal-pilot` freezes the web at a chosen date with the [Epochal Time Portal](https://epochal.com)
-(a date-gated web archive), lets a model research and forecast from that snapshot only, then scores
-the forecast against what actually happened.
+`epochal-pilot` freezes the web at a chosen date with the [Epochal Time Portal](https://epochal.com),
+lets a model forecast from that snapshot only, then scores the forecast against what happened, with
+the statistics a small sample needs.
 
-- **Scenarios as plugins.** A folder with an events file, a prompt template and a scoring config.
-- **Proper forecasting scores.** Accuracy, multi-class Brier score, and model-free baselines.
-- **Leak checks built in.** Results dated after the as-of moment are dropped and counted; scores are
-  split by each model's training cutoff; answer options are shuffled to remove position bias.
-- **Cheap to rerun.** Every API response is cached on disk, and a persistent budget guard caps Epochal spend.
-- **Zero dependencies.** Python 3.10+ standard library only.
+It is an **evaluation harness, not an API wrapper**: most of it works with zero Epochal requests.
 
-## Quickstart
+- **Honest statistics.** Bootstrap 95% intervals, Brier skill vs the best non-hindsight baseline,
+  log loss, calibration (reliability) tables, paired bootstrap and McNemar tests, small-sample warnings.
+- **Two context sources.** The time-gated web (Epochal), or a shipped pack of public-domain Fed and
+  BLS documents (`--context public`, 0 requests). Compare them on the same events.
+- **Leak checks.** Results dated after the as-of moment are dropped; scores split by each model's
+  training cutoff; options shuffled; question wording checked for answer leaks.
+- **Reports.** Self-contained HTML (inline SVG, no JavaScript) and markdown, a cross-run leaderboard,
+  and a metrics-only `--share` export that is safe to publish.
+- **Request planner.** `plan --requests N` picks the events that carry the most signal per request.
+- **Zero dependencies.** Python 3.10+ standard library only. Windows, macOS, Linux (x64 and ARM64).
+
+## What you need and why
+
+| You need | Why | Cost |
+|---|---|---|
+| **A model** (the forecaster under test) | It reads the as-of context and gives probabilities for each option. That is what gets scored. | Free (local) to cents |
+| **Epochal key** (optional at first) | The web frozen before the event, so the model can't read the outcome. | 100 free requests |
+| **Nothing else** | Public-context mode, reports, stats, planning and validation are offline. | 0 |
+
+Pick the model by the question you're asking:
+
+| Question | Use | Why |
+|---|---|---|
+| Can a model **forecast** from evidence? | A model whose training cutoff is **before** the events (local Ollama, `gpt-4.1-mini`) | It can't have memorised outcomes |
+| Does a model **already know** the outcome (leak)? | A model trained **after** the events (Claude via `claude-cli` or `anthropic`) | Compare with the gated score and with old-cutoff models |
+| Best signal | **Both**, on the same events | Old-cutoff vs new-cutoff on the same evidence separates skill from memory |
+
+Setup per option, plus the 0-request path, is in **[docs/what-you-need.md](docs/what-you-need.md)**.
+
+## Quickstart (0 Epochal requests, no keys)
 
 ```bash
 git clone https://github.com/sgarrepalli27/epochal-pilot.git && cd epochal-pilot
 pip install -e .
-epochal-pilot run fed-rates --dry-run      # offline: fixtures + mock model, no keys, no spend
-cp .env.example .env                       # add EPOCHAL_API_KEY plus OPENROUTER_API_KEY or ANTHROPIC_API_KEY
-epochal-pilot run fed-rates --estimate     # how many Epochal requests a real run needs
-epochal-pilot run fed-rates --model openai/gpt-4.1-mini --limit 3
+epochal-pilot validate fed-rates                          # schema, cutoffs, leak check of the public pack
+epochal-pilot run fed-rates --dry-run --context public    # offline mock model + real public Fed/BLS docs
+epochal-pilot report runs/<the folder it printed>         # HTML + markdown report
 ```
 
-`epilot` is a short alias for `epochal-pilot`, and `python -m epochal_pilot` works too.
-Step-by-step instructions for Windows are in [Replicate on Windows](#replicate-on-windows).
+With a real model and still 0 Epochal requests:
 
-## Backends
+```bash
+epochal-pilot run fed-rates --context public --backend ollama --model qwen2.5:3b     # local, free
+epochal-pilot run fed-rates --context public --backend claude-cli                    # your Claude Code login
+```
 
-| `--backend` | Key | Default model | Where it runs |
+`epilot` is a short alias for `epochal-pilot`; `python -m epochal_pilot` works too.
+Windows steps are in [Replicate on Windows](#replicate-on-windows).
+
+## Your 100 requests
+
+Epochal's free tier is 100 search/fetch requests per account. Spend them last, and only where they add signal.
+
+| Step | Command | Epochal requests |
+|---|---|---|
+| 1. Check setup | `epochal-pilot check` | 0 |
+| 2. Validate scenarios | `epochal-pilot validate fed-rates` | 0 |
+| 3. Try everything offline | `epochal-pilot run fed-rates --dry-run` | 0 |
+| 4. Real model, public context | `epochal-pilot run fed-rates --context public --backend ollama --model qwen2.5:3b` | 0 |
+| 5. Plan | `epochal-pilot plan fed-rates --requests 25 --model qwen2.5:3b --model openai/gpt-4.1-mini` | 0 |
+| 6. Estimate | `epochal-pilot run fed-rates --estimate` | 0 |
+| 7. Full fed-rates run, several models | `epochal-pilot run fed-rates --model openai/gpt-4.1-mini --model google/gemini-2.5-flash --budget 30` | ~23-30 |
+| 8. Full future-leak run | `epochal-pilot run future-leak --budget 25` | ~20-25 |
+| 9. Compare and report | `epochal-pilot compare runs/a runs/b` and `report <run> --share` | 0 |
+
+That is a full, high-signal run for about **50 requests**, leaving about 50 for your own scenario
+(`epochal-pilot new my-scenario`). Responses are cached, so rerunning with more models, prompts or
+seeds costs nothing. Searches return 10 results for the price of one; only 2xx responses are counted
+(failed requests are refunded locally, as Epochal doesn't bill them).
+
+## Epochal terms: what you may share
+
+Read the [Time Portal Product Terms](https://epochal.com/legal/time-portal-product-terms). In short:
+
+- **Don't publish Results**: no cached responses, URLs, titles, snippets or page text from Epochal,
+  and no evaluation datasets built from them (§3.3, §3.4). The cache (`.epochal-pilot-cache/`) and
+  `runs/` are gitignored for this reason. Don't commit them or hand them to others.
+- **Share metrics only.** `epochal-pilot report <run> --share` writes `share/` with scores, event
+  ids, outcomes and the options models chose: no Epochal content, request ids or model rationales.
+- **US only.** Epochal currently refuses requests from outside the United States.
+- **Each person uses their own key.** A clone pays for its own requests; there is no shared cache.
+
+The public-domain context pack is different: it's US-government work, shipped in this repo, and free to reuse.
+
+## Commands
+
+| Command | What it does | Requests |
+|---|---|---|
+| `list`, `check` | Scenarios; which keys are set (never values); whether `claude` is on PATH | 0 |
+| `run <scenario>` | Run models on events; writes predictions, scores, stats, report | 0 with `--context public` or `--dry-run` |
+| `run ... --estimate` | Exact new searches; fetches exact when a search is cached, else a range | 0 |
+| `plan <scenario> --requests N` | Picks events and lead times for most signal per request; prints the `run` command | 0 |
+| `report <run_dir> [--share]` | HTML + markdown report; `--share` adds a metrics-only folder | 0 |
+| `compare <run_dir>...` | Leaderboard plus paired tests on shared events (e.g. public vs Epochal context) | 0 |
+| `validate <scenario>` | Schema, dates vs model cutoffs, source URLs, wording, public-pack leak check | 0 |
+| `new <name>` | Scaffold a scenario folder | 0 |
+
+### Backends
+
+| `--backend` | Needs | Default model | Notes |
 |---|---|---|---|
-| `openrouter` (default) | `OPENROUTER_API_KEY` | `openai/gpt-4.1-mini` | Cloud API; one key for hundreds of models |
-| `anthropic` | `ANTHROPIC_API_KEY` | `claude-haiku-5-5` | Cloud API (Claude is **not** local) |
-| `ollama` | none | `llama3.2:3b` | **Local** on your machine via [Ollama](https://ollama.com) |
+| `openrouter` (default) | `OPENROUTER_API_KEY` | `openai/gpt-4.1-mini` | Hundreds of models; cents per run |
+| `anthropic` | `ANTHROPIC_API_KEY` | `claude-haiku-5-5` | Claude API |
+| `claude-cli` | [Claude Code](https://code.claude.com) installed and logged in | your Claude Code default | No key; uses your Claude subscription; **all tools disabled** |
+| `ollama` | [Ollama](https://ollama.com) running | `llama3.2:3b` | Local, free, private |
 
-Every backend needs `EPOCHAL_API_KEY` for gated runs (the frozen web). Claude models are reached
-through Anthropic's API; [Ollama](https://ollama.com) is the option for running a model locally.
-Model ids: [OpenRouter models](https://openrouter.ai/models),
-[Claude models](https://docs.anthropic.com/en/docs/about-claude/models/overview), `ollama list`.
-
-Note: current Claude models have training cutoffs after every event in the shipped scenarios, so
-their scores are mostly a leak probe, not a fair forecast test. See [Caveats](#caveats).
+**`claude-cli`.** Runs `claude -p --output-format json --max-turns 1 --no-session-persistence
+--strict-mcp-config --disallowedTools "*"` with the prompt on stdin, from an empty temporary folder.
+Every tool (WebSearch, WebFetch, Bash, file reads) and every MCP server is removed, so the model
+can't look up the outcome: its answer must come from the prompt. Use `--model sonnet` (or any Claude
+Code model name) to choose a model. Claude's training cutoff is after most shipped events, so this is a
+**leak probe**, not a fair forecast test; pass `--cutoff default=YYYY-MM` (or `--cutoff sonnet=...`)
+for the right pre/post split. `CLAUDE_CLI_TIMEOUT` (seconds, default 300) sets the timeout.
 
 ## Replicate on Windows
 
@@ -84,8 +163,6 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 .\.venv\Scripts\Activate.ps1
 ```
 
-(Or, for the current window only: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`.)
-
 **3. Install**
 
 ```powershell
@@ -93,119 +170,112 @@ python -m pip install --upgrade pip
 pip install -e .
 ```
 
-**4. Add your keys**
+**4. Zero-request steps first**
+
+```powershell
+epochal-pilot check
+epochal-pilot validate fed-rates
+epochal-pilot run fed-rates --dry-run --context public --out runs\pub-dry
+epochal-pilot report runs\pub-dry
+start runs\pub-dry\report.html
+```
+
+**5. Add keys (only the ones you need)**
 
 ```powershell
 copy .env.example .env
 notepad .env
 ```
 
-Fill in `EPOCHAL_API_KEY`, then **one** of `OPENROUTER_API_KEY` or `ANTHROPIC_API_KEY` (or neither
-if you use Ollama). Save and close. `.env` is gitignored; never commit it.
+`EPOCHAL_API_KEY` for the frozen web; `OPENROUTER_API_KEY` or `ANTHROPIC_API_KEY` for cloud models;
+nothing for `ollama` or `claude-cli`. `.env` is gitignored; never commit it.
 
-**5. Check the setup and try it offline**
+**6. Local or Claude Code models, still 0 Epochal requests**
 
 ```powershell
-epochal-pilot check                        # shows which keys are set, never their values
-epochal-pilot list                         # available scenarios
-epochal-pilot run fed-rates --dry-run      # offline: fixtures + mock model, no spend
+# Ollama: install from https://ollama.com/download, then
+ollama pull qwen2.5:3b
+epochal-pilot run fed-rates --context public --backend ollama --model qwen2.5:3b
+
+# Claude Code: install from https://code.claude.com, run `claude` once to log in, then
+epochal-pilot run fed-rates --context public --backend claude-cli --cutoff default=2026-06
 ```
 
-**6. See what a real run costs, before spending anything**
+Small 1-3B models suit a 16 GB laptop; close other apps if memory is tight, and set
+`OLLAMA_NUM_CTX=8192` in `.env` if Ollama runs out of memory.
+
+**7. Spend Epochal requests**
 
 ```powershell
+epochal-pilot plan fed-rates --requests 25 --model openai/gpt-4.1-mini
 epochal-pilot run fed-rates --estimate
-epochal-pilot run future-leak --estimate
+epochal-pilot run fed-rates --model openai/gpt-4.1-mini --model google/gemini-2.5-flash --budget 30 --out runs\fed-epochal
+epochal-pilot run fed-rates --context public --model openai/gpt-4.1-mini --model google/gemini-2.5-flash --out runs\fed-public
+epochal-pilot compare runs\fed-public runs\fed-epochal --out runs\compare
 ```
-
-Epochal's free tier is **100 requests**. A gated event usually costs 1 request (1 search; up to
-`--max-fetches` extra fetches for thin results). The response cache (`.epochal-pilot-cache\`) is
-**not in git**, so a fresh clone starts with an empty cache and pays for every event once; reruns are free.
-Per run, `--budget` (default 10) caps new requests; `--max-total` (default 90) caps the lifetime
-total for this cache.
-
-**7. Real runs**
-
-```powershell
-# fed-rates: 13 FOMC meetings (~13 requests for all; start with a few)
-epochal-pilot run fed-rates --backend openrouter --model openai/gpt-4.1-mini --limit 3
-epochal-pilot run fed-rates --backend anthropic --model claude-haiku-5-5 --limit 3
-epochal-pilot run fed-rates --backend ollama --model qwen2.5:3b --limit 3
-
-# All 13 meetings (needs --budget 13 or more on a fresh cache)
-epochal-pilot run fed-rates --model openai/gpt-4.1-mini --budget 15
-
-# future-leak: 20 events, asked with and without the frozen web (~20 requests)
-epochal-pilot run future-leak --model openai/gpt-4.1-mini --budget 22
-epochal-pilot run future-leak --backend anthropic --budget 22
-```
-
-Requests cached by one run are reused by the next, so compare several models on the same events
-for one Epochal cost: `--model openai/gpt-4.1-mini --model google/gemini-2.5-flash`.
-
-For local models, install [Ollama for Windows](https://ollama.com/download), then
-`ollama pull qwen2.5:3b`. Small 1–3B models suit a 16 GB laptop; close other apps if memory is tight.
-
-**8. Results**
-
-Each run writes `runs\<scenario>-<date>-<time>\`:
-
-| File | Contents |
-|---|---|
-| `summary.md` | Score table to read or paste |
-| `scores.csv` | One row per model and mode, plus baselines (opens in Excel) |
-| `predictions.csv` | One row per event: answer, probabilities, cited URLs, rationale |
-| `run.json` | Settings used (never keys) |
-
-Use `--out runs\my-test` to choose the folder.
-
-**9. Configure a run**
-
-| Want to | Flag | Example |
-|---|---|---|
-| Forecast further ahead | `--lead-days N` | `--lead-days 28` (default 7) |
-| Run some events only | `--only ids` / `--limit N` | `--only fomc_2024_09,fomc_2024_11` |
-| Cap Epochal spend | `--budget N`, `--max-total N` | `--budget 5` |
-| Compare models | repeat `--model` | `--model a --model b` |
-| Set a model's training cutoff | `--cutoff MODEL=YYYY-MM` | `--cutoff qwen2.5:3b=2023-12` |
-| Ask with or without the frozen web | `--modes gated,ungated` | `--modes gated` |
-| Change answer shuffling | `--seed N`, `--no-shuffle` | `--seed 1` |
-| Let the model write extra searches | `--plan-queries K` | `--plan-queries 2` (costs K more requests per event) |
-
-Event ids are the `id` column of `scenarios\<name>\events.csv`. Run `epochal-pilot run --help` for all flags.
-Defaults for a scenario (lead days, options, baselines) live in `scenarios\<name>\scenario.json`.
-
-**10. Add your own scenario**
-
-```powershell
-Copy-Item -Recurse scenarios\fed-rates scenarios\my-scenario
-notepad scenarios\my-scenario\events.csv       # your events, outcomes and source URLs
-notepad scenarios\my-scenario\scenario.json    # description, choices, lead_days, baselines
-epochal-pilot run my-scenario --dry-run
-epochal-pilot run my-scenario --estimate
-```
-
-See [Add a scenario](#add-a-scenario) and [docs/adding-a-scenario.md](docs/adding-a-scenario.md).
 
 ### macOS and Linux
 
-The same steps, with these differences:
+The same steps with `python3 -m venv .venv && source .venv/bin/activate`, `cp .env.example .env`,
+and forward slashes in paths.
 
-```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install -e .
-cp .env.example .env && ${EDITOR:-nano} .env
-epochal-pilot check && epochal-pilot run fed-rates --dry-run && epochal-pilot run fed-rates --estimate
-```
+## Outputs
+
+Each run writes `runs/<scenario>-<context>-<time>/` (choose with `--out`):
+
+| File | Contents | Shareable |
+|---|---|---|
+| `report.html`, `summary.md` | Scores with CIs, paired tests, reliability chart, per-event table, cost ledger | Metrics only, but regenerate with `--share` to be safe |
+| `scores.csv` | One row per forecaster, with CIs, skill, calibration, pre/post-cutoff split | Yes |
+| `stats.json` | Calibration bins, reference baseline, paired tests | Yes |
+| `predictions.csv` | Per event: answer, probabilities, **cited URLs, rationale** | **No** (Epochal content) |
+| `baseline_predictions.csv` | Baseline probabilities per event | Yes |
+| `run.json` | Manifest: git SHA, version, events/prompt hashes, model + params, seed, search settings, Epochal ledger with request/copy ids | Local; `share/run.json` drops ids |
+| `share/` | Written by `report --share`: metrics-only copies | Yes |
+
+## Interpreting results
+
+- **Look at intervals first.** With 23 events, one event moves accuracy by about 4 points. Overlapping
+  intervals mean "can't tell".
+- **Skill, not accuracy.** `brier_skill` (BSS) compares with the best *non-hindsight* baseline on the
+  same events (`no-change`, `persistence`, `uniform`, or your own `--baseline-csv`). BSS > 0 with an
+  interval above 0 is real skill. `majority(hindsight)` uses the outcomes being scored: context only.
+- **Paired tests for differences.** `p vs ref`, and the gated-vs-ungated and run-vs-run tables, test
+  differences on the same events (bootstrap of Brier differences, exact McNemar on right/wrong).
+- **Calibration.** In the reliability chart, points on the diagonal are well calibrated; below it is
+  overconfident. ECE summarises the gap.
+- **Leakage.** High accuracy *before* the cutoff with a drop *after* it, or ungated accuracy close to
+  gated accuracy, points to memorised outcomes. Accuracy that holds up after the cutoff is skill.
+- **Public vs Epochal context.** `compare` on the same events shows what the time-gated web adds over
+  official documents alone.
+
+| Column | Meaning |
+|---|---|
+| `accuracy` [`_ci_low`, `_ci_high`] | Share of events where the top answer was right; 95% bootstrap CI |
+| `brier` | Multi-class Brier, Σ(p − outcome)²: 0 perfect, 2 confidently wrong; uniform over k options = 1 − 1/k |
+| `log_loss` | −ln p(outcome), floored at 1e-6 (a confident miss costs ~13.8) |
+| `brier_skill`, `reference` | 1 − Brier / reference Brier, vs the best non-hindsight baseline |
+| `p_vs_reference` | Paired bootstrap p-value, model vs reference Brier |
+| `ece` | Expected calibration error over 5 confidence bins |
+| `acc_pre_cutoff` / `acc_post_cutoff` | Split at the model's training cutoff ([models.json](src/epochal_pilot/models.json); `--cutoff MODEL=YYYY-MM`) |
+| `leak_score_upper_bound` | Gated accuracy minus chance (an upper bound, not proof) |
+| `always_fav_letter_acc` | Accuracy of always picking the favourite option letter (position bias) |
+| `small_n` | 1 when n < 30 |
 
 ## Scenarios
 
-| Scenario | Events | What it asks | Modes |
+| Scenario | Events | Question | Context packs |
 |---|---|---|---|
-| [`fed-rates`](scenarios/fed-rates) | 13 FOMC meetings, Jan 2024 – Jul 2025 | Hold / cut 25 / cut 50 / cut 75 / hike 25, from the web N days before (default 7) | gated |
-| [`future-leak`](scenarios/future-leak) | 20 resolved 2024–25 events (elections, Fed, launches, earnings) | Does the model already know the outcome? | gated + ungated |
+| [`fed-rates`](scenarios/fed-rates) | 23 FOMC meetings, Jan 2024 – Oct 2026 (10 from Sep 2025, incl. the Sep 2026 hike) | Hold / cut 25 / cut 50 / cut 75 / hike 25 | Epochal, public |
+| [`future-leak`](scenarios/future-leak) | 20 resolved 2024–25 events (elections, Fed, launches, earnings) | Does the model already know the outcome? | Epochal (+ ungated) |
 
-Every outcome links to a public source (Federal Reserve press releases for `fed-rates`).
+Every outcome links to its public source. The `fed-rates` public pack holds 114 trimmed documents
+(FOMC statements and minutes, BLS CPI and jobs releases), each dated by public release; a document is
+used only if released strictly before the as-of date ([details](scenarios/fed-rates/README.md)).
+
+**Market baseline.** Not shipped: Kalshi's and Polymarket's terms don't allow redistributing their
+price histories. If you have data you're allowed to use, pass it with `--baseline-csv my.csv`
+(columns `name,event,<one column per option>`); it becomes a non-hindsight skill reference.
 
 ## How it works
 
@@ -213,90 +283,48 @@ Every outcome links to a public source (Federal Reserve press releases for `fed-
 event (date, question, options)
    │  as_of = event_date − lead_days
    ▼
-Epochal search/fetch  ── header Accept-Datetime: as_of ──►  web as it was on that day
-   │  drop any result dated after as_of (counted as docs_dropped_after_as_of)
+context: Epochal search/fetch (Accept-Datetime: as_of)  or  public pack (docs released < as_of)
+   │  drop anything dated after as_of (search published_at, then the fetched copy's published_at)
    ▼
 prompt: "Today is <as_of>. Use only this context." + shuffled options
    ▼
 model ──► {"answer": "C", "probabilities": {...}, "citations": [...], "rationale": "..."}
    │  no option picked → one forced-choice retry → else abstain (scored wrong, uniform probs)
    ▼
-score vs real outcome: accuracy, Brier, baselines, pre/post training-cutoff split
+score: accuracy, Brier, log loss + CIs, skill vs baselines, calibration, paired tests, cutoff split
 ```
 
-**Modes.** `gated` gives the model only the as-of context. `ungated` gives no context and asks from
-memory; comparing the two shows how much the model already knows.
+### Budget and retrieval
 
-**Outputs** go to `runs/<scenario>-<time>/`: `predictions.csv` (one row per model × event × mode,
-with probabilities and citations), `scores.csv`, `summary.md`, and `run.json` (config, never keys).
-
-### Scores
-
-| Column | Meaning |
-|---|---|
-| `accuracy` | Share of events where the top answer was right (abstentions count as wrong) |
-| `brier` | Multi-class Brier score, Σ(p − outcome)². 0 = perfect, 2 = confidently wrong; uniform guessing over k options scores 1 − 1/k |
-| `chance` | Mean of 1/k |
-| `acc_pre_cutoff` / `acc_post_cutoff` | Accuracy on events before / after the model's stated training cutoff ([`models.json`](src/epochal_pilot/models.json), override with `--cutoff MODEL=YYYY-MM`) |
-| `leak_score_upper_bound` | Gated accuracy minus chance |
-| `gap_ungated_minus_gated` | Memory-only accuracy minus gated accuracy |
-| `always_fav_letter_acc` | Accuracy of always picking the model's favourite option letter (position-bias check) |
-| `citations_in_context` | Share of cited URLs that were really in the as-of context |
-| `baseline:*` | `no-change`, `persistence` (same as last time), `majority` (hindsight), `uniform` |
-
-### Budget and cache
-
-| Control | Default | Notes |
+| Setting | Default | Where |
 |---|---|---|
-| `--budget N` | 10 | Max **new** Epochal requests this run; the run stops cleanly and scores what it has |
-| `--max-total N` | 90 | Lifetime cap stored in `.epochal-pilot-cache/live/budget.json` (Epochal's free tier is 100) |
-| `--estimate` | | Prints cached vs new requests and exits |
-| `--dry-run` | | Fixtures and a mock model; separate cache, no keys, no network |
-
-A gated event costs 1 search plus up to `--max-fetches` (default 2) page fetches for results with
-little text; in practice search returns page text, so most events cost 1 request. Cached requests
-are free, so rerunning with new models or prompts costs nothing on Epochal.
+| `num_results` | 10 (API max, same cost as 1) | `scenario.json`, `--num-results` |
+| `published_after_days` | 30 (search window before as-of); `null` for none | `scenario.json` |
+| `categories` | all (`news`, `finance` = SEC filings, ...) | `scenario.json` |
+| `domains` / `exclude_domains` | none | `scenario.json` |
+| `max_fetches` | 2 per event, only for results with little text | `scenario.json`, `--max-fetches` |
+| `--budget N` | 10 new requests per run | CLI |
+| `--max-total N` | 90 lifetime for this cache | CLI, `EPOCHAL_PILOT_MAX_TOTAL` |
 
 ## Add a scenario
 
-```
-scenarios/my-scenario/
-  scenario.json       # config
-  events.csv          # one row per event
-  prompt_gated.md     # template ($today, $context, $question, $options, $response_format, any CSV column)
-  prompt_ungated.md   # optional
-```
-
-`events.csv` needs `id, event_date, question, outcome, source_url`, plus `choices` (pipe-separated)
-unless `scenario.json` sets shared `choices`. Optional: `search_query` (defaults to the question),
-`category`, and any extra columns, which become `$column` variables in the prompt.
-
-```json
-{
-  "description": "One line shown by `epochal-pilot list`.",
-  "choices": ["Yes", "No"],
-  "lead_days": 7,
-  "modes": ["gated"],
-  "shuffle": true,
-  "baselines": {"constant": {"always-no": "No"}, "majority": true, "uniform": true}
-}
+```bash
+epochal-pilot new my-scenario          # scaffold
+# edit scenarios/my-scenario/events.csv (future-tense questions, source_url per event)
+epochal-pilot validate my-scenario
+epochal-pilot run my-scenario --dry-run
 ```
 
-See [docs/adding-a-scenario.md](docs/adding-a-scenario.md) for the full reference.
+See [docs/adding-a-scenario.md](docs/adding-a-scenario.md).
 
 ## Caveats
 
-- **The leak score is an upper bound.** A week-ahead web legitimately predicts many events: Fed moves
-  are usually priced in, polls lead elections, product prices leak. Compare pre- vs post-cutoff
-  accuracy and the baselines before calling anything leakage.
+- **Small samples.** Tens of events give wide intervals. The tool says so; believe it.
 - **Stated cutoffs are claims.** Vendors' training cutoffs can be vague or understated.
-- **Newer models saw the outcomes.** Models trained after an event (for example current Claude models,
-  cutoff Jun 2026) can't be fairly backtested on it; use them to measure leakage, and use models with
-  earlier cutoffs, or events after a model's cutoff, for honest forecasting scores.
-- **The archive is not the whole web.** Epochal coverage varies by site and date; undated results
-  are kept and counted.
-- **Small samples.** 13 or 20 events give wide error bars. Treat results as a probe, not a benchmark verdict.
-- **Not investment advice.** `fed-rates` is a research benchmark. Nothing here is a recommendation to trade.
+- **Newer models saw the outcomes.** Use them to measure leakage, not forecasting skill.
+- **A week out, markets usually know.** Fed decisions are mostly priced in; try `--lead-days 28`.
+- **The archive is not the whole web.** Epochal coverage varies; undated results are kept and counted.
+- **Not investment advice.** This is a research benchmark.
 
 ## Security
 
@@ -309,4 +337,7 @@ Issues and pull requests are welcome, especially new scenarios. See [CONTRIBUTIN
 
 ## License
 
-[Apache-2.0](LICENSE). Not affiliated with Epochal, OpenRouter, Anthropic, Ollama or the Federal Reserve.
+[Apache-2.0](LICENSE). The public context pack is US-government work in the public domain
+([Federal Reserve Board](https://www.federalreserve.gov/disclaimer.htm),
+[BLS](https://www.bls.gov/opub/copyright-information.htm)). Not affiliated with Epochal, OpenRouter,
+Anthropic, Ollama, the Federal Reserve or BLS.

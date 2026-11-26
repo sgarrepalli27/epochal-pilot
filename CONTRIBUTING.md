@@ -16,9 +16,10 @@ Tests are offline: Epochal and model calls are mocked. Please don't add tests th
 
 ## Adding a scenario
 
-1. Create `scenarios/<name>/` (see [docs/adding-a-scenario.md](docs/adding-a-scenario.md)).
+1. `epochal-pilot new <name>` (see [docs/adding-a-scenario.md](docs/adding-a-scenario.md)).
 2. Every event needs a resolved outcome and a public `source_url` that states it. Use public data only.
-3. Run `epochal-pilot run <name> --dry-run` and `epochal-pilot run <name> --estimate`.
+   Ask questions in the future tense.
+3. Run `epochal-pilot validate <name>`, `epochal-pilot run <name> --dry-run` and `--estimate`.
 4. Add a short `README.md` in the scenario folder: what is asked, the source, and known caveats.
 5. Add a test in `tests/test_scenarios.py` that loads it.
 
@@ -27,7 +28,9 @@ Tests are offline: Epochal and model calls are mocked. Please don't add tests th
 - Keep changes focused; one feature or fix per PR.
 - Add or update tests, and update `CHANGELOG.md` under *Unreleased*.
 - Keep the core dependency-free (standard library only). Optional extras are fine if justified.
-- Never commit `.env`, cache files, API keys, or private or proprietary data.
+- Never commit `.env`, cache files, `runs/`, API keys, or private or proprietary data.
+- Never commit anything returned by Epochal (responses, URLs, titles, snippets, page text, or datasets
+  built from them): the Time Portal terms forbid publishing them. Metrics from `report --share` are fine.
 
 ## Commit style
 
