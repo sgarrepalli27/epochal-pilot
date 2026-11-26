@@ -79,3 +79,21 @@ cp .env.example .env        # Windows: copy .env.example .env
 
 Only then add `EPOCHAL_API_KEY` and run with the frozen web. Compare the two runs with
 `epochal-pilot compare` to see what the web adds over official documents alone.
+
+## fed-quarterly on a tight budget
+
+`fed-quarterly` forecasts the Fed's target range at each quarter-end, 2016-2026, from what was public
+6 weeks earlier. Its public pack covers every as-of date, so the whole 10-year backtest is free.
+
+| Step | Command | Epochal requests |
+|---|---|---|
+| Full backtest, 43 quarters, official first-release data | `epochal-pilot run fed-quarterly --context public --backend ollama --model qwen2.5:3b` | 0 |
+| Same with Claude Code (a leak probe: Claude was trained after these dates) | `epochal-pilot run fed-quarterly --context public --backend claude-cli --cutoff default=2026-06` | 0 |
+| Plan the turning points | `epochal-pilot plan fed-quarterly --requests 10 --only turning-point` | 0 |
+| The 10 turning points with the as-of web | `epochal-pilot run fed-quarterly --only turning-point --budget 10` | 10 (cached after) |
+| Live forecast for 31 Dec 2026 | `epochal-pilot run fed-quarterly --mode live --context public` | 0 (1 with `--context epochal`) |
+| Score the live forecast in January | `epochal-pilot score --latest` | 0 |
+
+Why both a local model and Claude: a local model with a 2023 cutoff is a fair forecaster for 2024-2026
+quarters; Claude (cutoff mid-2026) has read most outcomes, so its backtest score is an upper bound on
+memory. The live quarter is the one test where neither can remember the answer.

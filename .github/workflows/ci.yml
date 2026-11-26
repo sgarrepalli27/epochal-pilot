@@ -51,3 +51,9 @@ jobs:
           epochal-pilot validate fed-rates
           epochal-pilot validate future-leak
           epochal-pilot plan fed-rates --requests 20
+          epochal-pilot validate fed-quarterly
+          epochal-pilot run fed-quarterly --dry-run --context public --out runs/ci-fq
+          epochal-pilot run fed-quarterly --only turning-point --estimate
+          epochal-pilot run fed-quarterly --mode live --dry-run --context public --out runs/ci-fq-live
+          epochal-pilot plan fed-quarterly --requests 10 --only turning-point
+          epochal-pilot report --latest

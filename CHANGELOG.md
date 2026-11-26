@@ -4,6 +4,37 @@ All notable changes are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-11-26
+
+Rolling quarterly Fed forecasts, with a backtest and a live forward test.
+
+### Added
+- **`fed-quarterly` scenario**: from each as-of date T (Feb 15, May 15, Aug 15, Nov 15, 2016-2026),
+  forecast the net change in the FOMC target range by the quarter-end (8 buckets from `Cut 100+ bp` to
+  `Hike 75+ bp`). 43 backtest points and 1 live point (T = 2026-11-15, resolves after 2026-12-31). The
+  answer key is derived from `fomc_changes.csv` (31 changes, each checked against federalreserve.gov).
+  The prompt lists the data points and triggers to weigh, and the scheduled FOMC meetings before
+  quarter-end. Ten as-of dates are tagged `turning-point` for a 10-request Epochal run.
+- **First-release public pack** for `fed-quarterly` (307 docs, 0 requests): FOMC statements, minutes
+  (policy + staff review), SEP dot-plot table, BLS CPI and jobs, BEA PCE and Treasury yield-curve
+  snapshots, each the latest released strictly before T. `tools/build_fed_quarterly.py` rebuilds the
+  meetings calendar, the answer key and the pack; with `FRED_API_KEY` it adds an ALFRED vintage snapshot.
+- **`run --mode live`** forecasts unresolved events (`status=live`, blank outcome) and writes a
+  timestamped `forecast.csv`; **`epochal-pilot score <dir>|--latest`** grades it once the outcome is in.
+- **`--only` accepts tags** (e.g. `--only turning-point`) in `run` and `plan`.
+- Events may pin a fixed **`as_of`** date (rolling calendars); `lead_days` then doesn't apply.
+- **Direction accuracy and mean absolute error (bp)** for scenarios that map choices to directions and
+  sizes (`directions`, `choice_bp` in scenario.json); in the console, `summary.md` and re-scored reports.
+- `context_chars_per_doc` in scenario.json.
+- **`report --latest`**: report the newest run folder under `runs/`.
+
+### Changed
+- A run that scores nothing now prints a clear **"No results"** message with the reason (for example an
+  expired Claude Code login) instead of an empty table, and the report says the same.
+- `report` on a folder without `predictions.csv` explains what a run folder looks like and suggests
+  `--latest`; on a live folder it points to `score`.
+- `validate` reports backtest/live counts and tags, accepts live rows and checks `as_of < event_date`.
+
 ## [0.2.0] - 2026-11-26
 
 An evaluation harness first: most features now need zero Epochal requests.
