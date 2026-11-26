@@ -1,0 +1,1044 @@
+{
+ "description": "US-government public-domain documents for the fed-rates scenario. A document is only used for an event when its 'published' date is strictly before the event's as-of date.",
+ "license": "Public domain (works of the Federal Reserve Board and the U.S. Bureau of Labor Statistics).",
+ "license_sources": [
+  "https://www.federalreserve.gov/disclaimer.htm",
+  "https://www.bls.gov/opub/copyright-information.htm"
+ ],
+ "built": "2026-11-26",
+ "builder": "tools/build_public_context.py",
+ "kinds": {
+  "fomc_statement": "FOMC post-meeting statement (previous meetings only)",
+  "fomc_minutes": "FOMC minutes, policy-discussion excerpt (dated by public release day)",
+  "bls_cpi": "BLS CPI news release, summary text",
+  "bls_jobs": "BLS Employment Situation news release, summary text"
+ },
+ "docs": [
+  {
+   "id": "bls_jobs_20231208",
+   "kind": "bls_jobs",
+   "published": "2023-12-08",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- NOVEMBER 2023",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_12082023.htm",
+   "file": "docs/bls_jobs_20231208.md",
+   "chars": 2886
+  },
+  {
+   "id": "bls_cpi_20231212",
+   "kind": "bls_cpi",
+   "published": "2023-12-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - NOVEMBER 2023",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_12122023.htm",
+   "file": "docs/bls_cpi_20231212.md",
+   "chars": 1596
+  },
+  {
+   "id": "fomc_statement_20231213",
+   "kind": "fomc_statement",
+   "published": "2023-12-13",
+   "title": "FOMC statement, 13 December 2023",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20231213a.htm",
+   "file": "docs/fomc_statement_20231213.md",
+   "chars": 2445
+  },
+  {
+   "id": "fomc_minutes_20231213",
+   "kind": "fomc_minutes",
+   "published": "2024-01-03",
+   "title": "Minutes of the FOMC meeting of 13 December 2023 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20231213.htm",
+   "file": "docs/fomc_minutes_20231213.md",
+   "chars": 3489
+  },
+  {
+   "id": "bls_jobs_20240105",
+   "kind": "bls_jobs",
+   "published": "2024-01-05",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- DECEMBER 2023",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_01052024.htm",
+   "file": "docs/bls_jobs_20240105.md",
+   "chars": 2976
+  },
+  {
+   "id": "bls_cpi_20240111",
+   "kind": "bls_cpi",
+   "published": "2024-01-11",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - DECEMBER 2023",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_01112024.htm",
+   "file": "docs/bls_cpi_20240111.md",
+   "chars": 1596
+  },
+  {
+   "id": "fomc_statement_20240131",
+   "kind": "fomc_statement",
+   "published": "2024-01-31",
+   "title": "FOMC statement, 31 January 2024",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240131a.htm",
+   "file": "docs/fomc_statement_20240131.md",
+   "chars": 2259
+  },
+  {
+   "id": "bls_jobs_20240202",
+   "kind": "bls_jobs",
+   "published": "2024-02-02",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02022024.htm",
+   "file": "docs/bls_jobs_20240202.md",
+   "chars": 2817
+  },
+  {
+   "id": "bls_cpi_20240213",
+   "kind": "bls_cpi",
+   "published": "2024-02-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JANUARY 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_02132024.htm",
+   "file": "docs/bls_cpi_20240213.md",
+   "chars": 1479
+  },
+  {
+   "id": "fomc_minutes_20240131",
+   "kind": "fomc_minutes",
+   "published": "2024-02-21",
+   "title": "Minutes of the FOMC meeting of 31 January 2024 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20240131.htm",
+   "file": "docs/fomc_minutes_20240131.md",
+   "chars": 4558
+  },
+  {
+   "id": "bls_jobs_20240308",
+   "kind": "bls_jobs",
+   "published": "2024-03-08",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- FEBRUARY 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_03082024.htm",
+   "file": "docs/bls_jobs_20240308.md",
+   "chars": 2660
+  },
+  {
+   "id": "bls_cpi_20240312",
+   "kind": "bls_cpi",
+   "published": "2024-03-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - FEBRUARY 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_03122024.htm",
+   "file": "docs/bls_cpi_20240312.md",
+   "chars": 1478
+  },
+  {
+   "id": "fomc_statement_20240320",
+   "kind": "fomc_statement",
+   "published": "2024-03-20",
+   "title": "FOMC statement, 20 March 2024",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240320a.htm",
+   "file": "docs/fomc_statement_20240320.md",
+   "chars": 2223
+  },
+  {
+   "id": "bls_jobs_20240405",
+   "kind": "bls_jobs",
+   "published": "2024-04-05",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- MARCH 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_04052024.htm",
+   "file": "docs/bls_jobs_20240405.md",
+   "chars": 2814
+  },
+  {
+   "id": "bls_cpi_20240410",
+   "kind": "bls_cpi",
+   "published": "2024-04-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - MARCH 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_04102024.htm",
+   "file": "docs/bls_cpi_20240410.md",
+   "chars": 1500
+  },
+  {
+   "id": "fomc_minutes_20240320",
+   "kind": "fomc_minutes",
+   "published": "2024-04-10",
+   "title": "Minutes of the FOMC meeting of 20 March 2024 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20240320.htm",
+   "file": "docs/fomc_minutes_20240320.md",
+   "chars": 5065
+  },
+  {
+   "id": "fomc_statement_20240501",
+   "kind": "fomc_statement",
+   "published": "2024-05-01",
+   "title": "FOMC statement, 01 May 2024",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240501a.htm",
+   "file": "docs/fomc_statement_20240501.md",
+   "chars": 2710
+  },
+  {
+   "id": "bls_jobs_20240503",
+   "kind": "bls_jobs",
+   "published": "2024-05-03",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05032024.htm",
+   "file": "docs/bls_jobs_20240503.md",
+   "chars": 2895
+  },
+  {
+   "id": "bls_cpi_20240515",
+   "kind": "bls_cpi",
+   "published": "2024-05-15",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - APRIL 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_05152024.htm",
+   "file": "docs/bls_cpi_20240515.md",
+   "chars": 1474
+  },
+  {
+   "id": "fomc_minutes_20240501",
+   "kind": "fomc_minutes",
+   "published": "2024-05-22",
+   "title": "Minutes of the FOMC meeting of 01 May 2024 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20240501.htm",
+   "file": "docs/fomc_minutes_20240501.md",
+   "chars": 5025
+  },
+  {
+   "id": "bls_jobs_20240607",
+   "kind": "bls_jobs",
+   "published": "2024-06-07",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- MAY 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_06072024.htm",
+   "file": "docs/bls_jobs_20240607.md",
+   "chars": 2821
+  },
+  {
+   "id": "bls_cpi_20240612",
+   "kind": "bls_cpi",
+   "published": "2024-06-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - MAY 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_06122024.htm",
+   "file": "docs/bls_cpi_20240612.md",
+   "chars": 1784
+  },
+  {
+   "id": "fomc_statement_20240612",
+   "kind": "fomc_statement",
+   "published": "2024-06-12",
+   "title": "FOMC statement, 12 June 2024",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240612a.htm",
+   "file": "docs/fomc_statement_20240612.md",
+   "chars": 2311
+  },
+  {
+   "id": "fomc_minutes_20240612",
+   "kind": "fomc_minutes",
+   "published": "2024-07-03",
+   "title": "Minutes of the FOMC meeting of 12 June 2024 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20240612.htm",
+   "file": "docs/fomc_minutes_20240612.md",
+   "chars": 5954
+  },
+  {
+   "id": "bls_jobs_20240705",
+   "kind": "bls_jobs",
+   "published": "2024-07-05",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JUNE 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_07052024.htm",
+   "file": "docs/bls_jobs_20240705.md",
+   "chars": 2889
+  },
+  {
+   "id": "bls_cpi_20240711",
+   "kind": "bls_cpi",
+   "published": "2024-07-11",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JUNE 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_07112024.htm",
+   "file": "docs/bls_cpi_20240711.md",
+   "chars": 1864
+  },
+  {
+   "id": "fomc_statement_20240731",
+   "kind": "fomc_statement",
+   "published": "2024-07-31",
+   "title": "FOMC statement, 31 July 2024",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240731a.htm",
+   "file": "docs/fomc_statement_20240731.md",
+   "chars": 2391
+  },
+  {
+   "id": "bls_jobs_20240802",
+   "kind": "bls_jobs",
+   "published": "2024-08-02",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JULY 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08022024.htm",
+   "file": "docs/bls_jobs_20240802.md",
+   "chars": 2724
+  },
+  {
+   "id": "bls_cpi_20240814",
+   "kind": "bls_cpi",
+   "published": "2024-08-14",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JULY 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_08142024.htm",
+   "file": "docs/bls_cpi_20240814.md",
+   "chars": 1529
+  },
+  {
+   "id": "fomc_minutes_20240731",
+   "kind": "fomc_minutes",
+   "published": "2024-08-21",
+   "title": "Minutes of the FOMC meeting of 31 July 2024 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20240731.htm",
+   "file": "docs/fomc_minutes_20240731.md",
+   "chars": 5674
+  },
+  {
+   "id": "bls_jobs_20240906",
+   "kind": "bls_jobs",
+   "published": "2024-09-06",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- AUGUST 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_09062024.htm",
+   "file": "docs/bls_jobs_20240906.md",
+   "chars": 2642
+  },
+  {
+   "id": "bls_cpi_20240911",
+   "kind": "bls_cpi",
+   "published": "2024-09-11",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - AUGUST 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_09112024.htm",
+   "file": "docs/bls_cpi_20240911.md",
+   "chars": 1452
+  },
+  {
+   "id": "fomc_statement_20240918",
+   "kind": "fomc_statement",
+   "published": "2024-09-18",
+   "title": "FOMC statement, 18 September 2024",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240918a.htm",
+   "file": "docs/fomc_statement_20240918.md",
+   "chars": 2380
+  },
+  {
+   "id": "bls_jobs_20241004",
+   "kind": "bls_jobs",
+   "published": "2024-10-04",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- SEPTEMBER 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_10042024.htm",
+   "file": "docs/bls_jobs_20241004.md",
+   "chars": 2765
+  },
+  {
+   "id": "fomc_minutes_20240918",
+   "kind": "fomc_minutes",
+   "published": "2024-10-09",
+   "title": "Minutes of the FOMC meeting of 18 September 2024 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20240918.htm",
+   "file": "docs/fomc_minutes_20240918.md",
+   "chars": 5900
+  },
+  {
+   "id": "bls_cpi_20241010",
+   "kind": "bls_cpi",
+   "published": "2024-10-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - SEPTEMBER 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_10102024.htm",
+   "file": "docs/bls_cpi_20241010.md",
+   "chars": 1415
+  },
+  {
+   "id": "bls_jobs_20241101",
+   "kind": "bls_jobs",
+   "published": "2024-11-01",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- OCTOBER 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_11012024.htm",
+   "file": "docs/bls_jobs_20241101.md",
+   "chars": 3000
+  },
+  {
+   "id": "fomc_statement_20241107",
+   "kind": "fomc_statement",
+   "published": "2024-11-07",
+   "title": "FOMC statement, 07 November 2024",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20241107a.htm",
+   "file": "docs/fomc_statement_20241107.md",
+   "chars": 2158
+  },
+  {
+   "id": "bls_cpi_20241113",
+   "kind": "bls_cpi",
+   "published": "2024-11-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - OCTOBER 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_11132024.htm",
+   "file": "docs/bls_cpi_20241113.md",
+   "chars": 1819
+  },
+  {
+   "id": "fomc_minutes_20241107",
+   "kind": "fomc_minutes",
+   "published": "2024-11-26",
+   "title": "Minutes of the FOMC meeting of 07 November 2024 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20241107.htm",
+   "file": "docs/fomc_minutes_20241107.md",
+   "chars": 5307
+  },
+  {
+   "id": "bls_jobs_20241206",
+   "kind": "bls_jobs",
+   "published": "2024-12-06",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- NOVEMBER 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_12062024.htm",
+   "file": "docs/bls_jobs_20241206.md",
+   "chars": 2628
+  },
+  {
+   "id": "bls_cpi_20241211",
+   "kind": "bls_cpi",
+   "published": "2024-12-11",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - NOVEMBER 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_12112024.htm",
+   "file": "docs/bls_cpi_20241211.md",
+   "chars": 1453
+  },
+  {
+   "id": "fomc_statement_20241218",
+   "kind": "fomc_statement",
+   "published": "2024-12-18",
+   "title": "FOMC statement, 18 December 2024",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20241218a.htm",
+   "file": "docs/fomc_statement_20241218.md",
+   "chars": 2310
+  },
+  {
+   "id": "fomc_minutes_20241218",
+   "kind": "fomc_minutes",
+   "published": "2025-01-08",
+   "title": "Minutes of the FOMC meeting of 18 December 2024 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20241218.htm",
+   "file": "docs/fomc_minutes_20241218.md",
+   "chars": 5077
+  },
+  {
+   "id": "bls_jobs_20250110",
+   "kind": "bls_jobs",
+   "published": "2025-01-10",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- DECEMBER 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_01102025.htm",
+   "file": "docs/bls_jobs_20250110.md",
+   "chars": 2725
+  },
+  {
+   "id": "bls_cpi_20250115",
+   "kind": "bls_cpi",
+   "published": "2025-01-15",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - DECEMBER 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_01152025.htm",
+   "file": "docs/bls_cpi_20250115.md",
+   "chars": 1457
+  },
+  {
+   "id": "fomc_statement_20250129",
+   "kind": "fomc_statement",
+   "published": "2025-01-29",
+   "title": "FOMC statement, 29 January 2025",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20250129a.htm",
+   "file": "docs/fomc_statement_20250129.md",
+   "chars": 2088
+  },
+  {
+   "id": "bls_jobs_20250207",
+   "kind": "bls_jobs",
+   "published": "2025-02-07",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02072025.htm",
+   "file": "docs/bls_jobs_20250207.md",
+   "chars": 2981
+  },
+  {
+   "id": "bls_cpi_20250212",
+   "kind": "bls_cpi",
+   "published": "2025-02-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JANUARY 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_02122025.htm",
+   "file": "docs/bls_cpi_20250212.md",
+   "chars": 2256
+  },
+  {
+   "id": "fomc_minutes_20250129",
+   "kind": "fomc_minutes",
+   "published": "2025-02-19",
+   "title": "Minutes of the FOMC meeting of 29 January 2025 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20250129.htm",
+   "file": "docs/fomc_minutes_20250129.md",
+   "chars": 3785
+  },
+  {
+   "id": "bls_jobs_20250307",
+   "kind": "bls_jobs",
+   "published": "2025-03-07",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- FEBRUARY 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_03072025.htm",
+   "file": "docs/bls_jobs_20250307.md",
+   "chars": 2937
+  },
+  {
+   "id": "bls_cpi_20250312",
+   "kind": "bls_cpi",
+   "published": "2025-03-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - FEBRUARY 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_03122025.htm",
+   "file": "docs/bls_cpi_20250312.md",
+   "chars": 1677
+  },
+  {
+   "id": "fomc_statement_20250319",
+   "kind": "fomc_statement",
+   "published": "2025-03-19",
+   "title": "FOMC statement, 19 March 2025",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20250319a.htm",
+   "file": "docs/fomc_statement_20250319.md",
+   "chars": 2471
+  },
+  {
+   "id": "bls_jobs_20250404",
+   "kind": "bls_jobs",
+   "published": "2025-04-04",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- MARCH 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_04042025.htm",
+   "file": "docs/bls_jobs_20250404.md",
+   "chars": 2881
+  },
+  {
+   "id": "fomc_minutes_20250319",
+   "kind": "fomc_minutes",
+   "published": "2025-04-09",
+   "title": "Minutes of the FOMC meeting of 19 March 2025 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20250319.htm",
+   "file": "docs/fomc_minutes_20250319.md",
+   "chars": 4976
+  },
+  {
+   "id": "bls_cpi_20250410",
+   "kind": "bls_cpi",
+   "published": "2025-04-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - MARCH 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_04102025.htm",
+   "file": "docs/bls_cpi_20250410.md",
+   "chars": 1454
+  },
+  {
+   "id": "bls_jobs_20250502",
+   "kind": "bls_jobs",
+   "published": "2025-05-02",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05022025.htm",
+   "file": "docs/bls_jobs_20250502.md",
+   "chars": 2767
+  },
+  {
+   "id": "fomc_statement_20250507",
+   "kind": "fomc_statement",
+   "published": "2025-05-07",
+   "title": "FOMC statement, 07 May 2025",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20250507a.htm",
+   "file": "docs/fomc_statement_20250507.md",
+   "chars": 2191
+  },
+  {
+   "id": "bls_cpi_20250513",
+   "kind": "bls_cpi",
+   "published": "2025-05-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - APRIL 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_05132025.htm",
+   "file": "docs/bls_cpi_20250513.md",
+   "chars": 2115
+  },
+  {
+   "id": "fomc_minutes_20250507",
+   "kind": "fomc_minutes",
+   "published": "2025-05-28",
+   "title": "Minutes of the FOMC meeting of 07 May 2025 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20250507.htm",
+   "file": "docs/fomc_minutes_20250507.md",
+   "chars": 4203
+  },
+  {
+   "id": "bls_jobs_20250606",
+   "kind": "bls_jobs",
+   "published": "2025-06-06",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- MAY 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_06062025.htm",
+   "file": "docs/bls_jobs_20250606.md",
+   "chars": 2935
+  },
+  {
+   "id": "bls_cpi_20250611",
+   "kind": "bls_cpi",
+   "published": "2025-06-11",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - MAY 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_06112025.htm",
+   "file": "docs/bls_cpi_20250611.md",
+   "chars": 1440
+  },
+  {
+   "id": "fomc_statement_20250618",
+   "kind": "fomc_statement",
+   "published": "2025-06-18",
+   "title": "FOMC statement, 18 June 2025",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20250618a.htm",
+   "file": "docs/fomc_statement_20250618.md",
+   "chars": 2034
+  },
+  {
+   "id": "bls_jobs_20250703",
+   "kind": "bls_jobs",
+   "published": "2025-07-03",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JUNE 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_07032025.htm",
+   "file": "docs/bls_jobs_20250703.md",
+   "chars": 2841
+  },
+  {
+   "id": "fomc_minutes_20250618",
+   "kind": "fomc_minutes",
+   "published": "2025-07-09",
+   "title": "Minutes of the FOMC meeting of 18 June 2025 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20250618.htm",
+   "file": "docs/fomc_minutes_20250618.md",
+   "chars": 5628
+  },
+  {
+   "id": "bls_cpi_20250715",
+   "kind": "bls_cpi",
+   "published": "2025-07-15",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JUNE 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_07152025.htm",
+   "file": "docs/bls_cpi_20250715.md",
+   "chars": 1405
+  },
+  {
+   "id": "fomc_statement_20250730",
+   "kind": "fomc_statement",
+   "published": "2025-07-30",
+   "title": "FOMC statement, 30 July 2025",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm",
+   "file": "docs/fomc_statement_20250730.md",
+   "chars": 2199
+  },
+  {
+   "id": "bls_jobs_20250801",
+   "kind": "bls_jobs",
+   "published": "2025-08-01",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JULY 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08012025.htm",
+   "file": "docs/bls_jobs_20250801.md",
+   "chars": 2638
+  },
+  {
+   "id": "bls_cpi_20250812",
+   "kind": "bls_cpi",
+   "published": "2025-08-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JULY 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_08122025.htm",
+   "file": "docs/bls_cpi_20250812.md",
+   "chars": 1942
+  },
+  {
+   "id": "fomc_minutes_20250730",
+   "kind": "fomc_minutes",
+   "published": "2025-08-20",
+   "title": "Minutes of the FOMC meeting of 30 July 2025 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20250730.htm",
+   "file": "docs/fomc_minutes_20250730.md",
+   "chars": 4852
+  },
+  {
+   "id": "bls_jobs_20250905",
+   "kind": "bls_jobs",
+   "published": "2025-09-05",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- AUGUST 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_09052025.htm",
+   "file": "docs/bls_jobs_20250905.md",
+   "chars": 2672
+  },
+  {
+   "id": "bls_cpi_20250911",
+   "kind": "bls_cpi",
+   "published": "2025-09-11",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - AUGUST 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_09112025.htm",
+   "file": "docs/bls_cpi_20250911.md",
+   "chars": 1375
+  },
+  {
+   "id": "fomc_statement_20250917",
+   "kind": "fomc_statement",
+   "published": "2025-09-17",
+   "title": "FOMC statement, 17 September 2025",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm",
+   "file": "docs/fomc_statement_20250917.md",
+   "chars": 2230
+  },
+  {
+   "id": "fomc_minutes_20250917",
+   "kind": "fomc_minutes",
+   "published": "2025-10-08",
+   "title": "Minutes of the FOMC meeting of 17 September 2025 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20250917.htm",
+   "file": "docs/fomc_minutes_20250917.md",
+   "chars": 4277
+  },
+  {
+   "id": "bls_cpi_20251024",
+   "kind": "bls_cpi",
+   "published": "2025-10-24",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - SEPTEMBER 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_10242025.htm",
+   "file": "docs/bls_cpi_20251024.md",
+   "chars": 1526
+  },
+  {
+   "id": "fomc_statement_20251029",
+   "kind": "fomc_statement",
+   "published": "2025-10-29",
+   "title": "FOMC statement, 29 October 2025",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm",
+   "file": "docs/fomc_statement_20251029.md",
+   "chars": 2410
+  },
+  {
+   "id": "fomc_minutes_20251029",
+   "kind": "fomc_minutes",
+   "published": "2025-11-19",
+   "title": "Minutes of the FOMC meeting of 29 October 2025 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20251029.htm",
+   "file": "docs/fomc_minutes_20251029.md",
+   "chars": 5970
+  },
+  {
+   "id": "bls_jobs_20251120",
+   "kind": "bls_jobs",
+   "published": "2025-11-20",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- SEPTEMBER 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_11202025.htm",
+   "file": "docs/bls_jobs_20251120.md",
+   "chars": 2941
+  },
+  {
+   "id": "fomc_statement_20251210",
+   "kind": "fomc_statement",
+   "published": "2025-12-10",
+   "title": "FOMC statement, 10 December 2025",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm",
+   "file": "docs/fomc_statement_20251210.md",
+   "chars": 2538
+  },
+  {
+   "id": "bls_jobs_20251216",
+   "kind": "bls_jobs",
+   "published": "2025-12-16",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- NOVEMBER 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_12162025.htm",
+   "file": "docs/bls_jobs_20251216.md",
+   "chars": 2872
+  },
+  {
+   "id": "bls_cpi_20251218",
+   "kind": "bls_cpi",
+   "published": "2025-12-18",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - NOVEMBER 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_12182025.htm",
+   "file": "docs/bls_cpi_20251218.md",
+   "chars": 1929
+  },
+  {
+   "id": "fomc_minutes_20251210",
+   "kind": "fomc_minutes",
+   "published": "2025-12-30",
+   "title": "Minutes of the FOMC meeting of 10 December 2025 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20251210.htm",
+   "file": "docs/fomc_minutes_20251210.md",
+   "chars": 2129
+  },
+  {
+   "id": "bls_jobs_20260109",
+   "kind": "bls_jobs",
+   "published": "2026-01-09",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- DECEMBER 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_01092026.htm",
+   "file": "docs/bls_jobs_20260109.md",
+   "chars": 2930
+  },
+  {
+   "id": "bls_cpi_20260113",
+   "kind": "bls_cpi",
+   "published": "2026-01-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - DECEMBER 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_01132026.htm",
+   "file": "docs/bls_cpi_20260113.md",
+   "chars": 1286
+  },
+  {
+   "id": "fomc_statement_20260128",
+   "kind": "fomc_statement",
+   "published": "2026-01-28",
+   "title": "FOMC statement, 28 January 2026",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260128a.htm",
+   "file": "docs/fomc_statement_20260128.md",
+   "chars": 1977
+  },
+  {
+   "id": "bls_jobs_20260211",
+   "kind": "bls_jobs",
+   "published": "2026-02-11",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02112026.htm",
+   "file": "docs/bls_jobs_20260211.md",
+   "chars": 2949
+  },
+  {
+   "id": "bls_cpi_20260213",
+   "kind": "bls_cpi",
+   "published": "2026-02-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JANUARY 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_02132026.htm",
+   "file": "docs/bls_cpi_20260213.md",
+   "chars": 1354
+  },
+  {
+   "id": "fomc_minutes_20260128",
+   "kind": "fomc_minutes",
+   "published": "2026-02-18",
+   "title": "Minutes of the FOMC meeting of 28 January 2026 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260128.htm",
+   "file": "docs/fomc_minutes_20260128.md",
+   "chars": 4932
+  },
+  {
+   "id": "bls_jobs_20260306",
+   "kind": "bls_jobs",
+   "published": "2026-03-06",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- FEBRUARY 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_03062026.htm",
+   "file": "docs/bls_jobs_20260306.md",
+   "chars": 2973
+  },
+  {
+   "id": "bls_cpi_20260311",
+   "kind": "bls_cpi",
+   "published": "2026-03-11",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - FEBRUARY 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_03112026.htm",
+   "file": "docs/bls_cpi_20260311.md",
+   "chars": 1455
+  },
+  {
+   "id": "fomc_statement_20260318",
+   "kind": "fomc_statement",
+   "published": "2026-03-18",
+   "title": "FOMC statement, 18 March 2026",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260318a.htm",
+   "file": "docs/fomc_statement_20260318.md",
+   "chars": 2062
+  },
+  {
+   "id": "bls_jobs_20260403",
+   "kind": "bls_jobs",
+   "published": "2026-04-03",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- March 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_04032026.htm",
+   "file": "docs/bls_jobs_20260403.md",
+   "chars": 2930
+  },
+  {
+   "id": "fomc_minutes_20260318",
+   "kind": "fomc_minutes",
+   "published": "2026-04-08",
+   "title": "Minutes of the FOMC meeting of 18 March 2026 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260318.htm",
+   "file": "docs/fomc_minutes_20260318.md",
+   "chars": 3963
+  },
+  {
+   "id": "bls_cpi_20260410",
+   "kind": "bls_cpi",
+   "published": "2026-04-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - MARCH 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_04102026.htm",
+   "file": "docs/bls_cpi_20260410.md",
+   "chars": 1487
+  },
+  {
+   "id": "fomc_statement_20260429",
+   "kind": "fomc_statement",
+   "published": "2026-04-29",
+   "title": "FOMC statement, 29 April 2026",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260429a.htm",
+   "file": "docs/fomc_statement_20260429.md",
+   "chars": 2242
+  },
+  {
+   "id": "bls_jobs_20260508",
+   "kind": "bls_jobs",
+   "published": "2026-05-08",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05082026.htm",
+   "file": "docs/bls_jobs_20260508.md",
+   "chars": 2875
+  },
+  {
+   "id": "bls_cpi_20260512",
+   "kind": "bls_cpi",
+   "published": "2026-05-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - APRIL 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_05122026.htm",
+   "file": "docs/bls_cpi_20260512.md",
+   "chars": 1415
+  },
+  {
+   "id": "fomc_minutes_20260429",
+   "kind": "fomc_minutes",
+   "published": "2026-05-20",
+   "title": "Minutes of the FOMC meeting of 29 April 2026 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260429.htm",
+   "file": "docs/fomc_minutes_20260429.md",
+   "chars": 3856
+  },
+  {
+   "id": "bls_jobs_20260605",
+   "kind": "bls_jobs",
+   "published": "2026-06-05",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION - MAY 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_06052026.htm",
+   "file": "docs/bls_jobs_20260605.md",
+   "chars": 2639
+  },
+  {
+   "id": "bls_cpi_20260610",
+   "kind": "bls_cpi",
+   "published": "2026-06-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - MAY 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_06102026.htm",
+   "file": "docs/bls_cpi_20260610.md",
+   "chars": 1485
+  },
+  {
+   "id": "fomc_statement_20260617",
+   "kind": "fomc_statement",
+   "published": "2026-06-17",
+   "title": "FOMC statement, 17 June 2026",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm",
+   "file": "docs/fomc_statement_20260617.md",
+   "chars": 924
+  },
+  {
+   "id": "bls_jobs_20260702",
+   "kind": "bls_jobs",
+   "published": "2026-07-02",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION - JUNE 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_07022026.htm",
+   "file": "docs/bls_jobs_20260702.md",
+   "chars": 2886
+  },
+  {
+   "id": "fomc_minutes_20260617",
+   "kind": "fomc_minutes",
+   "published": "2026-07-08",
+   "title": "Minutes of the FOMC meeting of 17 June 2026 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260617.htm",
+   "file": "docs/fomc_minutes_20260617.md",
+   "chars": 4196
+  },
+  {
+   "id": "bls_cpi_20260714",
+   "kind": "bls_cpi",
+   "published": "2026-07-14",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JUNE 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_07142026.htm",
+   "file": "docs/bls_cpi_20260714.md",
+   "chars": 1609
+  },
+  {
+   "id": "fomc_statement_20260729",
+   "kind": "fomc_statement",
+   "published": "2026-07-29",
+   "title": "FOMC statement, 29 July 2026",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm",
+   "file": "docs/fomc_statement_20260729.md",
+   "chars": 1134
+  },
+  {
+   "id": "bls_jobs_20260807",
+   "kind": "bls_jobs",
+   "published": "2026-08-07",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION - JULY 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08072026.htm",
+   "file": "docs/bls_jobs_20260807.md",
+   "chars": 2747
+  },
+  {
+   "id": "bls_cpi_20260812",
+   "kind": "bls_cpi",
+   "published": "2026-08-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JULY 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_08122026.htm",
+   "file": "docs/bls_cpi_20260812.md",
+   "chars": 1336
+  },
+  {
+   "id": "fomc_minutes_20260729",
+   "kind": "fomc_minutes",
+   "published": "2026-08-19",
+   "title": "Minutes of the FOMC meeting of 29 July 2026 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260729.htm",
+   "file": "docs/fomc_minutes_20260729.md",
+   "chars": 3167
+  },
+  {
+   "id": "bls_jobs_20260904",
+   "kind": "bls_jobs",
+   "published": "2026-09-04",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION - AUGUST 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_09042026.htm",
+   "file": "docs/bls_jobs_20260904.md",
+   "chars": 2920
+  },
+  {
+   "id": "bls_cpi_20260911",
+   "kind": "bls_cpi",
+   "published": "2026-09-11",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - AUGUST 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_09112026.htm",
+   "file": "docs/bls_cpi_20260911.md",
+   "chars": 1461
+  },
+  {
+   "id": "fomc_statement_20260916",
+   "kind": "fomc_statement",
+   "published": "2026-09-16",
+   "title": "FOMC statement, 16 September 2026",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm",
+   "file": "docs/fomc_statement_20260916.md",
+   "chars": 935
+  },
+  {
+   "id": "bls_jobs_20261002",
+   "kind": "bls_jobs",
+   "published": "2026-10-02",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION - SEPTEMBER 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+   "file": "docs/bls_jobs_20261002.md",
+   "chars": 2825
+  },
+  {
+   "id": "fomc_minutes_20260916",
+   "kind": "fomc_minutes",
+   "published": "2026-10-07",
+   "title": "Minutes of the FOMC meeting of 16 September 2026 (policy discussion excerpt)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260916.htm",
+   "file": "docs/fomc_minutes_20260916.md",
+   "chars": 3924
+  },
+  {
+   "id": "bls_cpi_20261014",
+   "kind": "bls_cpi",
+   "published": "2026-10-14",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - SEPTEMBER 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_10142026.htm",
+   "file": "docs/bls_cpi_20261014.md",
+   "chars": 1580
+  }
+ ]
+}

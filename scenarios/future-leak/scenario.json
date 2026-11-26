@@ -1,12 +1,25 @@
 {
-  "description": "20 resolved 2024-25 events (elections, Fed, launches, earnings). Asked gated (as-of web) and ungated (no context) to probe whether models already know outcomes.",
+  "description": "20 resolved 2024-25 events (elections, Fed, launches, earnings), asked in the future tense. Gated (as-of web) vs ungated (no context) probes whether models already know outcomes.",
   "events": "events.csv",
   "lead_days": 7,
-  "modes": ["gated", "ungated"],
-  "prompts": {"gated": "prompt_gated.md", "ungated": "prompt_ungated.md"},
+  "modes": [
+    "gated",
+    "ungated"
+  ],
+  "prompts": {
+    "gated": "prompt_gated.md",
+    "ungated": "prompt_ungated.md"
+  },
   "shuffle": true,
-  "num_results": 5,
+  "num_results": 10,
   "max_fetches": 2,
-  "baselines": {"majority": false, "uniform": true},
+  "published_after_days": 30,
+  "categories": [],
+  "domains": [],
+  "exclude_domains": [],
+  "baselines": {
+    "majority": false,
+    "uniform": true
+  },
   "verified": "Every outcome checked against the linked public source on 2026-11-25."
 }
