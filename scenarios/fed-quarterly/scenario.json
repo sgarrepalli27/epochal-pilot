@@ -1,0 +1,34 @@
+{
+  "description": "Fed funds target range at each quarter-end, forecast 6 weeks ahead from Feb/May/Aug/Nov 15, 2016-2026 (43 backtest + 1 live). Public first-release data (0 requests) or the as-of web.",
+  "events": "events.csv",
+  "choices": ["Cut 100+ bp", "Cut 75 bp", "Cut 50 bp", "Cut 25 bp", "No change", "Hike 25 bp", "Hike 50 bp", "Hike 75+ bp"],
+  "lead_days": 45,
+  "modes": ["gated"],
+  "prompts": {"gated": "prompt_gated.md", "ungated": "prompt_ungated.md"},
+  "shuffle": false,
+  "num_results": 10,
+  "max_fetches": 0,
+  "published_after_days": 45,
+  "categories": [],
+  "domains": [],
+  "exclude_domains": [],
+  "public_context": "public_context",
+  "context_chars_per_doc": 4500,
+  "baselines": {
+    "constant": {"no-change": "No change"},
+    "persistence_column": "previous_outcome",
+    "majority": true,
+    "uniform": true
+  },
+  "directions": {
+    "Cut 100+ bp": "down", "Cut 75 bp": "down", "Cut 50 bp": "down", "Cut 25 bp": "down",
+    "No change": "hold",
+    "Hike 25 bp": "up", "Hike 50 bp": "up", "Hike 75+ bp": "up"
+  },
+  "choice_bp": {
+    "Cut 100+ bp": -100, "Cut 75 bp": -75, "Cut 50 bp": -50, "Cut 25 bp": -25,
+    "No change": 0,
+    "Hike 25 bp": 25, "Hike 50 bp": 50, "Hike 75+ bp": 75
+  },
+  "verified": "Answer key derived by tools/build_fed_quarterly.py from fomc_changes.csv: all 31 target-range changes Dec 2016 - Sep 2026, each checked against its federalreserve.gov statement on 2026-11-26 (Oct 28, 2026 was a hold)."
+}
