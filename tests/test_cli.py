@@ -49,7 +49,8 @@ def test_estimate_needs_no_keys(scenarios_dir, tmp_path, capsys):
             "--estimate",
         ]
     )
-    assert rc == 0 and "13 new needed" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert rc == 0 and "23 new + 0 cached searches" in out and "New requests needed: 23-69" in out
 
 
 def test_dry_run_end_to_end(scenarios_dir, tmp_path, capsys):
@@ -78,8 +79,12 @@ def test_dry_run_end_to_end(scenarios_dir, tmp_path, capsys):
     assert all("RESULT ANNOUNCED" not in p["rationale"] for p in preds)
     scores = {r["model"]: r for r in _read(out / "scores.csv")}
     assert {"mock-model", "baseline:no-change", "baseline:persistence", "baseline:uniform"} <= set(scores)
+    assert scores["baseline:majority(hindsight)"]["hindsight"] == "1"
+    assert scores["mock-model"]["reference"] in {"baseline:no-change", "baseline:persistence"}
+    assert (out / "report.html").is_file() and (out / "stats.json").is_file()
     meta = json.loads((out / "run.json").read_text(encoding="utf-8"))
-    assert meta["dry_run"] and meta["lead_days"] == 7
+    assert meta["dry_run"] and meta["lead_days"] == 7 and meta["environment"]["version"] == "0.2.0"
+    assert meta["hashes"]["events_sha256"] and meta["epochal_ledger"]["searches_new"] == 3
     assert "key" not in json.dumps(meta).lower()
 
 

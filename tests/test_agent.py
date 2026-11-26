@@ -4,7 +4,7 @@ import pytest
 
 from epochal_pilot.agent import parse_forecast, parse_letter, retrieve
 from epochal_pilot.cache import Budget, Cache
-from epochal_pilot.epochal import Epochal
+from epochal_pilot.epochal import Epochal, SearchOptions
 
 CH = ["Hold", "Cut 25 bp", "Cut 50 bp", "Hike 25 bp"]
 
@@ -76,27 +76,64 @@ def test_retrieve_drops_documents_after_as_of(tmp_path):
         {"title": "undated", "url": "https://c", "published_at": None, "text": long},
     ]
     ep, calls = _ep(tmp_path, results)
-    r = retrieve(ep, ["q"], "2024-09-11T00:00:00Z", 5, 2)
+    r = retrieve(ep, ["q"], "2024-09-11T00:00:00Z", None, 2)
     assert [d["title"] for d in r.docs] == ["before", "undated"]
     assert r.dropped_future == 1 and r.undated == 1
     assert "RESULT" not in r.context()
     assert len(calls) == 1  # long texts need no fetch
 
 
-def test_retrieve_fetches_thin_results_and_checks_snapshot_date(tmp_path):
+def test_retrieve_fetch_date_check_uses_published_at_not_echoed_as_of(tmp_path):
     results = [{"title": "thin", "url": "https://a", "published_at": None, "snippet": "s"}]
-    ep, calls = _ep(tmp_path, results, fetch={"status": "success", "as_of": "2030-01-01T00:00:00Z", "content": "LEAK"})
-    r = retrieve(ep, ["q"], "2024-09-11T00:00:00Z", 5, 2)
+    # The echoed as_of is irrelevant; the copy's own published_at says it is from after the gate.
+    fetch = {
+        "status": "success",
+        "as_of": "2024-09-11T00:00:00Z",
+        "published_at": "2030-01-01T00:00:00Z",
+        "content": "LEAK",
+        "id": "copy1",
+        "request_id": "r2",
+    }
+    ep, calls = _ep(tmp_path, results, fetch=fetch)
+    r = retrieve(ep, ["q"], "2024-09-11T00:00:00Z", None, 2)
     assert [c[0] for c in calls] == ["search", "fetch"]
     assert r.dropped_future == 1 and "LEAK" not in r.context()
     # cached on rerun: no new calls
-    retrieve(ep, ["q"], "2024-09-11T00:00:00Z", 5, 2)
+    retrieve(ep, ["q"], "2024-09-11T00:00:00Z", None, 2)
     assert len(calls) == 2
+    assert ep.ledger.copy_ids == ["copy1"] and ep.ledger.request_ids == ["r2"]
 
 
-def test_cache_key_matches_original_probe_format(tmp_path):
-    """Searches cached by the original future-leak probe stay reusable (same key scheme)."""
-    body = Epochal.search_body("q", 5)
-    assert body == {"query": "q", "num_results": 5, "include_text": True}
+def test_retrieve_keeps_fetch_when_published_before_gate(tmp_path):
+    results = [{"title": "thin", "url": "https://a", "published_at": None, "snippet": "s"}]
+    fetch = {
+        "status": "success",
+        "as_of": "2099-01-01T00:00:00Z",
+        "published_at": "2024-09-01T00:00:00Z",
+        "content": "FULL TEXT",
+    }
+    ep, _ = _ep(tmp_path, results, fetch=fetch)
+    r = retrieve(ep, ["q"], "2024-09-11T00:00:00Z", None, 2)
+    assert r.dropped_future == 0 and "FULL TEXT" in r.context()
+    assert r.docs[0]["published_at"] == "2024-09-01T00:00:00Z"
+
+
+def test_search_body_filters():
+    opts = SearchOptions(num_results=10, categories=["news"], published_after_days=30, domains=["reuters.com"])
+    body = Epochal.search_body("q", "2024-09-11T00:00:00Z", opts)
+    assert body == {
+        "query": "q",
+        "num_results": 10,
+        "include_text": True,
+        "categories": ["news"],
+        "domains": ["reuters.com"],
+        "published_after": "2024-08-12T00:00:00Z",
+    }
+    assert "published_after" not in Epochal.search_body(
+        "q", "2024-09-11T00:00:00Z", SearchOptions(published_after_days=None)
+    )
+    assert SearchOptions(categories=["blogs"]).validate()
+    assert SearchOptions(domains=["a.com"], exclude_domains=["a.com"]).validate()
+    assert not SearchOptions().validate()
     assert Epochal.request_key("search", "t", body) == Cache.key("search", "t", body)
     json.dumps(body)
