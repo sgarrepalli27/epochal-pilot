@@ -51,9 +51,17 @@ class Scenario:
     modes: list[str] = field(default_factory=lambda: ["gated"])
     shuffle: bool = True
     baselines: dict = field(default_factory=dict)
-    num_results: int = 5
+    num_results: int = 10
     max_fetches: int = 2
     templates: dict[str, Template] = field(default_factory=dict)
+    categories: list[str] = field(default_factory=list)
+    published_after_days: int | None = 30
+    domains: list[str] = field(default_factory=list)
+    exclude_domains: list[str] = field(default_factory=list)
+    public_context: str | None = None  # folder name of a shipped public-domain context pack
+    events_file: Path | None = None
+    prompt_files: dict[str, Path] = field(default_factory=dict)
+    config: dict = field(default_factory=dict)
 
     def template(self, mode: str) -> Template:
         return self.templates[mode]
@@ -71,12 +79,18 @@ def load_scenario(scenarios_dir: Path, name: str) -> Scenario:
         raise FileNotFoundError(f"unknown scenario '{name}' in {scenarios_dir} (available: {avail})")
     cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
     default_choices = cfg.get("choices")
-    events = load_events(root / cfg.get("events", "events.csv"), default_choices)
+    events_file = root / cfg.get("events", "events.csv")
+    events = load_events(events_file, default_choices)
     modes = cfg.get("modes", ["gated"])
-    templates = {}
-    for mode in modes:
+    templates, prompt_files = {}, {}
+    for mode in sorted(set(modes) | set(cfg.get("prompts", {}))):
         tpl = root / cfg.get("prompts", {}).get(mode, f"prompt_{mode}.md")
-        templates[mode] = Template(tpl.read_text(encoding="utf-8"))
+        if tpl.is_file():
+            templates[mode] = Template(tpl.read_text(encoding="utf-8"))
+            prompt_files[mode] = tpl
+        elif mode in modes:
+            raise FileNotFoundError(f"{name}: prompt for mode '{mode}' not found ({tpl.name})")
+    pad = cfg.get("published_after_days", 30)
     return Scenario(
         name=name,
         path=root,
@@ -86,9 +100,17 @@ def load_scenario(scenarios_dir: Path, name: str) -> Scenario:
         modes=modes,
         shuffle=bool(cfg.get("shuffle", True)),
         baselines=cfg.get("baselines", {}),
-        num_results=int(cfg.get("num_results", 5)),
+        num_results=int(cfg.get("num_results", 10)),
         max_fetches=int(cfg.get("max_fetches", 2)),
         templates=templates,
+        categories=list(cfg.get("categories") or []),
+        published_after_days=None if pad is None else int(pad),
+        domains=list(cfg.get("domains") or []),
+        exclude_domains=list(cfg.get("exclude_domains") or []),
+        public_context=cfg.get("public_context"),
+        events_file=events_file,
+        prompt_files=prompt_files,
+        config=cfg,
     )
 
 

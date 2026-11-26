@@ -8,25 +8,28 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from epochal_pilot import config
+from epochal_pilot import config, manifest
 from epochal_pilot.agent import (
     RESPONSE_FORMAT,
     Retrieval,
+    fetch_candidates,
     force_choice_prompt,
     format_options,
     parse_forecast,
     retrieve,
 )
 from epochal_pilot.cache import Budget, BudgetExceeded, Cache
-from epochal_pilot.epochal import Epochal, fixture_transport
-from epochal_pilot.llm import LLM, mock_transport
+from epochal_pilot.epochal import Epochal, SearchOptions, fixture_transport
+from epochal_pilot.llm import LLM, ClaudeCLIError, find_claude, mock_transport
+from epochal_pilot.public_context import load_public_context
 from epochal_pilot.scenario import LETTERS, Event, Scenario, load_scenario
-from epochal_pilot.scoring import baselines, brier, summarise
+from epochal_pilot.scoring import analyse, baseline_forecasts, brier, load_user_baseline
 
 DEFAULT_MODELS = {
     "openrouter": "openai/gpt-4.1-mini",
     "anthropic": "claude-haiku-5-5",
     "ollama": "llama3.2:3b",
+    "claude-cli": "default",
 }
 
 PLAN_PROMPT = """Today's date is $today. You are researching this question using a web search engine
@@ -49,12 +52,55 @@ def select_events(sc: Scenario, only: str | None, limit: int | None) -> list[Eve
     return evs[:limit] if limit else evs
 
 
-def estimate(ep: Epochal, sc: Scenario, evs: list[Event], lead_days: int, num_results: int) -> tuple[int, int]:
-    """(uncached searches, cached searches) for the seed queries. Fetches/planned queries come on top."""
-    todo = sum(
-        not ep.is_cached("search", e.as_of(lead_days), Epochal.search_body(e.search_query, num_results)) for e in evs
+def search_options(sc: Scenario, num_results: int | None = None) -> SearchOptions:
+    opts = SearchOptions(
+        num_results=num_results or sc.num_results,
+        categories=sc.categories,
+        published_after_days=sc.published_after_days,
+        domains=sc.domains,
+        exclude_domains=sc.exclude_domains,
     )
-    return todo, len(evs) - todo
+    errs = opts.validate()
+    if errs:
+        raise SystemExit(f"scenario '{sc.name}' search settings: {'; '.join(errs)}")
+    return opts
+
+
+def estimate(
+    ep: Epochal,
+    evs: list[Event],
+    lead_days: int,
+    opts: SearchOptions,
+    max_fetches: int,
+    plan_queries: int = 0,
+    n_models: int = 1,
+) -> dict:
+    """New Epochal requests a run needs: seed searches, fetches and model-planned queries.
+
+    Fetches are exact when the seed search is cached (we can see which results are thin), otherwise
+    0..max_fetches per event. Planned queries depend on the model's reply, so they count as new.
+    """
+    est = {"events": len(evs), "searches_new": 0, "searches_cached": 0, "fetches_new_min": 0, "fetches_new_max": 0}
+    for e in evs:
+        as_of = e.as_of(lead_days)
+        body = Epochal.search_body(e.search_query, as_of, opts)
+        hit = ep.cached("search", as_of, body)
+        if hit is None:
+            est["searches_new"] += 1
+            est["fetches_new_max"] += max_fetches
+            continue
+        est["searches_cached"] += 1
+        for url in fetch_candidates(hit.get("results", []), as_of, max_fetches):
+            if not ep.is_cached("fetch", as_of, Epochal.fetch_body(url, 3000)):
+                est["fetches_new_min"] += 1
+                est["fetches_new_max"] += 1
+    est["planned_queries_max"] = plan_queries * len(evs) * n_models
+    est["planned_fetches_max"] = est["planned_queries_max"] * max_fetches
+    est["total_min"] = est["searches_new"] + est["fetches_new_min"]
+    est["total_max"] = (
+        est["searches_new"] + est["fetches_new_max"] + est["planned_queries_max"] + est["planned_fetches_max"]
+    )
+    return est
 
 
 def plan_queries(llm: LLM, model: str, ev: Event, today: str, k: int) -> list[str]:
@@ -63,6 +109,23 @@ def plan_queries(llm: LLM, model: str, ev: Event, today: str, k: int) -> list[st
     reply = llm.ask(model, Template(PLAN_PROMPT).substitute(today=today, question=ev.question, k=k))
     qs = [ln.strip(" -*\t\"'") for ln in reply.splitlines() if 3 < len(ln.strip()) < 200]
     return [q for q in qs if not q.lower().startswith(("here", "sure"))][:k]
+
+
+def _keys_for(args, need_epochal: bool) -> tuple[str | None, str | None]:
+    ekey = config.require_key(config.EPOCHAL_KEY_ENV, "Get one at https://epochal.com.") if need_epochal else None
+    okey = None
+    if args.estimate_only:
+        return ekey, None
+    if args.backend == "openrouter":
+        okey = config.require_key(config.OPENROUTER_KEY_ENV, "Get one at https://openrouter.ai/keys.")
+    elif args.backend == "anthropic":
+        okey = config.require_key(config.ANTHROPIC_KEY_ENV, "Get one at https://console.anthropic.com/.")
+    elif args.backend == "claude-cli" and not find_claude():
+        raise config.MissingKeyError(
+            "claude (Claude Code) is not on PATH. Install it from https://code.claude.com, run `claude` once "
+            "to log in, then retry. (No API key is needed for this backend.)"
+        )
+    return ekey, okey
 
 
 def run(args) -> int:
@@ -74,10 +137,17 @@ def run(args) -> int:
     for m in modes:
         if m not in sc.templates:
             raise SystemExit(f"scenario '{sc.name}' has no prompt for mode '{m}' (has: {', '.join(sc.templates)})")
+    context = getattr(args, "context", None) or "epochal"
+    pack = None
+    if context == "public":
+        pack = load_public_context(sc.path, sc.public_context)
+        if pack is None:
+            raise SystemExit(f"scenario '{sc.name}' ships no public context pack (scenario.json 'public_context')")
     shuffle = sc.shuffle and not args.no_shuffle
-    num_results = args.num_results or sc.num_results
+    opts = search_options(sc, args.num_results)
     max_fetches = sc.max_fetches if args.max_fetches is None else args.max_fetches
     cutoffs = dict(c.split("=", 1) for c in (args.cutoff or []))
+    uses_epochal = "gated" in modes and context == "epochal"
 
     cache_root = Path(args.cache_dir) / ("dryrun" if args.dry_run else "live")
     cache = Cache(cache_root)
@@ -90,34 +160,43 @@ def run(args) -> int:
         llm = LLM(cache, backend="mock", transport=mock_transport)
         models = args.model or ["mock-model"]
     else:
-        need_epochal = "gated" in modes and not args.estimate_only
-        ekey = config.require_key(config.EPOCHAL_KEY_ENV, "Get one at https://epochal.com.") if need_epochal else None
-        okey = None
-        if args.backend == "openrouter" and not args.estimate_only:
-            okey = config.require_key(config.OPENROUTER_KEY_ENV, "Get one at https://openrouter.ai/keys.")
-        elif args.backend == "anthropic" and not args.estimate_only:
-            okey = config.require_key(config.ANTHROPIC_KEY_ENV, "Get one at https://console.anthropic.com/.")
+        ekey, okey = _keys_for(args, uses_epochal and not args.estimate_only)
         ep = Epochal(cache, budget, ekey)
         llm = LLM(cache, backend=args.backend, api_key=okey)
         models = args.model or [DEFAULT_MODELS[args.backend]]
 
-    todo, cached = estimate(ep, sc, evs, lead, num_results)
     print(
         f"Scenario {sc.name}: {len(evs)} events x {len(models)} model(s) x modes {','.join(modes)}; "
-        f"as-of = event - {lead} days; shuffle={'on' if shuffle else 'off'} (seed {args.seed})"
+        f"context={context}; as-of = event - {lead} days; shuffle={'on' if shuffle else 'off'} (seed {args.seed})"
     )
-    if "gated" in modes:
+    est = None
+    if uses_epochal:
+        est = estimate(ep, evs, lead, opts, max_fetches, args.plan_queries, len(models))
+        rng = (
+            f"{est['total_min']}" if est["total_min"] == est["total_max"] else f"{est['total_min']}-{est['total_max']}"
+        )
         print(
-            f"Epochal: {cached} searches cached, {todo} new needed (+ up to {max_fetches} fetch(es) per event"
-            f"{', + planned queries' if args.plan_queries else ''}). Budget: {budget.remaining} available "
+            f"Epochal: {est['searches_new']} new + {est['searches_cached']} cached searches; fetches "
+            f"{est['fetches_new_min']}-{est['fetches_new_max']}"
+            f"{'; planned queries up to ' + str(est['planned_queries_max']) if args.plan_queries else ''}. "
+            f"New requests needed: {rng}. Budget: {budget.remaining} available "
             f"(--budget {args.budget}, lifetime {budget.total}/{args.max_total})."
         )
-        if todo > budget.remaining:
+        print(
+            f"  search: num_results={opts.num_results}"
+            f"{', categories=' + ','.join(opts.categories) if opts.categories else ''}"
+            f"{', published_after=as_of-' + str(opts.published_after_days) + 'd' if opts.published_after_days else ''}"
+            f"{', domains=' + str(len(opts.domains)) if opts.domains else ''}"
+            f"{', exclude_domains=' + str(len(opts.exclude_domains)) if opts.exclude_domains else ''}"
+        )
+        if est["total_max"] > budget.remaining and not args.dry_run:
             print(
-                "  Not enough budget for every event; the run stops cleanly when it runs out. "
-                "Use --limit/--only or raise --budget.",
+                "  The worst case is above the budget; the run stops cleanly when it runs out. "
+                "Use --limit/--only, `epochal-pilot plan`, or raise --budget.",
                 file=sys.stderr,
             )
+    elif "gated" in modes:
+        print(f"Context: public-domain pack '{sc.public_context}' ({len(pack.docs)} docs). Epochal requests: 0.")
     if args.estimate_only:
         return 0
 
@@ -134,14 +213,16 @@ def run(args) -> int:
             letters = "/".join(LETTERS[: len(shown)])
             for mode in modes:
                 ret = Retrieval()
-                if mode == "gated":
+                if mode == "gated" and context == "public":
+                    ret = pack.retrieval(as_of)
+                elif mode == "gated":
                     queries = [ev.search_query]
                     if args.plan_queries:
                         queries += plan_queries(llm, model, ev, today, args.plan_queries)
                     rkey = (ev.id, tuple(queries))
                     try:
                         if rkey not in retrievals:
-                            retrievals[rkey] = retrieve(ep, queries, as_of, num_results, max_fetches)
+                            retrievals[rkey] = retrieve(ep, queries, as_of, opts, max_fetches)
                     except BudgetExceeded as e:
                         stopped = str(e)
                         break
@@ -156,18 +237,23 @@ def run(args) -> int:
                     response_format=RESPONSE_FORMAT.replace("$letters", letters),
                     **{k: v for k, v in ev.extra.items() if v},
                 )
-                reply = llm.ask(model, prompt)
-                fc = parse_forecast(reply, shown)
-                if fc.answer is None:
-                    reply2 = llm.ask(model, force_choice_prompt(prompt, reply, shown))
-                    fc = parse_forecast(reply2, shown)
-                    fc.retried = True
+                try:
+                    reply = llm.ask(model, prompt)
+                    fc = parse_forecast(reply, shown)
+                    if fc.answer is None:
+                        reply2 = llm.ask(model, force_choice_prompt(prompt, reply, shown))
+                        fc = parse_forecast(reply2, shown)
+                        fc.retried = True
+                except ClaudeCLIError as e:
+                    stopped = f"claude-cli: {e}"
+                    break
                 ctx_urls = set(ret.urls)
                 cited_ok = (sum(c in ctx_urls for c in fc.citations) / len(fc.citations)) if fc.citations else None
                 rows.append(
                     {
                         "model": model,
                         "mode": mode,
+                        "context": context if mode == "gated" else "none",
                         "event": ev.id,
                         "event_date": ev.event_date.isoformat(),
                         "as_of": as_of if mode == "gated" else "",
@@ -201,16 +287,68 @@ def run(args) -> int:
 
     by_id = {e.id: e for e in sc.events}
     scored_events = [by_id[i] for i in dict.fromkeys(r["event"] for r in rows)]
-    scores = summarise(rows, by_id, cutoffs) + baselines(scored_events, sc.baselines)
-    out_dir = Path(args.out) if args.out else Path("runs") / f"{sc.name}-{datetime.now():%Y%m%d-%H%M%S}"
-    write_outputs(out_dir, sc, rows, scores, args, lead, budget, models, modes, shuffle)
-    print_table(scores)
+    user = load_user_baseline(Path(args.baseline_csv)) if getattr(args, "baseline_csv", None) else None
+    base_rows = baseline_forecasts(scored_events, sc.baselines, user)
+    scores, detail = analyse(rows, base_rows, cutoffs, seed=args.seed)
+    stamp = f"{datetime.now():%Y%m%d-%H%M%S}"
+    out_dir = Path(args.out) if args.out else Path("runs") / f"{sc.name}-{context}-{stamp}"
+    meta = build_manifest(sc, args, lead, budget, models, modes, shuffle, context, opts, max_fetches, llm, ep, rows)
+    meta["estimate"] = est
+    write_outputs(out_dir, sc, rows, base_rows, scores, detail, meta)
+    print_table(scores, detail)
     if args.dry_run:
         print(f"\nDry run: {budget.this_run} fixture requests (no network, nothing spent)")
-    else:
+    elif uses_epochal:
         print(f"\nEpochal requests: {budget.this_run} this run, {budget.total} lifetime (cache: {cache_root})")
-    print(f"Wrote {out_dir / 'predictions.csv'}, scores.csv, summary.md")
+    else:
+        print("\nEpochal requests: 0 (public context)")
+    print(f"Wrote {out_dir / 'report.html'}, predictions.csv, scores.csv, stats.json, summary.md")
     return 0 if rows else 1
+
+
+def build_manifest(sc, args, lead, budget, models, modes, shuffle, context, opts, max_fetches, llm, ep, rows) -> dict:
+    """run.json: what ran, on which code and data, with which settings. Never any key."""
+    return {
+        "scenario": sc.name,
+        "models": models,
+        "backend": "mock" if args.dry_run else args.backend,
+        "model_params": llm.params(),
+        "modes": modes,
+        "context": context,
+        "lead_days": lead,
+        "shuffle": shuffle,
+        "seed": args.seed,
+        "events": len({r["event"] for r in rows}),
+        "event_ids": list(dict.fromkeys(r["event"] for r in rows)),
+        "search": {
+            "num_results": opts.num_results,
+            "categories": opts.categories,
+            "published_after_days": opts.published_after_days,
+            "domains": opts.domains,
+            "exclude_domains": opts.exclude_domains,
+            "max_fetches": max_fetches,
+            "plan_queries": args.plan_queries,
+        }
+        if context == "epochal"
+        else None,
+        "public_context": sc.public_context if context == "public" else None,
+        "cutoff_overrides": dict(c.split("=", 1) for c in (args.cutoff or [])),
+        "epochal_requests_this_run": budget.this_run if context == "epochal" else 0,
+        "epochal_lifetime_used": budget.total if context == "epochal" and not args.dry_run else None,
+        "epochal_ledger": ep.ledger.as_dict() if context == "epochal" else None,
+        "dry_run": bool(args.dry_run),
+        "hashes": {
+            "events_sha256": manifest.sha256_file(sc.events_file),
+            "scenario_sha256": manifest.sha256_file(sc.path / "scenario.json"),
+            **{f"prompt_{m}_sha256": manifest.sha256_file(p) for m, p in sorted(sc.prompt_files.items())},
+            "public_context_index_sha256": manifest.sha256_file(sc.path / sc.public_context / "index.json")
+            if context == "public" and sc.public_context
+            else None,
+        },
+        "git": manifest.git_info(),
+        "environment": manifest.environment(),
+        "created": datetime.now().astimezone().isoformat(timespec="seconds"),
+    }
 
 
 def write_csv(path: Path, rows: list[dict]) -> None:
@@ -224,58 +362,45 @@ def write_csv(path: Path, rows: list[dict]) -> None:
         w.writerows(rows)
 
 
-def write_outputs(out_dir: Path, sc: Scenario, rows, scores, args, lead, budget, models, modes, shuffle) -> None:
+def write_outputs(out_dir: Path, sc: Scenario, rows, base_rows, scores, detail, meta) -> None:
+    from epochal_pilot import report
+
     out_dir.mkdir(parents=True, exist_ok=True)
     write_csv(out_dir / "predictions.csv", rows)
+    write_csv(out_dir / "baseline_predictions.csv", base_rows)
     write_csv(out_dir / "scores.csv", scores)
-    meta = {
-        "scenario": sc.name,
-        "models": models,
-        "backend": "mock" if args.dry_run else args.backend,
-        "modes": modes,
-        "lead_days": lead,
-        "shuffle": shuffle,
-        "seed": args.seed,
-        "events": len({r["event"] for r in rows}),
-        "epochal_requests_this_run": budget.this_run,
-        "dry_run": bool(args.dry_run),
-        "created": datetime.now().isoformat(timespec="seconds"),
-    }  # no keys or secrets, ever
+    (out_dir / "stats.json").write_text(json.dumps(detail, indent=1), encoding="utf-8")
     (out_dir / "run.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
-    lines = [
-        f"# {sc.name} backtest",
-        "",
-        sc.description,
-        "",
-        "```json",
-        json.dumps(meta, indent=2),
-        "```",
-        "",
-        "| model | mode | n | accuracy | brier | chance | leak (upper bound) |",
-        "|---|---|---|---|---|---|---|",
-    ]
-    for s in scores:
-        lines.append(
-            f"| {s['model']} | {s['mode']} | {s['n']} | {_fmt(s.get('accuracy'))} | {_fmt(s.get('brier'))} "
-            f"| {_fmt(s.get('chance'))} | {_fmt(s.get('leak_score_upper_bound'))} |"
-        )
-    lines += [
-        "",
-        "Lower Brier is better (0 = perfect, 2 = confidently wrong). The leak score is gated accuracy "
-        "above chance: an upper bound on leakage, not proof of it. Not investment advice.",
-    ]
-    (out_dir / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (out_dir / "summary.md").write_text(report.markdown(meta, scores, detail, rows), encoding="utf-8")
+    (out_dir / "report.html").write_text(report.html_report(meta, scores, detail, rows), encoding="utf-8")
 
 
 def _fmt(x) -> str:
-    return "" if x is None else f"{x:.3f}" if isinstance(x, float) else str(x)
+    return "" if x is None or x == "" else f"{x:.3f}" if isinstance(x, float) else str(x)
 
 
-def print_table(scores: list[dict]) -> None:
-    print(f"\n{'model':40} {'mode':8} {'n':>3} {'acc':>6} {'brier':>6} {'chance':>6} {'pre':>6} {'post':>6}")
+def _ci(s: dict, k: str) -> str:
+    lo, hi = s.get(f"{k}_ci_low"), s.get(f"{k}_ci_high")
+    return "" if lo is None else f"[{lo:.2f},{hi:.2f}]"
+
+
+def print_table(scores: list[dict], detail: dict | None = None) -> None:
+    print(
+        f"\n{'model':34} {'mode':8} {'ctx':7} {'n':>3} {'acc':>6} {'95% CI':>12} {'brier':>6} {'95% CI':>12} "
+        f"{'BSS':>6} {'pre':>6} {'post':>6}"
+    )
     for s in scores:
+        name = s["model"] + (" (hindsight)" if s.get("hindsight") and "hindsight" not in s["model"] else "")
         print(
-            f"{s['model'][:40]:40} {s['mode']:8} {s['n']:>3} {_fmt(s.get('accuracy')):>6} "
-            f"{_fmt(s.get('brier')):>6} {_fmt(s.get('chance')):>6} {_fmt(s.get('acc_pre_cutoff')):>6} "
-            f"{_fmt(s.get('acc_post_cutoff')):>6}"
+            f"{name[:34]:34} {s['mode']:8} {s.get('context', ''):7} {s['n']:>3} {_fmt(s.get('accuracy')):>6} "
+            f"{_ci(s, 'accuracy'):>12} {_fmt(s.get('brier')):>6} {_ci(s, 'brier'):>12} "
+            f"{_fmt(s.get('brier_skill')):>6} {_fmt(s.get('acc_pre_cutoff')):>6} {_fmt(s.get('acc_post_cutoff')):>6}"
         )
+    refs = {s["reference"] for s in scores if s.get("reference")}
+    if refs:
+        print(f"BSS = Brier skill vs the best non-hindsight baseline ({', '.join(sorted(refs))}); >0 beats it.")
+    n_min = min((s["n"] for s in scores if s["mode"] != "baseline"), default=0)
+    if detail and any(g.get("warning") for g in detail.get("groups", {}).values()):
+        from epochal_pilot.stats import small_n_warning
+
+        print("WARNING: " + small_n_warning(n_min))
