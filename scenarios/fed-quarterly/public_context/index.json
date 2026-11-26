@@ -1,0 +1,2786 @@
+{
+ "description": "US-government public-domain documents for fed-quarterly. For each as-of date T the agent gets the latest document of each kind whose 'published' date is strictly before T; nothing else.",
+ "license": "Public domain (works of the Federal Reserve Board, BLS, BEA and the U.S. Treasury).",
+ "license_sources": [
+  "https://www.federalreserve.gov/disclaimer.htm",
+  "https://www.bls.gov/opub/copyright-information.htm",
+  "https://www.bea.gov/help/guidelines-for-citing-bea",
+  "https://home.treasury.gov/subfooter/site-policies-and-notices"
+ ],
+ "built": "2026-11-26",
+ "builder": "tools/build_fed_quarterly.py",
+ "kinds": {
+  "fomc_statement": "FOMC post-meeting statement (latest before T)",
+  "fomc_minutes": "FOMC minutes: staff review of the economy + policy discussion (dated by release day)",
+  "fomc_sep": "Summary of Economic Projections table: dot-plot medians (latest before T)",
+  "bls_cpi": "BLS CPI news release, summary text (CPI and core CPI)",
+  "bls_jobs": "BLS Employment Situation, summary text (unemployment, payrolls)",
+  "bea_pce": "BEA Personal Income and Outlays release (PCE and core PCE inflation, spending)",
+  "treasury_yields": "Treasury par yields: 3m, 2y, 10y and curve spreads, dated before T"
+ },
+ "docs": [
+  {
+   "id": "fomc_sep_20151216",
+   "kind": "fomc_sep",
+   "published": "2015-12-16",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 16 December 2015",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20151216.htm",
+   "file": "docs/fomc_sep_20151216.md",
+   "chars": 3192
+  },
+  {
+   "id": "fomc_minutes_20151216",
+   "kind": "fomc_minutes",
+   "published": "2016-01-06",
+   "title": "Minutes of the FOMC meeting of 16 December 2015 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20151216.htm",
+   "file": "docs/fomc_minutes_20151216.md",
+   "chars": 3487
+  },
+  {
+   "id": "bls_cpi_20160120",
+   "kind": "bls_cpi",
+   "published": "2016-01-20",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – DECEMBER 2015",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_01202016.htm",
+   "file": "docs/bls_cpi_20160120.md",
+   "chars": 1556
+  },
+  {
+   "id": "fomc_statement_20160127",
+   "kind": "fomc_statement",
+   "published": "2016-01-27",
+   "title": "FOMC statement, 27 January 2016",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20160127a.htm",
+   "file": "docs/fomc_statement_20160127.md",
+   "chars": 3072
+  },
+  {
+   "id": "bea_pce_20160201",
+   "kind": "bea_pce",
+   "published": "2016-02-01",
+   "title": "BEA Personal Income and Outlays, December 2015 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2016/personal-income-and-outlays-december-2015",
+   "file": "docs/bea_pce_20160201.md",
+   "chars": 1104
+  },
+  {
+   "id": "bls_jobs_20160205",
+   "kind": "bls_jobs",
+   "published": "2016-02-05",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2016",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02052016.htm",
+   "file": "docs/bls_jobs_20160205.md",
+   "chars": 2767
+  },
+  {
+   "id": "treasury_yields_20160212",
+   "kind": "treasury_yields",
+   "published": "2016-02-12",
+   "title": "Treasury yield curve snapshot as of 2016-02-12",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20160212.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20160316",
+   "kind": "fomc_sep",
+   "published": "2016-03-16",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 16 March 2016",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20160316.htm",
+   "file": "docs/fomc_sep_20160316.md",
+   "chars": 2904
+  },
+  {
+   "id": "fomc_minutes_20160316",
+   "kind": "fomc_minutes",
+   "published": "2016-04-06",
+   "title": "Minutes of the FOMC meeting of 16 March 2016 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20160316.htm",
+   "file": "docs/fomc_minutes_20160316.md",
+   "chars": 3687
+  },
+  {
+   "id": "bls_cpi_20160414",
+   "kind": "bls_cpi",
+   "published": "2016-04-14",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – MARCH 2016",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_04142016.htm",
+   "file": "docs/bls_cpi_20160414.md",
+   "chars": 1536
+  },
+  {
+   "id": "fomc_statement_20160427",
+   "kind": "fomc_statement",
+   "published": "2016-04-27",
+   "title": "FOMC statement, 27 April 2016",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20160427a.htm",
+   "file": "docs/fomc_statement_20160427.md",
+   "chars": 3024
+  },
+  {
+   "id": "bea_pce_20160429",
+   "kind": "bea_pce",
+   "published": "2016-04-29",
+   "title": "BEA Personal Income and Outlays, March 2016 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2016/personal-income-and-outlays-march-2016",
+   "file": "docs/bea_pce_20160429.md",
+   "chars": 983
+  },
+  {
+   "id": "bls_jobs_20160506",
+   "kind": "bls_jobs",
+   "published": "2016-05-06",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2016",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05062016.htm",
+   "file": "docs/bls_jobs_20160506.md",
+   "chars": 2887
+  },
+  {
+   "id": "treasury_yields_20160513",
+   "kind": "treasury_yields",
+   "published": "2016-05-13",
+   "title": "Treasury yield curve snapshot as of 2016-05-13",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20160513.md",
+   "chars": 610
+  },
+  {
+   "id": "fomc_sep_20160615",
+   "kind": "fomc_sep",
+   "published": "2016-06-15",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 15 June 2016",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20160615.htm",
+   "file": "docs/fomc_sep_20160615.md",
+   "chars": 2987
+  },
+  {
+   "id": "fomc_minutes_20160615",
+   "kind": "fomc_minutes",
+   "published": "2016-07-06",
+   "title": "Minutes of the FOMC meeting of 15 June 2016 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20160615.htm",
+   "file": "docs/fomc_minutes_20160615.md",
+   "chars": 4089
+  },
+  {
+   "id": "bls_cpi_20160715",
+   "kind": "bls_cpi",
+   "published": "2016-07-15",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – JUNE 2016",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_07152016.htm",
+   "file": "docs/bls_cpi_20160715.md",
+   "chars": 1571
+  },
+  {
+   "id": "fomc_statement_20160727",
+   "kind": "fomc_statement",
+   "published": "2016-07-27",
+   "title": "FOMC statement, 27 July 2016",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20160727a.htm",
+   "file": "docs/fomc_statement_20160727.md",
+   "chars": 3450
+  },
+  {
+   "id": "bea_pce_20160802",
+   "kind": "bea_pce",
+   "published": "2016-08-02",
+   "title": "BEA Personal Income and Outlays, June 2016 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2016/personal-income-and-outlays-june-2016",
+   "file": "docs/bea_pce_20160802.md",
+   "chars": 1043
+  },
+  {
+   "id": "bls_jobs_20160805",
+   "kind": "bls_jobs",
+   "published": "2016-08-05",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JULY 2016",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08052016.htm",
+   "file": "docs/bls_jobs_20160805.md",
+   "chars": 2816
+  },
+  {
+   "id": "treasury_yields_20160812",
+   "kind": "treasury_yields",
+   "published": "2016-08-12",
+   "title": "Treasury yield curve snapshot as of 2016-08-12",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20160812.md",
+   "chars": 613
+  },
+  {
+   "id": "fomc_sep_20160921",
+   "kind": "fomc_sep",
+   "published": "2016-09-21",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 21 September 2016",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20160921.htm",
+   "file": "docs/fomc_sep_20160921.md",
+   "chars": 3423
+  },
+  {
+   "id": "fomc_minutes_20160921",
+   "kind": "fomc_minutes",
+   "published": "2016-10-12",
+   "title": "Minutes of the FOMC meeting of 21 September 2016 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20160921.htm",
+   "file": "docs/fomc_minutes_20160921.md",
+   "chars": 4171
+  },
+  {
+   "id": "bls_cpi_20161018",
+   "kind": "bls_cpi",
+   "published": "2016-10-18",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – SEPTEMBER 2016",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_10182016.htm",
+   "file": "docs/bls_cpi_20161018.md",
+   "chars": 1993
+  },
+  {
+   "id": "bea_pce_20161031",
+   "kind": "bea_pce",
+   "published": "2016-10-31",
+   "title": "BEA Personal Income and Outlays, September 2016 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2016/personal-income-and-outlays-september-2016",
+   "file": "docs/bea_pce_20161031.md",
+   "chars": 1067
+  },
+  {
+   "id": "fomc_statement_20161102",
+   "kind": "fomc_statement",
+   "published": "2016-11-02",
+   "title": "FOMC statement, 02 November 2016",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20161102a.htm",
+   "file": "docs/fomc_statement_20161102.md",
+   "chars": 3123
+  },
+  {
+   "id": "bls_jobs_20161104",
+   "kind": "bls_jobs",
+   "published": "2016-11-04",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- OCTOBER 2016",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_11042016.htm",
+   "file": "docs/bls_jobs_20161104.md",
+   "chars": 2544
+  },
+  {
+   "id": "treasury_yields_20161114",
+   "kind": "treasury_yields",
+   "published": "2016-11-14",
+   "title": "Treasury yield curve snapshot as of 2016-11-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20161114.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20161214",
+   "kind": "fomc_sep",
+   "published": "2016-12-14",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 14 December 2016",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20161214.htm",
+   "file": "docs/fomc_sep_20161214.md",
+   "chars": 3496
+  },
+  {
+   "id": "fomc_minutes_20161214",
+   "kind": "fomc_minutes",
+   "published": "2017-01-04",
+   "title": "Minutes of the FOMC meeting of 14 December 2016 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20161214.htm",
+   "file": "docs/fomc_minutes_20161214.md",
+   "chars": 3662
+  },
+  {
+   "id": "bls_cpi_20170118",
+   "kind": "bls_cpi",
+   "published": "2017-01-18",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – DECEMBER 2016",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_01182017.htm",
+   "file": "docs/bls_cpi_20170118.md",
+   "chars": 1689
+  },
+  {
+   "id": "bea_pce_20170130",
+   "kind": "bea_pce",
+   "published": "2017-01-30",
+   "title": "BEA Personal Income and Outlays, December 2016 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2017/personal-income-and-outlays-december-2016",
+   "file": "docs/bea_pce_20170130.md",
+   "chars": 1054
+  },
+  {
+   "id": "fomc_statement_20170201",
+   "kind": "fomc_statement",
+   "published": "2017-02-01",
+   "title": "FOMC statement, 01 February 2017",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20170201a.htm",
+   "file": "docs/fomc_statement_20170201.md",
+   "chars": 3458
+  },
+  {
+   "id": "bls_jobs_20170203",
+   "kind": "bls_jobs",
+   "published": "2017-02-03",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2017",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02032017.htm",
+   "file": "docs/bls_jobs_20170203.md",
+   "chars": 2913
+  },
+  {
+   "id": "treasury_yields_20170214",
+   "kind": "treasury_yields",
+   "published": "2017-02-14",
+   "title": "Treasury yield curve snapshot as of 2017-02-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20170214.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20170315",
+   "kind": "fomc_sep",
+   "published": "2017-03-15",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 15 March 2017",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20170315.htm",
+   "file": "docs/fomc_sep_20170315.md",
+   "chars": 3188
+  },
+  {
+   "id": "fomc_minutes_20170315",
+   "kind": "fomc_minutes",
+   "published": "2017-04-05",
+   "title": "Minutes of the FOMC meeting of 15 March 2017 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20170315.htm",
+   "file": "docs/fomc_minutes_20170315.md",
+   "chars": 3655
+  },
+  {
+   "id": "bea_pce_20170501",
+   "kind": "bea_pce",
+   "published": "2017-05-01",
+   "title": "BEA Personal Income and Outlays, March 2017 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2017/personal-income-and-outlays-march-2017",
+   "file": "docs/bea_pce_20170501.md",
+   "chars": 1066
+  },
+  {
+   "id": "fomc_statement_20170503",
+   "kind": "fomc_statement",
+   "published": "2017-05-03",
+   "title": "FOMC statement, 03 May 2017",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20170503a.htm",
+   "file": "docs/fomc_statement_20170503.md",
+   "chars": 3390
+  },
+  {
+   "id": "bls_jobs_20170505",
+   "kind": "bls_jobs",
+   "published": "2017-05-05",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2017",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05052017.htm",
+   "file": "docs/bls_jobs_20170505.md",
+   "chars": 2900
+  },
+  {
+   "id": "bls_cpi_20170512",
+   "kind": "bls_cpi",
+   "published": "2017-05-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – APRIL 2017",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_05122017.htm",
+   "file": "docs/bls_cpi_20170512.md",
+   "chars": 1498
+  },
+  {
+   "id": "treasury_yields_20170512",
+   "kind": "treasury_yields",
+   "published": "2017-05-12",
+   "title": "Treasury yield curve snapshot as of 2017-05-12",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20170512.md",
+   "chars": 610
+  },
+  {
+   "id": "fomc_sep_20170614",
+   "kind": "fomc_sep",
+   "published": "2017-06-14",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 14 June 2017",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20170614.htm",
+   "file": "docs/fomc_sep_20170614.md",
+   "chars": 3169
+  },
+  {
+   "id": "bea_pce_20170630",
+   "kind": "bea_pce",
+   "published": "2017-06-30",
+   "title": "BEA Personal Income and Outlays, May 2017 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2017/personal-income-and-outlays-may-2017",
+   "file": "docs/bea_pce_20170630.md",
+   "chars": 1045
+  },
+  {
+   "id": "fomc_minutes_20170614",
+   "kind": "fomc_minutes",
+   "published": "2017-07-05",
+   "title": "Minutes of the FOMC meeting of 14 June 2017 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20170614.htm",
+   "file": "docs/fomc_minutes_20170614.md",
+   "chars": 3715
+  },
+  {
+   "id": "fomc_statement_20170726",
+   "kind": "fomc_statement",
+   "published": "2017-07-26",
+   "title": "FOMC statement, 26 July 2017",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20170726a.htm",
+   "file": "docs/fomc_statement_20170726.md",
+   "chars": 3486
+  },
+  {
+   "id": "bls_jobs_20170804",
+   "kind": "bls_jobs",
+   "published": "2017-08-04",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JULY 2017",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08042017.htm",
+   "file": "docs/bls_jobs_20170804.md",
+   "chars": 2950
+  },
+  {
+   "id": "bls_cpi_20170811",
+   "kind": "bls_cpi",
+   "published": "2017-08-11",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – JULY 2017",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_08112017.htm",
+   "file": "docs/bls_cpi_20170811.md",
+   "chars": 1473
+  },
+  {
+   "id": "treasury_yields_20170814",
+   "kind": "treasury_yields",
+   "published": "2017-08-14",
+   "title": "Treasury yield curve snapshot as of 2017-08-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20170814.md",
+   "chars": 613
+  },
+  {
+   "id": "fomc_sep_20170920",
+   "kind": "fomc_sep",
+   "published": "2017-09-20",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 20 September 2017",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20170920.htm",
+   "file": "docs/fomc_sep_20170920.md",
+   "chars": 3430
+  },
+  {
+   "id": "fomc_minutes_20170920",
+   "kind": "fomc_minutes",
+   "published": "2017-10-11",
+   "title": "Minutes of the FOMC meeting of 20 September 2017 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20170920.htm",
+   "file": "docs/fomc_minutes_20170920.md",
+   "chars": 3125
+  },
+  {
+   "id": "bls_cpi_20171013",
+   "kind": "bls_cpi",
+   "published": "2017-10-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – SEPTEMBER 2017",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_10132017.htm",
+   "file": "docs/bls_cpi_20171013.md",
+   "chars": 1477
+  },
+  {
+   "id": "bea_pce_20171030",
+   "kind": "bea_pce",
+   "published": "2017-10-30",
+   "title": "BEA Personal Income and Outlays, September 2017 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2017/personal-income-and-outlays-september-2017",
+   "file": "docs/bea_pce_20171030.md",
+   "chars": 1069
+  },
+  {
+   "id": "fomc_statement_20171101",
+   "kind": "fomc_statement",
+   "published": "2017-11-01",
+   "title": "FOMC statement, 01 November 2017",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20171101a.htm",
+   "file": "docs/fomc_statement_20171101.md",
+   "chars": 3318
+  },
+  {
+   "id": "bls_jobs_20171103",
+   "kind": "bls_jobs",
+   "published": "2017-11-03",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- OCTOBER 2017",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_11032017.htm",
+   "file": "docs/bls_jobs_20171103.md",
+   "chars": 2652
+  },
+  {
+   "id": "treasury_yields_20171114",
+   "kind": "treasury_yields",
+   "published": "2017-11-14",
+   "title": "Treasury yield curve snapshot as of 2017-11-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20171114.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20171213",
+   "kind": "fomc_sep",
+   "published": "2017-12-13",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 13 December 2017",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20171213.htm",
+   "file": "docs/fomc_sep_20171213.md",
+   "chars": 3478
+  },
+  {
+   "id": "fomc_minutes_20171213",
+   "kind": "fomc_minutes",
+   "published": "2018-01-03",
+   "title": "Minutes of the FOMC meeting of 13 December 2017 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20171213.htm",
+   "file": "docs/fomc_minutes_20171213.md",
+   "chars": 3346
+  },
+  {
+   "id": "bea_pce_20180129",
+   "kind": "bea_pce",
+   "published": "2018-01-29",
+   "title": "BEA Personal Income and Outlays, December 2017 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2018/personal-income-and-outlays-december-2017",
+   "file": "docs/bea_pce_20180129.md",
+   "chars": 1055
+  },
+  {
+   "id": "fomc_statement_20180131",
+   "kind": "fomc_statement",
+   "published": "2018-01-31",
+   "title": "FOMC statement, 31 January 2018",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20180131a.htm",
+   "file": "docs/fomc_statement_20180131.md",
+   "chars": 2860
+  },
+  {
+   "id": "bls_jobs_20180202",
+   "kind": "bls_jobs",
+   "published": "2018-02-02",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2018",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02022018.htm",
+   "file": "docs/bls_jobs_20180202.md",
+   "chars": 2855
+  },
+  {
+   "id": "bls_cpi_20180214",
+   "kind": "bls_cpi",
+   "published": "2018-02-14",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – JANUARY 2018",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_02142018.htm",
+   "file": "docs/bls_cpi_20180214.md",
+   "chars": 1351
+  },
+  {
+   "id": "treasury_yields_20180214",
+   "kind": "treasury_yields",
+   "published": "2018-02-14",
+   "title": "Treasury yield curve snapshot as of 2018-02-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20180214.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20180321",
+   "kind": "fomc_sep",
+   "published": "2018-03-21",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 21 March 2018",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20180321.htm",
+   "file": "docs/fomc_sep_20180321.md",
+   "chars": 3182
+  },
+  {
+   "id": "fomc_minutes_20180321",
+   "kind": "fomc_minutes",
+   "published": "2018-04-11",
+   "title": "Minutes of the FOMC meeting of 21 March 2018 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20180321.htm",
+   "file": "docs/fomc_minutes_20180321.md",
+   "chars": 4028
+  },
+  {
+   "id": "bea_pce_20180430",
+   "kind": "bea_pce",
+   "published": "2018-04-30",
+   "title": "BEA Personal Income and Outlays, March 2018 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2018/personal-income-and-outlays-march-2018",
+   "file": "docs/bea_pce_20180430.md",
+   "chars": 561
+  },
+  {
+   "id": "fomc_statement_20180502",
+   "kind": "fomc_statement",
+   "published": "2018-05-02",
+   "title": "FOMC statement, 02 May 2018",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20180502a.htm",
+   "file": "docs/fomc_statement_20180502.md",
+   "chars": 2851
+  },
+  {
+   "id": "bls_jobs_20180504",
+   "kind": "bls_jobs",
+   "published": "2018-05-04",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2018",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05042018.htm",
+   "file": "docs/bls_jobs_20180504.md",
+   "chars": 2994
+  },
+  {
+   "id": "bls_cpi_20180510",
+   "kind": "bls_cpi",
+   "published": "2018-05-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – APRIL 2018",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_05102018.htm",
+   "file": "docs/bls_cpi_20180510.md",
+   "chars": 1498
+  },
+  {
+   "id": "treasury_yields_20180514",
+   "kind": "treasury_yields",
+   "published": "2018-05-14",
+   "title": "Treasury yield curve snapshot as of 2018-05-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20180514.md",
+   "chars": 610
+  },
+  {
+   "id": "fomc_sep_20180613",
+   "kind": "fomc_sep",
+   "published": "2018-06-13",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 13 June 2018",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20180613.htm",
+   "file": "docs/fomc_sep_20180613.md",
+   "chars": 3169
+  },
+  {
+   "id": "fomc_minutes_20180613",
+   "kind": "fomc_minutes",
+   "published": "2018-07-05",
+   "title": "Minutes of the FOMC meeting of 13 June 2018 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20180613.htm",
+   "file": "docs/fomc_minutes_20180613.md",
+   "chars": 4163
+  },
+  {
+   "id": "bea_pce_20180731",
+   "kind": "bea_pce",
+   "published": "2018-07-31",
+   "title": "BEA Personal Income and Outlays, June 2018 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2018/personal-income-and-outlays-june-2018",
+   "file": "docs/bea_pce_20180731.md",
+   "chars": 549
+  },
+  {
+   "id": "fomc_statement_20180801",
+   "kind": "fomc_statement",
+   "published": "2018-08-01",
+   "title": "FOMC statement, 01 August 2018",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20180801a.htm",
+   "file": "docs/fomc_statement_20180801.md",
+   "chars": 2148
+  },
+  {
+   "id": "bls_jobs_20180803",
+   "kind": "bls_jobs",
+   "published": "2018-08-03",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JULY 2018",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08032018.htm",
+   "file": "docs/bls_jobs_20180803.md",
+   "chars": 2992
+  },
+  {
+   "id": "bls_cpi_20180810",
+   "kind": "bls_cpi",
+   "published": "2018-08-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – JULY 2018",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_08102018.htm",
+   "file": "docs/bls_cpi_20180810.md",
+   "chars": 1383
+  },
+  {
+   "id": "treasury_yields_20180814",
+   "kind": "treasury_yields",
+   "published": "2018-08-14",
+   "title": "Treasury yield curve snapshot as of 2018-08-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20180814.md",
+   "chars": 613
+  },
+  {
+   "id": "fomc_sep_20180926",
+   "kind": "fomc_sep",
+   "published": "2018-09-26",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 26 September 2018",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20180926.htm",
+   "file": "docs/fomc_sep_20180926.md",
+   "chars": 3436
+  },
+  {
+   "id": "fomc_minutes_20180926",
+   "kind": "fomc_minutes",
+   "published": "2018-10-17",
+   "title": "Minutes of the FOMC meeting of 26 September 2018 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20180926.htm",
+   "file": "docs/fomc_minutes_20180926.md",
+   "chars": 3637
+  },
+  {
+   "id": "bea_pce_20181029",
+   "kind": "bea_pce",
+   "published": "2018-10-29",
+   "title": "BEA Personal Income and Outlays, September 2018 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2018/personal-income-and-outlays-september-2018",
+   "file": "docs/bea_pce_20181029.md",
+   "chars": 560
+  },
+  {
+   "id": "bls_jobs_20181102",
+   "kind": "bls_jobs",
+   "published": "2018-11-02",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- OCTOBER 2018",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_11022018.htm",
+   "file": "docs/bls_jobs_20181102.md",
+   "chars": 2841
+  },
+  {
+   "id": "fomc_statement_20181108",
+   "kind": "fomc_statement",
+   "published": "2018-11-08",
+   "title": "FOMC statement, 08 November 2018",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20181108a.htm",
+   "file": "docs/fomc_statement_20181108.md",
+   "chars": 2097
+  },
+  {
+   "id": "bls_cpi_20181114",
+   "kind": "bls_cpi",
+   "published": "2018-11-14",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – OCTOBER 2018",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_11142018.htm",
+   "file": "docs/bls_cpi_20181114.md",
+   "chars": 1497
+  },
+  {
+   "id": "treasury_yields_20181114",
+   "kind": "treasury_yields",
+   "published": "2018-11-14",
+   "title": "Treasury yield curve snapshot as of 2018-11-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20181114.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20181219",
+   "kind": "fomc_sep",
+   "published": "2018-12-19",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 19 December 2018",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20181219.htm",
+   "file": "docs/fomc_sep_20181219.md",
+   "chars": 1944
+  },
+  {
+   "id": "bea_pce_20181221",
+   "kind": "bea_pce",
+   "published": "2018-12-21",
+   "title": "BEA Personal Income and Outlays, November 2018 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2018/personal-income-and-outlays-november-2018",
+   "file": "docs/bea_pce_20181221.md",
+   "chars": 557
+  },
+  {
+   "id": "fomc_minutes_20181219",
+   "kind": "fomc_minutes",
+   "published": "2019-01-09",
+   "title": "Minutes of the FOMC meeting of 19 December 2018 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20181219.htm",
+   "file": "docs/fomc_minutes_20181219.md",
+   "chars": 4051
+  },
+  {
+   "id": "fomc_statement_20190130",
+   "kind": "fomc_statement",
+   "published": "2019-01-30",
+   "title": "FOMC statement, 30 January 2019",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20190130a.htm",
+   "file": "docs/fomc_statement_20190130.md",
+   "chars": 2275
+  },
+  {
+   "id": "bls_jobs_20190201",
+   "kind": "bls_jobs",
+   "published": "2019-02-01",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2019",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02012019.htm",
+   "file": "docs/bls_jobs_20190201.md",
+   "chars": 2828
+  },
+  {
+   "id": "bls_cpi_20190213",
+   "kind": "bls_cpi",
+   "published": "2019-02-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX –JANUARY 2019",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_02132019.htm",
+   "file": "docs/bls_cpi_20190213.md",
+   "chars": 1693
+  },
+  {
+   "id": "treasury_yields_20190214",
+   "kind": "treasury_yields",
+   "published": "2019-02-14",
+   "title": "Treasury yield curve snapshot as of 2019-02-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20190214.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20190320",
+   "kind": "fomc_sep",
+   "published": "2019-03-20",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 20 March 2019",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20190320.htm",
+   "file": "docs/fomc_sep_20190320.md",
+   "chars": 3194
+  },
+  {
+   "id": "fomc_minutes_20190320",
+   "kind": "fomc_minutes",
+   "published": "2019-04-10",
+   "title": "Minutes of the FOMC meeting of 20 March 2019 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20190320.htm",
+   "file": "docs/fomc_minutes_20190320.md",
+   "chars": 2980
+  },
+  {
+   "id": "bea_pce_20190429",
+   "kind": "bea_pce",
+   "published": "2019-04-29",
+   "title": "BEA Personal Income and Outlays, March 2019 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2019/personal-income-and-outlays-march-2019",
+   "file": "docs/bea_pce_20190429.md",
+   "chars": 850
+  },
+  {
+   "id": "fomc_statement_20190501",
+   "kind": "fomc_statement",
+   "published": "2019-05-01",
+   "title": "FOMC statement, 01 May 2019",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20190501a.htm",
+   "file": "docs/fomc_statement_20190501.md",
+   "chars": 2206
+  },
+  {
+   "id": "bls_jobs_20190503",
+   "kind": "bls_jobs",
+   "published": "2019-05-03",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2019",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05032019.htm",
+   "file": "docs/bls_jobs_20190503.md",
+   "chars": 2801
+  },
+  {
+   "id": "bls_cpi_20190510",
+   "kind": "bls_cpi",
+   "published": "2019-05-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – APRIL 2019",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_05102019.htm",
+   "file": "docs/bls_cpi_20190510.md",
+   "chars": 1387
+  },
+  {
+   "id": "treasury_yields_20190514",
+   "kind": "treasury_yields",
+   "published": "2019-05-14",
+   "title": "Treasury yield curve snapshot as of 2019-05-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20190514.md",
+   "chars": 610
+  },
+  {
+   "id": "fomc_sep_20190619",
+   "kind": "fomc_sep",
+   "published": "2019-06-19",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 19 June 2019",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20190619.htm",
+   "file": "docs/fomc_sep_20190619.md",
+   "chars": 3169
+  },
+  {
+   "id": "fomc_minutes_20190619",
+   "kind": "fomc_minutes",
+   "published": "2019-07-10",
+   "title": "Minutes of the FOMC meeting of 19 June 2019 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20190619.htm",
+   "file": "docs/fomc_minutes_20190619.md",
+   "chars": 3106
+  },
+  {
+   "id": "bea_pce_20190730",
+   "kind": "bea_pce",
+   "published": "2019-07-30",
+   "title": "BEA Personal Income and Outlays, June 2019 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2019/personal-income-and-outlays-june-2019",
+   "file": "docs/bea_pce_20190730.md",
+   "chars": 549
+  },
+  {
+   "id": "fomc_statement_20190731",
+   "kind": "fomc_statement",
+   "published": "2019-07-31",
+   "title": "FOMC statement, 31 July 2019",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20190731a.htm",
+   "file": "docs/fomc_statement_20190731.md",
+   "chars": 2730
+  },
+  {
+   "id": "bls_jobs_20190802",
+   "kind": "bls_jobs",
+   "published": "2019-08-02",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JULY 2019",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08022019.htm",
+   "file": "docs/bls_jobs_20190802.md",
+   "chars": 2605
+  },
+  {
+   "id": "bls_cpi_20190813",
+   "kind": "bls_cpi",
+   "published": "2019-08-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – JULY 2019",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_08132019.htm",
+   "file": "docs/bls_cpi_20190813.md",
+   "chars": 1507
+  },
+  {
+   "id": "treasury_yields_20190814",
+   "kind": "treasury_yields",
+   "published": "2019-08-14",
+   "title": "Treasury yield curve snapshot as of 2019-08-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20190814.md",
+   "chars": 613
+  },
+  {
+   "id": "fomc_sep_20190918",
+   "kind": "fomc_sep",
+   "published": "2019-09-18",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 18 September 2019",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20190918.htm",
+   "file": "docs/fomc_sep_20190918.md",
+   "chars": 3370
+  },
+  {
+   "id": "fomc_minutes_20190918",
+   "kind": "fomc_minutes",
+   "published": "2019-10-09",
+   "title": "Minutes of the FOMC meeting of 18 September 2019 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20190918.htm",
+   "file": "docs/fomc_minutes_20190918.md",
+   "chars": 4274
+  },
+  {
+   "id": "fomc_statement_20191030",
+   "kind": "fomc_statement",
+   "published": "2019-10-30",
+   "title": "FOMC statement, 30 October 2019",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20191030a.htm",
+   "file": "docs/fomc_statement_20191030.md",
+   "chars": 2400
+  },
+  {
+   "id": "bea_pce_20191031",
+   "kind": "bea_pce",
+   "published": "2019-10-31",
+   "title": "BEA Personal Income and Outlays, September 2019 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2019/personal-income-and-outlays-september-2019",
+   "file": "docs/bea_pce_20191031.md",
+   "chars": 579
+  },
+  {
+   "id": "bls_jobs_20191101",
+   "kind": "bls_jobs",
+   "published": "2019-11-01",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- OCTOBER 2019",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_11012019.htm",
+   "file": "docs/bls_jobs_20191101.md",
+   "chars": 3007
+  },
+  {
+   "id": "bls_cpi_20191113",
+   "kind": "bls_cpi",
+   "published": "2019-11-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – OCTOBER 2019",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_11132019.htm",
+   "file": "docs/bls_cpi_20191113.md",
+   "chars": 1717
+  },
+  {
+   "id": "treasury_yields_20191114",
+   "kind": "treasury_yields",
+   "published": "2019-11-14",
+   "title": "Treasury yield curve snapshot as of 2019-11-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20191114.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20191211",
+   "kind": "fomc_sep",
+   "published": "2019-12-11",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 11 December 2019",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20191211.htm",
+   "file": "docs/fomc_sep_20191211.md",
+   "chars": 1947
+  },
+  {
+   "id": "fomc_minutes_20191211",
+   "kind": "fomc_minutes",
+   "published": "2020-01-03",
+   "title": "Minutes of the FOMC meeting of 11 December 2019 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20191211.htm",
+   "file": "docs/fomc_minutes_20191211.md",
+   "chars": 4302
+  },
+  {
+   "id": "fomc_statement_20200129",
+   "kind": "fomc_statement",
+   "published": "2020-01-29",
+   "title": "FOMC statement, 29 January 2020",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20200129a.htm",
+   "file": "docs/fomc_statement_20200129.md",
+   "chars": 2200
+  },
+  {
+   "id": "bea_pce_20200131",
+   "kind": "bea_pce",
+   "published": "2020-01-31",
+   "title": "BEA Personal Income and Outlays, December 2019 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2020/personal-income-and-outlays-december-2019",
+   "file": "docs/bea_pce_20200131.md",
+   "chars": 577
+  },
+  {
+   "id": "bls_jobs_20200207",
+   "kind": "bls_jobs",
+   "published": "2020-02-07",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2020",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02072020.htm",
+   "file": "docs/bls_jobs_20200207.md",
+   "chars": 2941
+  },
+  {
+   "id": "bls_cpi_20200213",
+   "kind": "bls_cpi",
+   "published": "2020-02-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – JANUARY 2020",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_02132020.htm",
+   "file": "docs/bls_cpi_20200213.md",
+   "chars": 1681
+  },
+  {
+   "id": "treasury_yields_20200214",
+   "kind": "treasury_yields",
+   "published": "2020-02-14",
+   "title": "Treasury yield curve snapshot as of 2020-02-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20200214.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_minutes_20200315",
+   "kind": "fomc_minutes",
+   "published": "2020-04-08",
+   "title": "Minutes of the FOMC meeting of 15 March 2020 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20200315.htm",
+   "file": "docs/fomc_minutes_20200315.md",
+   "chars": 3682
+  },
+  {
+   "id": "fomc_statement_20200429",
+   "kind": "fomc_statement",
+   "published": "2020-04-29",
+   "title": "FOMC statement, 29 April 2020",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20200429a.htm",
+   "file": "docs/fomc_statement_20200429.md",
+   "chars": 2907
+  },
+  {
+   "id": "bea_pce_20200430",
+   "kind": "bea_pce",
+   "published": "2020-04-30",
+   "title": "BEA Personal Income and Outlays, March 2020 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2020/personal-income-and-outlays-march-2020",
+   "file": "docs/bea_pce_20200430.md",
+   "chars": 600
+  },
+  {
+   "id": "bls_jobs_20200508",
+   "kind": "bls_jobs",
+   "published": "2020-05-08",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2020",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05082020.htm",
+   "file": "docs/bls_jobs_20200508.md",
+   "chars": 2562
+  },
+  {
+   "id": "bls_cpi_20200512",
+   "kind": "bls_cpi",
+   "published": "2020-05-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – APRIL 2020",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_05122020.htm",
+   "file": "docs/bls_cpi_20200512.md",
+   "chars": 1682
+  },
+  {
+   "id": "treasury_yields_20200514",
+   "kind": "treasury_yields",
+   "published": "2020-05-14",
+   "title": "Treasury yield curve snapshot as of 2020-05-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20200514.md",
+   "chars": 610
+  },
+  {
+   "id": "fomc_sep_20200610",
+   "kind": "fomc_sep",
+   "published": "2020-06-10",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 10 June 2020",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20200610.htm",
+   "file": "docs/fomc_sep_20200610.md",
+   "chars": 3117
+  },
+  {
+   "id": "fomc_minutes_20200610",
+   "kind": "fomc_minutes",
+   "published": "2020-07-01",
+   "title": "Minutes of the FOMC meeting of 10 June 2020 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20200610.htm",
+   "file": "docs/fomc_minutes_20200610.md",
+   "chars": 2583
+  },
+  {
+   "id": "fomc_statement_20200729",
+   "kind": "fomc_statement",
+   "published": "2020-07-29",
+   "title": "FOMC statement, 29 July 2020",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20200729a.htm",
+   "file": "docs/fomc_statement_20200729.md",
+   "chars": 3043
+  },
+  {
+   "id": "bea_pce_20200731",
+   "kind": "bea_pce",
+   "published": "2020-07-31",
+   "title": "BEA Personal Income and Outlays, June 2020 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2020/personal-income-and-outlays-june-2020",
+   "file": "docs/bea_pce_20200731.md",
+   "chars": 586
+  },
+  {
+   "id": "bls_jobs_20200807",
+   "kind": "bls_jobs",
+   "published": "2020-08-07",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JULY 2020",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08072020.htm",
+   "file": "docs/bls_jobs_20200807.md",
+   "chars": 2688
+  },
+  {
+   "id": "bls_cpi_20200812",
+   "kind": "bls_cpi",
+   "published": "2020-08-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – JULY 2020",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_08122020.htm",
+   "file": "docs/bls_cpi_20200812.md",
+   "chars": 1528
+  },
+  {
+   "id": "treasury_yields_20200814",
+   "kind": "treasury_yields",
+   "published": "2020-08-14",
+   "title": "Treasury yield curve snapshot as of 2020-08-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20200814.md",
+   "chars": 613
+  },
+  {
+   "id": "fomc_sep_20200916",
+   "kind": "fomc_sep",
+   "published": "2020-09-16",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 16 September 2020",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20200916.htm",
+   "file": "docs/fomc_sep_20200916.md",
+   "chars": 3182
+  },
+  {
+   "id": "fomc_minutes_20200916",
+   "kind": "fomc_minutes",
+   "published": "2020-10-07",
+   "title": "Minutes of the FOMC meeting of 16 September 2020 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20200916.htm",
+   "file": "docs/fomc_minutes_20200916.md",
+   "chars": 4304
+  },
+  {
+   "id": "bea_pce_20201030",
+   "kind": "bea_pce",
+   "published": "2020-10-30",
+   "title": "BEA Personal Income and Outlays, September 2020 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2020/personal-income-and-outlays-september-2020",
+   "file": "docs/bea_pce_20201030.md",
+   "chars": 606
+  },
+  {
+   "id": "fomc_statement_20201105",
+   "kind": "fomc_statement",
+   "published": "2020-11-05",
+   "title": "FOMC statement, 05 November 2020",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20201105a.htm",
+   "file": "docs/fomc_statement_20201105.md",
+   "chars": 3113
+  },
+  {
+   "id": "bls_jobs_20201106",
+   "kind": "bls_jobs",
+   "published": "2020-11-06",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- OCTOBER 2020",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_11062020.htm",
+   "file": "docs/bls_jobs_20201106.md",
+   "chars": 2933
+  },
+  {
+   "id": "bls_cpi_20201112",
+   "kind": "bls_cpi",
+   "published": "2020-11-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – OCTOBER 2020",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_11122020.htm",
+   "file": "docs/bls_cpi_20201112.md",
+   "chars": 1506
+  },
+  {
+   "id": "treasury_yields_20201113",
+   "kind": "treasury_yields",
+   "published": "2020-11-13",
+   "title": "Treasury yield curve snapshot as of 2020-11-13",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20201113.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20201216",
+   "kind": "fomc_sep",
+   "published": "2020-12-16",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 16 December 2020",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20201216.htm",
+   "file": "docs/fomc_sep_20201216.md",
+   "chars": 3303
+  },
+  {
+   "id": "fomc_minutes_20201216",
+   "kind": "fomc_minutes",
+   "published": "2021-01-06",
+   "title": "Minutes of the FOMC meeting of 16 December 2020 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20201216.htm",
+   "file": "docs/fomc_minutes_20201216.md",
+   "chars": 3250
+  },
+  {
+   "id": "fomc_statement_20210127",
+   "kind": "fomc_statement",
+   "published": "2021-01-27",
+   "title": "FOMC statement, 27 January 2021",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20210127a.htm",
+   "file": "docs/fomc_statement_20210127.md",
+   "chars": 3292
+  },
+  {
+   "id": "bea_pce_20210129",
+   "kind": "bea_pce",
+   "published": "2021-01-29",
+   "title": "BEA Personal Income and Outlays, December 2020 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2021/personal-income-and-outlays-december-2020",
+   "file": "docs/bea_pce_20210129.md",
+   "chars": 603
+  },
+  {
+   "id": "bls_jobs_20210205",
+   "kind": "bls_jobs",
+   "published": "2021-02-05",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2021",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02052021.htm",
+   "file": "docs/bls_jobs_20210205.md",
+   "chars": 2893
+  },
+  {
+   "id": "bls_cpi_20210210",
+   "kind": "bls_cpi",
+   "published": "2021-02-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – JANUARY 2021",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_02102021.htm",
+   "file": "docs/bls_cpi_20210210.md",
+   "chars": 1750
+  },
+  {
+   "id": "treasury_yields_20210212",
+   "kind": "treasury_yields",
+   "published": "2021-02-12",
+   "title": "Treasury yield curve snapshot as of 2021-02-12",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20210212.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20210317",
+   "kind": "fomc_sep",
+   "published": "2021-03-17",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 17 March 2021",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20210317.htm",
+   "file": "docs/fomc_sep_20210317.md",
+   "chars": 3030
+  },
+  {
+   "id": "fomc_minutes_20210317",
+   "kind": "fomc_minutes",
+   "published": "2021-04-07",
+   "title": "Minutes of the FOMC meeting of 17 March 2021 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20210317.htm",
+   "file": "docs/fomc_minutes_20210317.md",
+   "chars": 3743
+  },
+  {
+   "id": "fomc_statement_20210428",
+   "kind": "fomc_statement",
+   "published": "2021-04-28",
+   "title": "FOMC statement, 28 April 2021",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20210428a.htm",
+   "file": "docs/fomc_statement_20210428.md",
+   "chars": 3246
+  },
+  {
+   "id": "bea_pce_20210430",
+   "kind": "bea_pce",
+   "published": "2021-04-30",
+   "title": "BEA Personal Income and Outlays, March 2021 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2021/personal-income-and-outlays-march-2021",
+   "file": "docs/bea_pce_20210430.md",
+   "chars": 665
+  },
+  {
+   "id": "bls_jobs_20210507",
+   "kind": "bls_jobs",
+   "published": "2021-05-07",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2021",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05072021.htm",
+   "file": "docs/bls_jobs_20210507.md",
+   "chars": 2877
+  },
+  {
+   "id": "bls_cpi_20210512",
+   "kind": "bls_cpi",
+   "published": "2021-05-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – APRIL 2021",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_05122021.htm",
+   "file": "docs/bls_cpi_20210512.md",
+   "chars": 1783
+  },
+  {
+   "id": "treasury_yields_20210514",
+   "kind": "treasury_yields",
+   "published": "2021-05-14",
+   "title": "Treasury yield curve snapshot as of 2021-05-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20210514.md",
+   "chars": 610
+  },
+  {
+   "id": "fomc_sep_20210616",
+   "kind": "fomc_sep",
+   "published": "2021-06-16",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 16 June 2021",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20210616.htm",
+   "file": "docs/fomc_sep_20210616.md",
+   "chars": 3009
+  },
+  {
+   "id": "fomc_minutes_20210616",
+   "kind": "fomc_minutes",
+   "published": "2021-07-07",
+   "title": "Minutes of the FOMC meeting of 16 June 2021 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20210616.htm",
+   "file": "docs/fomc_minutes_20210616.md",
+   "chars": 4206
+  },
+  {
+   "id": "fomc_statement_20210728",
+   "kind": "fomc_statement",
+   "published": "2021-07-28",
+   "title": "FOMC statement, 28 July 2021",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20210728a.htm",
+   "file": "docs/fomc_statement_20210728.md",
+   "chars": 3291
+  },
+  {
+   "id": "bea_pce_20210730",
+   "kind": "bea_pce",
+   "published": "2021-07-30",
+   "title": "BEA Personal Income and Outlays, June 2021 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2021/personal-income-and-outlays-june-2021",
+   "file": "docs/bea_pce_20210730.md",
+   "chars": 973
+  },
+  {
+   "id": "bls_jobs_20210806",
+   "kind": "bls_jobs",
+   "published": "2021-08-06",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JULY 2021",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08062021.htm",
+   "file": "docs/bls_jobs_20210806.md",
+   "chars": 2905
+  },
+  {
+   "id": "bls_cpi_20210811",
+   "kind": "bls_cpi",
+   "published": "2021-08-11",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – JULY 2021",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_08112021.htm",
+   "file": "docs/bls_cpi_20210811.md",
+   "chars": 1599
+  },
+  {
+   "id": "treasury_yields_20210813",
+   "kind": "treasury_yields",
+   "published": "2021-08-13",
+   "title": "Treasury yield curve snapshot as of 2021-08-13",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20210813.md",
+   "chars": 613
+  },
+  {
+   "id": "fomc_sep_20210922",
+   "kind": "fomc_sep",
+   "published": "2021-09-22",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 22 September 2021",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20210922.htm",
+   "file": "docs/fomc_sep_20210922.md",
+   "chars": 3202
+  },
+  {
+   "id": "fomc_minutes_20210922",
+   "kind": "fomc_minutes",
+   "published": "2021-10-13",
+   "title": "Minutes of the FOMC meeting of 22 September 2021 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20210922.htm",
+   "file": "docs/fomc_minutes_20210922.md",
+   "chars": 4159
+  },
+  {
+   "id": "bea_pce_20211029",
+   "kind": "bea_pce",
+   "published": "2021-10-29",
+   "title": "BEA Personal Income and Outlays, September 2021 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2021/personal-income-and-outlays-september-2021",
+   "file": "docs/bea_pce_20211029.md",
+   "chars": 985
+  },
+  {
+   "id": "fomc_statement_20211103",
+   "kind": "fomc_statement",
+   "published": "2021-11-03",
+   "title": "FOMC statement, 03 November 2021",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20211103a.htm",
+   "file": "docs/fomc_statement_20211103.md",
+   "chars": 3266
+  },
+  {
+   "id": "bls_jobs_20211105",
+   "kind": "bls_jobs",
+   "published": "2021-11-05",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- OCTOBER 2021",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_11052021.htm",
+   "file": "docs/bls_jobs_20211105.md",
+   "chars": 2914
+  },
+  {
+   "id": "bls_cpi_20211110",
+   "kind": "bls_cpi",
+   "published": "2021-11-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – OCTOBER 2021",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_11102021.htm",
+   "file": "docs/bls_cpi_20211110.md",
+   "chars": 1618
+  },
+  {
+   "id": "treasury_yields_20211112",
+   "kind": "treasury_yields",
+   "published": "2021-11-12",
+   "title": "Treasury yield curve snapshot as of 2021-11-12",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20211112.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20211215",
+   "kind": "fomc_sep",
+   "published": "2021-12-15",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 15 December 2021",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20211215.htm",
+   "file": "docs/fomc_sep_20211215.md",
+   "chars": 3318
+  },
+  {
+   "id": "fomc_minutes_20211215",
+   "kind": "fomc_minutes",
+   "published": "2022-01-05",
+   "title": "Minutes of the FOMC meeting of 15 December 2021 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20211215.htm",
+   "file": "docs/fomc_minutes_20211215.md",
+   "chars": 4164
+  },
+  {
+   "id": "fomc_statement_20220126",
+   "kind": "fomc_statement",
+   "published": "2022-01-26",
+   "title": "FOMC statement, 26 January 2022",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20220126a.htm",
+   "file": "docs/fomc_statement_20220126.md",
+   "chars": 2855
+  },
+  {
+   "id": "bea_pce_20220128",
+   "kind": "bea_pce",
+   "published": "2022-01-28",
+   "title": "BEA Personal Income and Outlays, December 2021 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2022/personal-income-and-outlays-december-2021",
+   "file": "docs/bea_pce_20220128.md",
+   "chars": 979
+  },
+  {
+   "id": "bls_jobs_20220204",
+   "kind": "bls_jobs",
+   "published": "2022-02-04",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2022",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02042022.htm",
+   "file": "docs/bls_jobs_20220204.md",
+   "chars": 2888
+  },
+  {
+   "id": "bls_cpi_20220210",
+   "kind": "bls_cpi",
+   "published": "2022-02-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX – JANUARY 2022",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_02102022.htm",
+   "file": "docs/bls_cpi_20220210.md",
+   "chars": 1467
+  },
+  {
+   "id": "treasury_yields_20220214",
+   "kind": "treasury_yields",
+   "published": "2022-02-14",
+   "title": "Treasury yield curve snapshot as of 2022-02-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20220214.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20220316",
+   "kind": "fomc_sep",
+   "published": "2022-03-16",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 16 March 2022",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20220316.pdf",
+   "file": "docs/fomc_sep_20220316.md",
+   "chars": 1597
+  },
+  {
+   "id": "fomc_minutes_20220316",
+   "kind": "fomc_minutes",
+   "published": "2022-04-06",
+   "title": "Minutes of the FOMC meeting of 16 March 2022 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20220316.htm",
+   "file": "docs/fomc_minutes_20220316.md",
+   "chars": 3660
+  },
+  {
+   "id": "bea_pce_20220429",
+   "kind": "bea_pce",
+   "published": "2022-04-29",
+   "title": "BEA Personal Income and Outlays, March 2022 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2022/personal-income-and-outlays-march-2022",
+   "file": "docs/bea_pce_20220429.md",
+   "chars": 970
+  },
+  {
+   "id": "fomc_statement_20220504",
+   "kind": "fomc_statement",
+   "published": "2022-05-04",
+   "title": "FOMC statement, 04 May 2022",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20220504a.htm",
+   "file": "docs/fomc_statement_20220504.md",
+   "chars": 2512
+  },
+  {
+   "id": "bls_jobs_20220506",
+   "kind": "bls_jobs",
+   "published": "2022-05-06",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2022",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05062022.htm",
+   "file": "docs/bls_jobs_20220506.md",
+   "chars": 2866
+  },
+  {
+   "id": "bls_cpi_20220511",
+   "kind": "bls_cpi",
+   "published": "2022-05-11",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - APRIL 2022",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_05112022.htm",
+   "file": "docs/bls_cpi_20220511.md",
+   "chars": 1551
+  },
+  {
+   "id": "treasury_yields_20220513",
+   "kind": "treasury_yields",
+   "published": "2022-05-13",
+   "title": "Treasury yield curve snapshot as of 2022-05-13",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20220513.md",
+   "chars": 610
+  },
+  {
+   "id": "fomc_sep_20220615",
+   "kind": "fomc_sep",
+   "published": "2022-06-15",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 15 June 2022",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20220615.htm",
+   "file": "docs/fomc_sep_20220615.md",
+   "chars": 3025
+  },
+  {
+   "id": "bea_pce_20220630",
+   "kind": "bea_pce",
+   "published": "2022-06-30",
+   "title": "BEA Personal Income and Outlays, May 2022 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2022/personal-income-and-outlays-may-2022",
+   "file": "docs/bea_pce_20220630.md",
+   "chars": 934
+  },
+  {
+   "id": "fomc_minutes_20220615",
+   "kind": "fomc_minutes",
+   "published": "2022-07-06",
+   "title": "Minutes of the FOMC meeting of 15 June 2022 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20220615.htm",
+   "file": "docs/fomc_minutes_20220615.md",
+   "chars": 4373
+  },
+  {
+   "id": "fomc_statement_20220727",
+   "kind": "fomc_statement",
+   "published": "2022-07-27",
+   "title": "FOMC statement, 27 July 2022",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20220727a.htm",
+   "file": "docs/fomc_statement_20220727.md",
+   "chars": 2162
+  },
+  {
+   "id": "bls_jobs_20220805",
+   "kind": "bls_jobs",
+   "published": "2022-08-05",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JULY 2022",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08052022.htm",
+   "file": "docs/bls_jobs_20220805.md",
+   "chars": 2843
+  },
+  {
+   "id": "bls_cpi_20220810",
+   "kind": "bls_cpi",
+   "published": "2022-08-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JULY 2022",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_08102022.htm",
+   "file": "docs/bls_cpi_20220810.md",
+   "chars": 1682
+  },
+  {
+   "id": "treasury_yields_20220812",
+   "kind": "treasury_yields",
+   "published": "2022-08-12",
+   "title": "Treasury yield curve snapshot as of 2022-08-12",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20220812.md",
+   "chars": 613
+  },
+  {
+   "id": "fomc_sep_20220921",
+   "kind": "fomc_sep",
+   "published": "2022-09-21",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 21 September 2022",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20220921.htm",
+   "file": "docs/fomc_sep_20220921.md",
+   "chars": 3222
+  },
+  {
+   "id": "fomc_minutes_20220921",
+   "kind": "fomc_minutes",
+   "published": "2022-10-12",
+   "title": "Minutes of the FOMC meeting of 21 September 2022 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20220921.htm",
+   "file": "docs/fomc_minutes_20220921.md",
+   "chars": 3992
+  },
+  {
+   "id": "bea_pce_20221028",
+   "kind": "bea_pce",
+   "published": "2022-10-28",
+   "title": "BEA Personal Income and Outlays, September 2022 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2022/personal-income-and-outlays-september-2022",
+   "file": "docs/bea_pce_20221028.md",
+   "chars": 1207
+  },
+  {
+   "id": "fomc_statement_20221102",
+   "kind": "fomc_statement",
+   "published": "2022-11-02",
+   "title": "FOMC statement, 02 November 2022",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20221102a.htm",
+   "file": "docs/fomc_statement_20221102.md",
+   "chars": 2558
+  },
+  {
+   "id": "bls_jobs_20221104",
+   "kind": "bls_jobs",
+   "published": "2022-11-04",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- OCTOBER 2022",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_11042022.htm",
+   "file": "docs/bls_jobs_20221104.md",
+   "chars": 2719
+  },
+  {
+   "id": "bls_cpi_20221110",
+   "kind": "bls_cpi",
+   "published": "2022-11-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - OCTOBER 2022",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_11102022.htm",
+   "file": "docs/bls_cpi_20221110.md",
+   "chars": 1539
+  },
+  {
+   "id": "treasury_yields_20221114",
+   "kind": "treasury_yields",
+   "published": "2022-11-14",
+   "title": "Treasury yield curve snapshot as of 2022-11-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20221114.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20221214",
+   "kind": "fomc_sep",
+   "published": "2022-12-14",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 14 December 2022",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20221214.htm",
+   "file": "docs/fomc_sep_20221214.md",
+   "chars": 3332
+  },
+  {
+   "id": "fomc_minutes_20221214",
+   "kind": "fomc_minutes",
+   "published": "2023-01-04",
+   "title": "Minutes of the FOMC meeting of 14 December 2022 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20221214.htm",
+   "file": "docs/fomc_minutes_20221214.md",
+   "chars": 3759
+  },
+  {
+   "id": "bea_pce_20230127",
+   "kind": "bea_pce",
+   "published": "2023-01-27",
+   "title": "BEA Personal Income and Outlays, December 2022 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2023/personal-income-and-outlays-december-2022",
+   "file": "docs/bea_pce_20230127.md",
+   "chars": 1049
+  },
+  {
+   "id": "fomc_statement_20230201",
+   "kind": "fomc_statement",
+   "published": "2023-02-01",
+   "title": "FOMC statement, 01 February 2023",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20230201a.htm",
+   "file": "docs/fomc_statement_20230201.md",
+   "chars": 2305
+  },
+  {
+   "id": "bls_jobs_20230203",
+   "kind": "bls_jobs",
+   "published": "2023-02-03",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2023",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02032023.htm",
+   "file": "docs/bls_jobs_20230203.md",
+   "chars": 2970
+  },
+  {
+   "id": "bls_cpi_20230214",
+   "kind": "bls_cpi",
+   "published": "2023-02-14",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JANUARY 2023",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_02142023.htm",
+   "file": "docs/bls_cpi_20230214.md",
+   "chars": 1556
+  },
+  {
+   "id": "treasury_yields_20230214",
+   "kind": "treasury_yields",
+   "published": "2023-02-14",
+   "title": "Treasury yield curve snapshot as of 2023-02-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20230214.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20230322",
+   "kind": "fomc_sep",
+   "published": "2023-03-22",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 22 March 2023",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20230322.htm",
+   "file": "docs/fomc_sep_20230322.md",
+   "chars": 3052
+  },
+  {
+   "id": "fomc_minutes_20230322",
+   "kind": "fomc_minutes",
+   "published": "2023-04-12",
+   "title": "Minutes of the FOMC meeting of 22 March 2023 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20230322.htm",
+   "file": "docs/fomc_minutes_20230322.md",
+   "chars": 3665
+  },
+  {
+   "id": "bea_pce_20230428",
+   "kind": "bea_pce",
+   "published": "2023-04-28",
+   "title": "BEA Personal Income and Outlays, March 2023 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2023/personal-income-and-outlays-march-2023",
+   "file": "docs/bea_pce_20230428.md",
+   "chars": 1071
+  },
+  {
+   "id": "fomc_statement_20230503",
+   "kind": "fomc_statement",
+   "published": "2023-05-03",
+   "title": "FOMC statement, 03 May 2023",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20230503a.htm",
+   "file": "docs/fomc_statement_20230503.md",
+   "chars": 2294
+  },
+  {
+   "id": "bls_jobs_20230505",
+   "kind": "bls_jobs",
+   "published": "2023-05-05",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2023",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05052023.htm",
+   "file": "docs/bls_jobs_20230505.md",
+   "chars": 2572
+  },
+  {
+   "id": "bls_cpi_20230510",
+   "kind": "bls_cpi",
+   "published": "2023-05-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - APRIL 2023",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_05102023.htm",
+   "file": "docs/bls_cpi_20230510.md",
+   "chars": 1561
+  },
+  {
+   "id": "treasury_yields_20230512",
+   "kind": "treasury_yields",
+   "published": "2023-05-12",
+   "title": "Treasury yield curve snapshot as of 2023-05-12",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20230512.md",
+   "chars": 610
+  },
+  {
+   "id": "fomc_sep_20230614",
+   "kind": "fomc_sep",
+   "published": "2023-06-14",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 14 June 2023",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20230614.htm",
+   "file": "docs/fomc_sep_20230614.md",
+   "chars": 3026
+  },
+  {
+   "id": "fomc_minutes_20230614",
+   "kind": "fomc_minutes",
+   "published": "2023-07-05",
+   "title": "Minutes of the FOMC meeting of 14 June 2023 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20230614.htm",
+   "file": "docs/fomc_minutes_20230614.md",
+   "chars": 4242
+  },
+  {
+   "id": "fomc_statement_20230726",
+   "kind": "fomc_statement",
+   "published": "2023-07-26",
+   "title": "FOMC statement, 26 July 2023",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20230726a.htm",
+   "file": "docs/fomc_statement_20230726.md",
+   "chars": 2318
+  },
+  {
+   "id": "bea_pce_20230728",
+   "kind": "bea_pce",
+   "published": "2023-07-28",
+   "title": "BEA Personal Income and Outlays, June 2023 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2023/personal-income-and-outlays-june-2023",
+   "file": "docs/bea_pce_20230728.md",
+   "chars": 1122
+  },
+  {
+   "id": "bls_jobs_20230804",
+   "kind": "bls_jobs",
+   "published": "2023-08-04",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JULY 2023",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08042023.htm",
+   "file": "docs/bls_jobs_20230804.md",
+   "chars": 2952
+  },
+  {
+   "id": "bls_cpi_20230810",
+   "kind": "bls_cpi",
+   "published": "2023-08-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JULY 2023",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_08102023.htm",
+   "file": "docs/bls_cpi_20230810.md",
+   "chars": 1535
+  },
+  {
+   "id": "treasury_yields_20230814",
+   "kind": "treasury_yields",
+   "published": "2023-08-14",
+   "title": "Treasury yield curve snapshot as of 2023-08-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20230814.md",
+   "chars": 613
+  },
+  {
+   "id": "fomc_sep_20230920",
+   "kind": "fomc_sep",
+   "published": "2023-09-20",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 20 September 2023",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20230920.htm",
+   "file": "docs/fomc_sep_20230920.md",
+   "chars": 3218
+  },
+  {
+   "id": "fomc_minutes_20230920",
+   "kind": "fomc_minutes",
+   "published": "2023-10-11",
+   "title": "Minutes of the FOMC meeting of 20 September 2023 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20230920.htm",
+   "file": "docs/fomc_minutes_20230920.md",
+   "chars": 3116
+  },
+  {
+   "id": "bea_pce_20231027",
+   "kind": "bea_pce",
+   "published": "2023-10-27",
+   "title": "BEA Personal Income and Outlays, September 2023 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2023/personal-income-and-outlays-september-2023",
+   "file": "docs/bea_pce_20231027.md",
+   "chars": 1133
+  },
+  {
+   "id": "fomc_statement_20231101",
+   "kind": "fomc_statement",
+   "published": "2023-11-01",
+   "title": "FOMC statement, 01 November 2023",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20231101a.htm",
+   "file": "docs/fomc_statement_20231101.md",
+   "chars": 2392
+  },
+  {
+   "id": "bls_jobs_20231103",
+   "kind": "bls_jobs",
+   "published": "2023-11-03",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- OCTOBER 2023",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_11032023.htm",
+   "file": "docs/bls_jobs_20231103.md",
+   "chars": 2509
+  },
+  {
+   "id": "bls_cpi_20231114",
+   "kind": "bls_cpi",
+   "published": "2023-11-14",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - OCTOBER 2023",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_11142023.htm",
+   "file": "docs/bls_cpi_20231114.md",
+   "chars": 1730
+  },
+  {
+   "id": "treasury_yields_20231114",
+   "kind": "treasury_yields",
+   "published": "2023-11-14",
+   "title": "Treasury yield curve snapshot as of 2023-11-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20231114.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20231213",
+   "kind": "fomc_sep",
+   "published": "2023-12-13",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 13 December 2023",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20231213.htm",
+   "file": "docs/fomc_sep_20231213.md",
+   "chars": 3326
+  },
+  {
+   "id": "fomc_minutes_20231213",
+   "kind": "fomc_minutes",
+   "published": "2024-01-03",
+   "title": "Minutes of the FOMC meeting of 13 December 2023 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20231213.htm",
+   "file": "docs/fomc_minutes_20231213.md",
+   "chars": 4225
+  },
+  {
+   "id": "bea_pce_20240126",
+   "kind": "bea_pce",
+   "published": "2024-01-26",
+   "title": "BEA Personal Income and Outlays, December 2023 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2024/personal-income-and-outlays-december-2023",
+   "file": "docs/bea_pce_20240126.md",
+   "chars": 1121
+  },
+  {
+   "id": "fomc_statement_20240131",
+   "kind": "fomc_statement",
+   "published": "2024-01-31",
+   "title": "FOMC statement, 31 January 2024",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240131a.htm",
+   "file": "docs/fomc_statement_20240131.md",
+   "chars": 2259
+  },
+  {
+   "id": "bls_jobs_20240202",
+   "kind": "bls_jobs",
+   "published": "2024-02-02",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02022024.htm",
+   "file": "docs/bls_jobs_20240202.md",
+   "chars": 2817
+  },
+  {
+   "id": "bls_cpi_20240213",
+   "kind": "bls_cpi",
+   "published": "2024-02-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JANUARY 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_02132024.htm",
+   "file": "docs/bls_cpi_20240213.md",
+   "chars": 1479
+  },
+  {
+   "id": "treasury_yields_20240214",
+   "kind": "treasury_yields",
+   "published": "2024-02-14",
+   "title": "Treasury yield curve snapshot as of 2024-02-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20240214.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20240320",
+   "kind": "fomc_sep",
+   "published": "2024-03-20",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 20 March 2024",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20240320.htm",
+   "file": "docs/fomc_sep_20240320.md",
+   "chars": 3046
+  },
+  {
+   "id": "bls_cpi_20240410",
+   "kind": "bls_cpi",
+   "published": "2024-04-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - MARCH 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_04102024.htm",
+   "file": "docs/bls_cpi_20240410.md",
+   "chars": 1500
+  },
+  {
+   "id": "fomc_minutes_20240320",
+   "kind": "fomc_minutes",
+   "published": "2024-04-10",
+   "title": "Minutes of the FOMC meeting of 20 March 2024 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20240320.htm",
+   "file": "docs/fomc_minutes_20240320.md",
+   "chars": 3690
+  },
+  {
+   "id": "bea_pce_20240426",
+   "kind": "bea_pce",
+   "published": "2024-04-26",
+   "title": "BEA Personal Income and Outlays, March 2024 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2024/personal-income-and-outlays-march-2024",
+   "file": "docs/bea_pce_20240426.md",
+   "chars": 1124
+  },
+  {
+   "id": "fomc_statement_20240501",
+   "kind": "fomc_statement",
+   "published": "2024-05-01",
+   "title": "FOMC statement, 01 May 2024",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240501a.htm",
+   "file": "docs/fomc_statement_20240501.md",
+   "chars": 2710
+  },
+  {
+   "id": "bls_jobs_20240503",
+   "kind": "bls_jobs",
+   "published": "2024-05-03",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05032024.htm",
+   "file": "docs/bls_jobs_20240503.md",
+   "chars": 2895
+  },
+  {
+   "id": "treasury_yields_20240514",
+   "kind": "treasury_yields",
+   "published": "2024-05-14",
+   "title": "Treasury yield curve snapshot as of 2024-05-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20240514.md",
+   "chars": 610
+  },
+  {
+   "id": "fomc_sep_20240612",
+   "kind": "fomc_sep",
+   "published": "2024-06-12",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 12 June 2024",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20240612.htm",
+   "file": "docs/fomc_sep_20240612.md",
+   "chars": 2922
+  },
+  {
+   "id": "fomc_minutes_20240612",
+   "kind": "fomc_minutes",
+   "published": "2024-07-03",
+   "title": "Minutes of the FOMC meeting of 12 June 2024 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20240612.htm",
+   "file": "docs/fomc_minutes_20240612.md",
+   "chars": 3596
+  },
+  {
+   "id": "bea_pce_20240726",
+   "kind": "bea_pce",
+   "published": "2024-07-26",
+   "title": "BEA Personal Income and Outlays, June 2024 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2024/personal-income-and-outlays-june-2024",
+   "file": "docs/bea_pce_20240726.md",
+   "chars": 1113
+  },
+  {
+   "id": "fomc_statement_20240731",
+   "kind": "fomc_statement",
+   "published": "2024-07-31",
+   "title": "FOMC statement, 31 July 2024",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240731a.htm",
+   "file": "docs/fomc_statement_20240731.md",
+   "chars": 2391
+  },
+  {
+   "id": "bls_jobs_20240802",
+   "kind": "bls_jobs",
+   "published": "2024-08-02",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JULY 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08022024.htm",
+   "file": "docs/bls_jobs_20240802.md",
+   "chars": 2724
+  },
+  {
+   "id": "bls_cpi_20240814",
+   "kind": "bls_cpi",
+   "published": "2024-08-14",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JULY 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_08142024.htm",
+   "file": "docs/bls_cpi_20240814.md",
+   "chars": 1529
+  },
+  {
+   "id": "treasury_yields_20240814",
+   "kind": "treasury_yields",
+   "published": "2024-08-14",
+   "title": "Treasury yield curve snapshot as of 2024-08-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20240814.md",
+   "chars": 613
+  },
+  {
+   "id": "fomc_sep_20240918",
+   "kind": "fomc_sep",
+   "published": "2024-09-18",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 18 September 2024",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20240918.htm",
+   "file": "docs/fomc_sep_20240918.md",
+   "chars": 2912
+  },
+  {
+   "id": "fomc_minutes_20240918",
+   "kind": "fomc_minutes",
+   "published": "2024-10-09",
+   "title": "Minutes of the FOMC meeting of 18 September 2024 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20240918.htm",
+   "file": "docs/fomc_minutes_20240918.md",
+   "chars": 4181
+  },
+  {
+   "id": "bea_pce_20241031",
+   "kind": "bea_pce",
+   "published": "2024-10-31",
+   "title": "BEA Personal Income and Outlays, September 2024 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2024/personal-income-and-outlays-september-2024",
+   "file": "docs/bea_pce_20241031.md",
+   "chars": 1146
+  },
+  {
+   "id": "bls_jobs_20241101",
+   "kind": "bls_jobs",
+   "published": "2024-11-01",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- OCTOBER 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_11012024.htm",
+   "file": "docs/bls_jobs_20241101.md",
+   "chars": 3000
+  },
+  {
+   "id": "fomc_statement_20241107",
+   "kind": "fomc_statement",
+   "published": "2024-11-07",
+   "title": "FOMC statement, 07 November 2024",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20241107a.htm",
+   "file": "docs/fomc_statement_20241107.md",
+   "chars": 2158
+  },
+  {
+   "id": "bls_cpi_20241113",
+   "kind": "bls_cpi",
+   "published": "2024-11-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - OCTOBER 2024",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_11132024.htm",
+   "file": "docs/bls_cpi_20241113.md",
+   "chars": 1819
+  },
+  {
+   "id": "treasury_yields_20241114",
+   "kind": "treasury_yields",
+   "published": "2024-11-14",
+   "title": "Treasury yield curve snapshot as of 2024-11-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20241114.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20241218",
+   "kind": "fomc_sep",
+   "published": "2024-12-18",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 18 December 2024",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20241218.htm",
+   "file": "docs/fomc_sep_20241218.md",
+   "chars": 3016
+  },
+  {
+   "id": "fomc_minutes_20241218",
+   "kind": "fomc_minutes",
+   "published": "2025-01-08",
+   "title": "Minutes of the FOMC meeting of 18 December 2024 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20241218.htm",
+   "file": "docs/fomc_minutes_20241218.md",
+   "chars": 4223
+  },
+  {
+   "id": "fomc_statement_20250129",
+   "kind": "fomc_statement",
+   "published": "2025-01-29",
+   "title": "FOMC statement, 29 January 2025",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20250129a.htm",
+   "file": "docs/fomc_statement_20250129.md",
+   "chars": 2088
+  },
+  {
+   "id": "bea_pce_20250131",
+   "kind": "bea_pce",
+   "published": "2025-01-31",
+   "title": "BEA Personal Income and Outlays, December 2024 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2025/personal-income-and-outlays-december-2024",
+   "file": "docs/bea_pce_20250131.md",
+   "chars": 990
+  },
+  {
+   "id": "bls_jobs_20250207",
+   "kind": "bls_jobs",
+   "published": "2025-02-07",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02072025.htm",
+   "file": "docs/bls_jobs_20250207.md",
+   "chars": 2981
+  },
+  {
+   "id": "bls_cpi_20250212",
+   "kind": "bls_cpi",
+   "published": "2025-02-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JANUARY 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_02122025.htm",
+   "file": "docs/bls_cpi_20250212.md",
+   "chars": 2256
+  },
+  {
+   "id": "treasury_yields_20250214",
+   "kind": "treasury_yields",
+   "published": "2025-02-14",
+   "title": "Treasury yield curve snapshot as of 2025-02-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20250214.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20250319",
+   "kind": "fomc_sep",
+   "published": "2025-03-19",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 19 March 2025",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20250319.htm",
+   "file": "docs/fomc_sep_20250319.md",
+   "chars": 2752
+  },
+  {
+   "id": "fomc_minutes_20250319",
+   "kind": "fomc_minutes",
+   "published": "2025-04-09",
+   "title": "Minutes of the FOMC meeting of 19 March 2025 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20250319.htm",
+   "file": "docs/fomc_minutes_20250319.md",
+   "chars": 2554
+  },
+  {
+   "id": "bea_pce_20250430",
+   "kind": "bea_pce",
+   "published": "2025-04-30",
+   "title": "BEA Personal Income and Outlays, March 2025 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2025/personal-income-and-outlays-march-2025",
+   "file": "docs/bea_pce_20250430.md",
+   "chars": 1066
+  },
+  {
+   "id": "bls_jobs_20250502",
+   "kind": "bls_jobs",
+   "published": "2025-05-02",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05022025.htm",
+   "file": "docs/bls_jobs_20250502.md",
+   "chars": 2767
+  },
+  {
+   "id": "fomc_statement_20250507",
+   "kind": "fomc_statement",
+   "published": "2025-05-07",
+   "title": "FOMC statement, 07 May 2025",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20250507a.htm",
+   "file": "docs/fomc_statement_20250507.md",
+   "chars": 2191
+  },
+  {
+   "id": "bls_cpi_20250513",
+   "kind": "bls_cpi",
+   "published": "2025-05-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - APRIL 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_05132025.htm",
+   "file": "docs/bls_cpi_20250513.md",
+   "chars": 2115
+  },
+  {
+   "id": "treasury_yields_20250514",
+   "kind": "treasury_yields",
+   "published": "2025-05-14",
+   "title": "Treasury yield curve snapshot as of 2025-05-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20250514.md",
+   "chars": 610
+  },
+  {
+   "id": "fomc_sep_20250618",
+   "kind": "fomc_sep",
+   "published": "2025-06-18",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 18 June 2025",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20250618.htm",
+   "file": "docs/fomc_sep_20250618.md",
+   "chars": 2739
+  },
+  {
+   "id": "fomc_minutes_20250618",
+   "kind": "fomc_minutes",
+   "published": "2025-07-09",
+   "title": "Minutes of the FOMC meeting of 18 June 2025 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20250618.htm",
+   "file": "docs/fomc_minutes_20250618.md",
+   "chars": 4060
+  },
+  {
+   "id": "fomc_statement_20250730",
+   "kind": "fomc_statement",
+   "published": "2025-07-30",
+   "title": "FOMC statement, 30 July 2025",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm",
+   "file": "docs/fomc_statement_20250730.md",
+   "chars": 2199
+  },
+  {
+   "id": "bea_pce_20250731",
+   "kind": "bea_pce",
+   "published": "2025-07-31",
+   "title": "BEA Personal Income and Outlays, June 2025 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2025/personal-income-and-outlays-june-2025",
+   "file": "docs/bea_pce_20250731.md",
+   "chars": 1699
+  },
+  {
+   "id": "bls_jobs_20250801",
+   "kind": "bls_jobs",
+   "published": "2025-08-01",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JULY 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08012025.htm",
+   "file": "docs/bls_jobs_20250801.md",
+   "chars": 2638
+  },
+  {
+   "id": "bls_cpi_20250812",
+   "kind": "bls_cpi",
+   "published": "2025-08-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JULY 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_08122025.htm",
+   "file": "docs/bls_cpi_20250812.md",
+   "chars": 1942
+  },
+  {
+   "id": "treasury_yields_20250814",
+   "kind": "treasury_yields",
+   "published": "2025-08-14",
+   "title": "Treasury yield curve snapshot as of 2025-08-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20250814.md",
+   "chars": 613
+  },
+  {
+   "id": "bls_jobs_20250905",
+   "kind": "bls_jobs",
+   "published": "2025-09-05",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- AUGUST 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_09052025.htm",
+   "file": "docs/bls_jobs_20250905.md",
+   "chars": 2672
+  },
+  {
+   "id": "fomc_sep_20250917",
+   "kind": "fomc_sep",
+   "published": "2025-09-17",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 17 September 2025",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20250917.htm",
+   "file": "docs/fomc_sep_20250917.md",
+   "chars": 2916
+  },
+  {
+   "id": "bea_pce_20250926",
+   "kind": "bea_pce",
+   "published": "2025-09-26",
+   "title": "BEA Personal Income and Outlays, August 2025 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2025/personal-income-and-outlays-august-2025",
+   "file": "docs/bea_pce_20250926.md",
+   "chars": 1097
+  },
+  {
+   "id": "fomc_minutes_20250917",
+   "kind": "fomc_minutes",
+   "published": "2025-10-08",
+   "title": "Minutes of the FOMC meeting of 17 September 2025 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20250917.htm",
+   "file": "docs/fomc_minutes_20250917.md",
+   "chars": 3748
+  },
+  {
+   "id": "bls_cpi_20251024",
+   "kind": "bls_cpi",
+   "published": "2025-10-24",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - SEPTEMBER 2025",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_10242025.htm",
+   "file": "docs/bls_cpi_20251024.md",
+   "chars": 1526
+  },
+  {
+   "id": "fomc_statement_20251029",
+   "kind": "fomc_statement",
+   "published": "2025-10-29",
+   "title": "FOMC statement, 29 October 2025",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm",
+   "file": "docs/fomc_statement_20251029.md",
+   "chars": 2410
+  },
+  {
+   "id": "treasury_yields_20251114",
+   "kind": "treasury_yields",
+   "published": "2025-11-14",
+   "title": "Treasury yield curve snapshot as of 2025-11-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20251114.md",
+   "chars": 615
+  },
+  {
+   "id": "bea_pce_20251205",
+   "kind": "bea_pce",
+   "published": "2025-12-05",
+   "title": "BEA Personal Income and Outlays, September 2025 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2025/personal-income-and-outlays-september-2025",
+   "file": "docs/bea_pce_20251205.md",
+   "chars": 1671
+  },
+  {
+   "id": "fomc_sep_20251210",
+   "kind": "fomc_sep",
+   "published": "2025-12-10",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 10 December 2025",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20251210.htm",
+   "file": "docs/fomc_sep_20251210.md",
+   "chars": 3020
+  },
+  {
+   "id": "fomc_minutes_20251210",
+   "kind": "fomc_minutes",
+   "published": "2025-12-30",
+   "title": "Minutes of the FOMC meeting of 10 December 2025 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20251210.htm",
+   "file": "docs/fomc_minutes_20251210.md",
+   "chars": 3543
+  },
+  {
+   "id": "fomc_statement_20260128",
+   "kind": "fomc_statement",
+   "published": "2026-01-28",
+   "title": "FOMC statement, 28 January 2026",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260128a.htm",
+   "file": "docs/fomc_statement_20260128.md",
+   "chars": 1977
+  },
+  {
+   "id": "bls_jobs_20260211",
+   "kind": "bls_jobs",
+   "published": "2026-02-11",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- JANUARY 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_02112026.htm",
+   "file": "docs/bls_jobs_20260211.md",
+   "chars": 2949
+  },
+  {
+   "id": "bls_cpi_20260213",
+   "kind": "bls_cpi",
+   "published": "2026-02-13",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JANUARY 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_02132026.htm",
+   "file": "docs/bls_cpi_20260213.md",
+   "chars": 1354
+  },
+  {
+   "id": "treasury_yields_20260213",
+   "kind": "treasury_yields",
+   "published": "2026-02-13",
+   "title": "Treasury yield curve snapshot as of 2026-02-13",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20260213.md",
+   "chars": 615
+  },
+  {
+   "id": "fomc_sep_20260318",
+   "kind": "fomc_sep",
+   "published": "2026-03-18",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 18 March 2026",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260318.htm",
+   "file": "docs/fomc_sep_20260318.md",
+   "chars": 2735
+  },
+  {
+   "id": "fomc_minutes_20260318",
+   "kind": "fomc_minutes",
+   "published": "2026-04-08",
+   "title": "Minutes of the FOMC meeting of 18 March 2026 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260318.htm",
+   "file": "docs/fomc_minutes_20260318.md",
+   "chars": 4318
+  },
+  {
+   "id": "fomc_statement_20260429",
+   "kind": "fomc_statement",
+   "published": "2026-04-29",
+   "title": "FOMC statement, 29 April 2026",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260429a.htm",
+   "file": "docs/fomc_statement_20260429.md",
+   "chars": 2242
+  },
+  {
+   "id": "bea_pce_20260430",
+   "kind": "bea_pce",
+   "published": "2026-04-30",
+   "title": "BEA Personal Income and Outlays, March 2026 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2026/personal-income-and-outlays-march-2026",
+   "file": "docs/bea_pce_20260430.md",
+   "chars": 1862
+  },
+  {
+   "id": "bls_jobs_20260508",
+   "kind": "bls_jobs",
+   "published": "2026-05-08",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION -- APRIL 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_05082026.htm",
+   "file": "docs/bls_jobs_20260508.md",
+   "chars": 2875
+  },
+  {
+   "id": "bls_cpi_20260512",
+   "kind": "bls_cpi",
+   "published": "2026-05-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - APRIL 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_05122026.htm",
+   "file": "docs/bls_cpi_20260512.md",
+   "chars": 1415
+  },
+  {
+   "id": "treasury_yields_20260514",
+   "kind": "treasury_yields",
+   "published": "2026-05-14",
+   "title": "Treasury yield curve snapshot as of 2026-05-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20260514.md",
+   "chars": 610
+  },
+  {
+   "id": "fomc_sep_20260617",
+   "kind": "fomc_sep",
+   "published": "2026-06-17",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 17 June 2026",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260617.htm",
+   "file": "docs/fomc_sep_20260617.md",
+   "chars": 2988
+  },
+  {
+   "id": "fomc_minutes_20260617",
+   "kind": "fomc_minutes",
+   "published": "2026-07-08",
+   "title": "Minutes of the FOMC meeting of 17 June 2026 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260617.htm",
+   "file": "docs/fomc_minutes_20260617.md",
+   "chars": 4143
+  },
+  {
+   "id": "fomc_statement_20260729",
+   "kind": "fomc_statement",
+   "published": "2026-07-29",
+   "title": "FOMC statement, 29 July 2026",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm",
+   "file": "docs/fomc_statement_20260729.md",
+   "chars": 1134
+  },
+  {
+   "id": "bea_pce_20260730",
+   "kind": "bea_pce",
+   "published": "2026-07-30",
+   "title": "BEA Personal Income and Outlays, June 2026 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2026/personal-income-and-outlays-june-2026",
+   "file": "docs/bea_pce_20260730.md",
+   "chars": 2478
+  },
+  {
+   "id": "bls_jobs_20260807",
+   "kind": "bls_jobs",
+   "published": "2026-08-07",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION - JULY 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_08072026.htm",
+   "file": "docs/bls_jobs_20260807.md",
+   "chars": 2747
+  },
+  {
+   "id": "bls_cpi_20260812",
+   "kind": "bls_cpi",
+   "published": "2026-08-12",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - JULY 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_08122026.htm",
+   "file": "docs/bls_cpi_20260812.md",
+   "chars": 1336
+  },
+  {
+   "id": "treasury_yields_20260814",
+   "kind": "treasury_yields",
+   "published": "2026-08-14",
+   "title": "Treasury yield curve snapshot as of 2026-08-14",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20260814.md",
+   "chars": 613
+  },
+  {
+   "id": "fomc_sep_20260916",
+   "kind": "fomc_sep",
+   "published": "2026-09-16",
+   "title": "FOMC Summary of Economic Projections (dot plot medians), 16 September 2026",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm",
+   "file": "docs/fomc_sep_20260916.md",
+   "chars": 3253
+  },
+  {
+   "id": "fomc_minutes_20260916",
+   "kind": "fomc_minutes",
+   "published": "2026-10-07",
+   "title": "Minutes of the FOMC meeting of 16 September 2026 (staff review + policy discussion excerpts)",
+   "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260916.htm",
+   "file": "docs/fomc_minutes_20260916.md",
+   "chars": 3843
+  },
+  {
+   "id": "fomc_statement_20261028",
+   "kind": "fomc_statement",
+   "published": "2026-10-28",
+   "title": "FOMC statement, 28 October 2026",
+   "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm",
+   "file": "docs/fomc_statement_20261028.md",
+   "chars": 1190
+  },
+  {
+   "id": "bea_pce_20261029",
+   "kind": "bea_pce",
+   "published": "2026-10-29",
+   "title": "BEA Personal Income and Outlays, September 2026 (PCE and core PCE prices)",
+   "source_url": "https://www.bea.gov/news/2026/personal-income-and-outlays-september-2026",
+   "file": "docs/bea_pce_20261029.md",
+   "chars": 1816
+  },
+  {
+   "id": "bls_jobs_20261106",
+   "kind": "bls_jobs",
+   "published": "2026-11-06",
+   "title": "BLS Employment Situation news release: THE EMPLOYMENT SITUATION - OCTOBER 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/empsit_11062026.htm",
+   "file": "docs/bls_jobs_20261106.md",
+   "chars": 2814
+  },
+  {
+   "id": "bls_cpi_20261110",
+   "kind": "bls_cpi",
+   "published": "2026-11-10",
+   "title": "BLS Consumer Price Index news release: CONSUMER PRICE INDEX - OCTOBER 2026",
+   "source_url": "https://www.bls.gov/news.release/archives/cpi_11102026.htm",
+   "file": "docs/bls_cpi_20261110.md",
+   "chars": 1475
+  },
+  {
+   "id": "treasury_yields_20261113",
+   "kind": "treasury_yields",
+   "published": "2026-11-13",
+   "title": "Treasury yield curve snapshot as of 2026-11-13",
+   "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+   "file": "docs/treasury_yields_20261113.md",
+   "chars": 615
+  }
+ ]
+}

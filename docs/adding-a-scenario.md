@@ -26,6 +26,8 @@ epochal-pilot run my-scenario --dry-run
 | `domains` / `exclude_domains` | `[]` | Restrict to / exclude sites (up to 200 entries combined, no overlap) |
 | `public_context` | none | Folder with a public-domain context pack (`index.json` + `docs/`), enables `--context public` |
 | `baselines` | `{}` | See below |
+| `context_chars_per_doc` | 3000 | Characters of each context document shown to the model |
+| `directions` / `choice_bp` | none | Map each choice to `down`/`hold`/`up` and to a size in bp: adds direction accuracy and mean abs. error |
 
 ### Baselines
 
@@ -51,11 +53,14 @@ epochal-pilot run my-scenario --dry-run
 | `id` | yes | Unique, stable (it seeds the option shuffle) |
 | `event_date` | yes | `YYYY-MM-DD`, the day the outcome became known |
 | `question` | yes | A forecast in the **future tense** ("will ...?"), without the answer; `validate` flags past tense |
-| `outcome` | yes | Must equal one of the choices exactly |
+| `outcome` | yes | Must equal one of the choices exactly; may be blank only when `status` is `live` |
 | `source_url` | yes | Public page that states the outcome |
 | `choices` | if no shared choices | Pipe-separated, 2–8 options |
 | `search_query` | no | Seed query for Epochal (defaults to the question) |
 | `contested` | no | `1` marks an event as contested for `epochal-pilot plan` |
+| `as_of` | no | `YYYY-MM-DD`: a fixed as-of date for this event (rolling calendars); `lead_days` is then ignored |
+| `status` | no | `live` = the outcome is not known yet: `run --mode live` forecasts it, `score` grades it later |
+| `tags` | no | Pipe-separated labels; `--only <tag>` selects them in `run` and `plan` (e.g. `turning-point`) |
 | other columns | no | Available in templates as `$column` |
 
 ## Prompt templates
@@ -87,3 +92,11 @@ redistribute (for example US-government works) and never anything returned by Ep
 - [ ] `epochal-pilot run <name> --estimate` shows a reasonable request count
 - [ ] Scenario `README.md` with caveats
 - [ ] Loader test in `tests/test_scenarios.py`
+
+## Live events (forecast now, score later)
+
+Leave `outcome` blank and set `status` to `live`. `run <scenario> --mode live` forecasts only those rows
+and writes `forecast.csv` (timestamped, status `pending`) instead of scores. Once the outcome is known,
+fill it in and run `epochal-pilot score <that run folder>` (or `score --latest`): it marks each forecast
+`resolved`, scores it with the usual stack and writes `predictions.csv`, `scores.csv` and the report.
+See `scenarios/fed-quarterly` for a full example with a rolling as-of calendar.
