@@ -16,3 +16,6 @@ Each event is asked twice:
 `leak_score_upper_bound` = gated accuracy minus chance. A week-ahead web legitimately predicts some
 events (polls, priced-in Fed moves), so this is an upper bound. The cleanest signal is gated accuracy
 on events before the model's training cutoff compared with events after it.
+
+**v0.2:** questions are now asked in the future tense as of the as-of date (past-tense wording such
+as "Who won ...?" cues memorised answers), and `epochal-pilot validate future-leak` checks this.
