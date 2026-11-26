@@ -27,9 +27,25 @@ class Event:
     category: str = ""
     extra: dict = field(default_factory=dict)
 
+    @property
+    def resolved(self) -> bool:
+        """False for a live (not yet known) outcome: forecast it now, score it later."""
+        return bool(self.outcome)
+
+    @property
+    def fixed_as_of(self) -> date | None:
+        """An ``as_of`` column pins the as-of date (rolling calendars); it then ignores ``lead_days``."""
+        v = (self.extra.get("as_of") or "").strip()
+        return date.fromisoformat(v[:10]) if v else None
+
+    @property
+    def tags(self) -> list[str]:
+        return [t.strip() for t in (self.extra.get("tags") or "").split("|") if t.strip()]
+
     def as_of(self, lead_days: int) -> str:
-        """Accept-Datetime value: midnight UTC, ``lead_days`` before the event."""
-        return (self.event_date - timedelta(days=lead_days)).isoformat() + "T00:00:00Z"
+        """Accept-Datetime value: midnight UTC on the fixed as-of date, else ``lead_days`` before the event."""
+        d = self.fixed_as_of or (self.event_date - timedelta(days=lead_days))
+        return d.isoformat() + "T00:00:00Z"
 
     def ordered_choices(self, shuffle: bool, seed: int) -> list[str]:
         """Choice order shown to the model. Seeded per event, so runs are reproducible."""
@@ -62,6 +78,7 @@ class Scenario:
     events_file: Path | None = None
     prompt_files: dict[str, Path] = field(default_factory=dict)
     config: dict = field(default_factory=dict)
+    context_chars_per_doc: int = 3000
 
     def template(self, mode: str) -> Template:
         return self.templates[mode]
@@ -111,6 +128,7 @@ def load_scenario(scenarios_dir: Path, name: str) -> Scenario:
         events_file=events_file,
         prompt_files=prompt_files,
         config=cfg,
+        context_chars_per_doc=int(cfg.get("context_chars_per_doc", 3000)),
     )
 
 
@@ -125,7 +143,10 @@ def load_events(path: Path, default_choices: list[str] | None = None) -> list[Ev
             choices = row["choices"].split("|") if row.get("choices") else list(default_choices or [])
             if not 2 <= len(choices) <= len(LETTERS):
                 raise ValueError(f"{row['id']}: need 2-{len(LETTERS)} choices")
-            if row["outcome"] not in choices:
+            live = (row.get("status") or "").strip().lower() == "live"
+            if not row["outcome"] and not live:
+                raise ValueError(f"{row['id']}: empty outcome (only rows with status=live may leave it blank)")
+            if row["outcome"] and row["outcome"] not in choices:
                 raise ValueError(f"{row['id']}: outcome {row['outcome']!r} not among choices")
             known = REQUIRED_COLUMNS | {"choices", "search_query", "category"}
             events.append(

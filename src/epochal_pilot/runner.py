@@ -23,7 +23,7 @@ from epochal_pilot.epochal import Epochal, SearchOptions, fixture_transport
 from epochal_pilot.llm import LLM, ClaudeCLIError, find_claude, mock_transport
 from epochal_pilot.public_context import load_public_context
 from epochal_pilot.scenario import LETTERS, Event, Scenario, load_scenario
-from epochal_pilot.scoring import analyse, baseline_forecasts, brier, load_user_baseline
+from epochal_pilot.scoring import analyse, baseline_forecasts, brier, direction_summary, load_user_baseline
 
 DEFAULT_MODELS = {
     "openrouter": "openai/gpt-4.1-mini",
@@ -41,14 +41,19 @@ Write $k short web search queries (one per line, no numbering, no quotes) that w
 useful evidence available on $today."""
 
 
-def select_events(sc: Scenario, only: str | None, limit: int | None) -> list[Event]:
-    evs = sc.events
+def select_events(sc: Scenario, only: str | None, limit: int | None, mode: str = "backtest") -> list[Event]:
+    """Events to run. ``only`` takes event ids and/or tags (e.g. ``turning-point``); ``mode`` picks
+    resolved events (backtest) or unresolved ones (live)."""
+    evs = [e for e in sc.events if e.resolved == (mode != "live")]
     if only:
         want = [x.strip() for x in only.split(",") if x.strip()]
-        unknown = set(want) - {e.id for e in evs}
+        all_ids = {e.id for e in sc.events}
+        all_tags = {t for e in sc.events for t in e.tags}
+        unknown = set(want) - all_ids - all_tags
         if unknown:
-            raise SystemExit(f"unknown event id(s): {', '.join(sorted(unknown))}")
-        evs = [e for e in evs if e.id in want]
+            hint = f" (tags: {', '.join(sorted(all_tags))})" if all_tags else ""
+            raise SystemExit(f"unknown event id(s) or tag(s): {', '.join(sorted(unknown))}{hint}")
+        evs = [e for e in evs if e.id in want or set(e.tags) & set(want)]
     return evs[:limit] if limit else evs
 
 
@@ -111,6 +116,25 @@ def plan_queries(llm: LLM, model: str, ev: Event, today: str, k: int) -> list[st
     return [q for q in qs if not q.lower().startswith(("here", "sure"))][:k]
 
 
+def outcome_fields(probs: dict[str, float], answer: str | None, outcome: str, shown: list[str]) -> dict:
+    """Scoring columns of a prediction row; blank while the outcome is unknown (live forecasts)."""
+    if not outcome:
+        return {"outcome": "", "truth_letter": "", "correct": "", "p_outcome": "", "brier": ""}
+    return {
+        "outcome": outcome,
+        "truth_letter": LETTERS[shown.index(outcome)] if outcome in shown else "",
+        "correct": int(answer == outcome),
+        "p_outcome": round(probs.get(outcome, 0.0), 4),
+        "brier": round(brier(probs, outcome), 4),
+    }
+
+
+NO_RESULTS = (
+    "No results: nothing was scored{why}. Nothing to compare, so no table. Check the messages above "
+    "(a stopped backend, an expired login, a used-up budget or a filter that matched no events), fix it and re-run."
+)
+
+
 def _keys_for(args, need_epochal: bool) -> tuple[str | None, str | None]:
     ekey = config.require_key(config.EPOCHAL_KEY_ENV, "Get one at https://epochal.com.") if need_epochal else None
     okey = None
@@ -131,7 +155,19 @@ def _keys_for(args, need_epochal: bool) -> tuple[str | None, str | None]:
 def run(args) -> int:
     config.load_dotenv(args.env_file)
     sc = load_scenario(Path(args.scenarios_dir), args.scenario)
-    evs = select_events(sc, args.only, args.limit)
+    run_mode = getattr(args, "mode", None) or "backtest"
+    evs = select_events(sc, args.only, args.limit, run_mode)
+    if not evs:
+        if run_mode == "live":
+            print(
+                f"Nothing to forecast: scenario '{sc.name}' has no unresolved (live) events"
+                f"{' matching --only' if args.only else ''}. If an earlier live forecast has resolved, "
+                "score it with `epochal-pilot score --latest`.",
+                file=sys.stderr,
+            )
+        else:
+            print(f"No events selected for '{sc.name}' (check --only / --limit).", file=sys.stderr)
+        return 1
     lead = args.lead_days if args.lead_days is not None else sc.lead_days
     modes = args.modes.split(",") if args.modes else sc.modes
     for m in modes:
@@ -165,9 +201,10 @@ def run(args) -> int:
         llm = LLM(cache, backend=args.backend, api_key=okey)
         models = args.model or [DEFAULT_MODELS[args.backend]]
 
+    asof_txt = "fixed per event (as_of column)" if all(e.fixed_as_of for e in evs) else f"event - {lead} days"
     print(
-        f"Scenario {sc.name}: {len(evs)} events x {len(models)} model(s) x modes {','.join(modes)}; "
-        f"context={context}; as-of = event - {lead} days; shuffle={'on' if shuffle else 'off'} (seed {args.seed})"
+        f"Scenario {sc.name} [{run_mode}]: {len(evs)} events x {len(models)} model(s) x modes {','.join(modes)}; "
+        f"context={context}; as-of = {asof_txt}; shuffle={'on' if shuffle else 'off'} (seed {args.seed})"
     )
     est = None
     if uses_epochal:
@@ -227,16 +264,17 @@ def run(args) -> int:
                         stopped = str(e)
                         break
                     ret = retrievals[rkey]
-                prompt = sc.template(mode).safe_substitute(
+                fields = {k: v for k, v in ev.extra.items() if v}  # event columns; core fields win
+                fields.update(
                     today=today,
                     as_of=as_of,
                     question=ev.question,
                     options=format_options(shown),
                     letters=letters,
-                    context=ret.context() or "(no documents found)",
+                    context=ret.context(sc.context_chars_per_doc) or "(no documents found)",
                     response_format=RESPONSE_FORMAT.replace("$letters", letters),
-                    **{k: v for k, v in ev.extra.items() if v},
                 )
+                prompt = sc.template(mode).safe_substitute(fields)
                 try:
                     reply = llm.ask(model, prompt)
                     fc = parse_forecast(reply, shown)
@@ -257,13 +295,9 @@ def run(args) -> int:
                         "event": ev.id,
                         "event_date": ev.event_date.isoformat(),
                         "as_of": as_of if mode == "gated" else "",
-                        "outcome": ev.outcome,
                         "answer": fc.answer or "",
                         "answer_letter": LETTERS[shown.index(fc.answer)] if fc.answer else "",
-                        "truth_letter": LETTERS[shown.index(ev.outcome)],
-                        "correct": int(fc.answer == ev.outcome),
-                        "p_outcome": round(fc.probabilities.get(ev.outcome, 0.0), 4),
-                        "brier": round(brier(fc.probabilities, ev.outcome), 4),
+                        **outcome_fields(fc.probabilities, fc.answer, ev.outcome, shown),
                         "abstained": int(fc.answer is None),
                         "retried": int(fc.retried),
                         "parse_mode": fc.parse_mode,
@@ -275,35 +309,148 @@ def run(args) -> int:
                         "rationale": fc.rationale,
                     }
                 )
-                mark = "ok " if fc.answer == ev.outcome else ("-- " if fc.answer else "?? ")
-                print(
-                    f"  {mark}{model:32} {mode:8} {ev.id:22} -> {fc.answer or '(abstain)'}"
-                    f"  p(true)={rows[-1]['p_outcome']:.2f}"
-                )
+                if not ev.outcome:
+                    mark = "-> "
+                    tail = f"  p={fc.probabilities.get(fc.answer, 0.0):.2f} (live: resolves after {ev.event_date})"
+                else:
+                    mark = "ok " if fc.answer == ev.outcome else ("-- " if fc.answer else "?? ")
+                    tail = f"  p(true)={rows[-1]['p_outcome']:.2f}"
+                print(f"  {mark}{model:32} {mode:8} {ev.id:22} -> {fc.answer or '(abstain)'}{tail}")
             if stopped:
                 break
     if stopped:
-        print(f"\nStopped early: {stopped}. Partial results are scored below.", file=sys.stderr)
+        print(f"\nStopped early: {stopped}. Partial results are kept below.", file=sys.stderr)
+
+    stamp = f"{datetime.now():%Y%m%d-%H%M%S}"
+    tag = f"{sc.name}-live" if run_mode == "live" else sc.name
+    out_dir = Path(args.out) if args.out else Path("runs") / f"{tag}-{context}-{stamp}"
+    meta = build_manifest(sc, args, lead, budget, models, modes, shuffle, context, opts, max_fetches, llm, ep, rows)
+    meta["estimate"] = est
+    meta["run_mode"] = run_mode
+    meta["stopped"] = stopped
+    if run_mode == "live":
+        write_live(out_dir, sc, rows, meta)
+        _print_spend(args, uses_epochal, budget, cache_root)
+        if not rows:
+            print(NO_RESULTS.format(why=f" ({stopped})" if stopped else ""))
+            return 1
+        print(
+            f"Wrote {out_dir / 'forecast.csv'} ({len(rows)} forecast(s), pending). After the quarter ends, add the "
+            f"outcome to scenarios/{sc.name}/events.csv and run: epochal-pilot score {out_dir}"
+        )
+        return 0
 
     by_id = {e.id: e for e in sc.events}
     scored_events = [by_id[i] for i in dict.fromkeys(r["event"] for r in rows)]
     user = load_user_baseline(Path(args.baseline_csv)) if getattr(args, "baseline_csv", None) else None
     base_rows = baseline_forecasts(scored_events, sc.baselines, user)
     scores, detail = analyse(rows, base_rows, cutoffs, seed=args.seed)
-    stamp = f"{datetime.now():%Y%m%d-%H%M%S}"
-    out_dir = Path(args.out) if args.out else Path("runs") / f"{sc.name}-{context}-{stamp}"
-    meta = build_manifest(sc, args, lead, budget, models, modes, shuffle, context, opts, max_fetches, llm, ep, rows)
-    meta["estimate"] = est
+    if sc.config.get("directions"):
+        detail["direction"] = direction_summary(rows + base_rows, sc.config["directions"], sc.config.get("choice_bp"))
     write_outputs(out_dir, sc, rows, base_rows, scores, detail, meta)
-    print_table(scores, detail)
+    if not rows:
+        print("\n" + NO_RESULTS.format(why=f" ({stopped})" if stopped else ""))
+    else:
+        print_table(scores, detail)
+        print_direction(detail.get("direction"))
+    _print_spend(args, uses_epochal, budget, cache_root)
+    print(f"Wrote {out_dir / 'report.html'}, predictions.csv, scores.csv, stats.json, summary.md")
+    return 0 if rows else 1
+
+
+def _print_spend(args, uses_epochal: bool, budget: Budget, cache_root: Path) -> None:
     if args.dry_run:
         print(f"\nDry run: {budget.this_run} fixture requests (no network, nothing spent)")
     elif uses_epochal:
         print(f"\nEpochal requests: {budget.this_run} this run, {budget.total} lifetime (cache: {cache_root})")
     else:
         print("\nEpochal requests: 0 (public context)")
-    print(f"Wrote {out_dir / 'report.html'}, predictions.csv, scores.csv, stats.json, summary.md")
-    return 0 if rows else 1
+
+
+def print_direction(d: dict | None) -> None:
+    if not d:
+        return
+    print(f"\n{'forecaster':34} {'n':>3} {'direction acc':>13} {'mean |error| bp':>15}")
+    for name, v in d.items():
+        mae = "" if v.get("mae_bp") is None else f"{v['mae_bp']:.1f}"
+        print(f"{name[:34]:34} {v['n']:>3} {v['direction_accuracy']:>13.3f} {mae:>15}")
+    print("Direction = down / hold / up of the top choice vs the truth; |error| uses each option's bp size.")
+
+
+def write_live(out_dir: Path, sc: Scenario, rows: list[dict], meta: dict) -> None:
+    """A live forecast: timestamped, unscored, for ``epochal-pilot score`` to resolve later."""
+    created = meta["created"]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    live_rows = [{"status": "pending", "forecast_created": created, **r} for r in rows]
+    write_csv(out_dir / "forecast.csv", live_rows)
+    (out_dir / "run.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    by_id = {e.id: e for e in sc.events}
+    L = [f"# {sc.name} live forecast", "", f"Made {created}, before the outcome was known. Status: pending.", ""]
+    L += ["| event | as-of | resolves after | model | answer | p |", "|---|---|---|---|---|---|"]
+    for r in rows:
+        probs = json.loads(r["probabilities"] or "{}")
+        L.append(
+            f"| {r['event']} | {r['as_of'][:10]} | {by_id[r['event']].event_date} | {r['model']} | "
+            f"{r['answer'] or '(abstain)'} | {probs.get(r['answer'], 0.0):.2f} |"
+        )
+    L += ["", f"Score it after the quarter ends: `epochal-pilot score {out_dir}`.", ""]
+    (out_dir / "summary.md").write_text("\n".join(L), encoding="utf-8")
+
+
+def cmd_score(args) -> int:
+    """Resolve a live forecast folder against the scenario's (now updated) outcomes and score it."""
+    from epochal_pilot.report import latest_run, read_csv
+
+    run_dir = latest_run(Path(args.runs_dir), live=True) if args.latest or not args.run_dir else Path(args.run_dir)
+    if run_dir is None:
+        print(f"error: no live forecast folders under {args.runs_dir}", file=sys.stderr)
+        return 2
+    fpath = run_dir / "forecast.csv"
+    if not fpath.is_file():
+        raise FileNotFoundError(f"{run_dir}: no forecast.csv (score is for `run --mode live` folders)")
+    meta = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
+    sc = load_scenario(Path(args.scenarios_dir), meta["scenario"])
+    by_id = {e.id: e for e in sc.events}
+    rows = read_csv(fpath)
+    now = datetime.now().astimezone().isoformat(timespec="seconds")
+    scored, pending = [], []
+    for r in rows:
+        ev = by_id.get(r["event"])
+        if ev is None or not ev.resolved:
+            r["status"] = "pending"
+            pending.append(r)
+            continue
+        probs = json.loads(r["probabilities"] or "{}")
+        shown = list(probs) or ev.choices
+        r.update(outcome_fields(probs, r["answer"] or None, ev.outcome, shown))
+        r["status"] = "resolved"
+        r["resolved_at"] = r.get("resolved_at") or now
+        scored.append(r)
+    write_csv(fpath, rows)
+    if pending:
+        waits = sorted({by_id[r["event"]].event_date.isoformat() for r in pending if r["event"] in by_id})
+        print(
+            f"{len(pending)} forecast(s) still pending (resolve after {', '.join(waits)}). Add the outcome to "
+            f"scenarios/{sc.name}/events.csv (or rebuild it with the scenario's tool) and re-run this command."
+        )
+    if not scored:
+        print("No results yet: every forecast in this folder is still pending, so there is nothing to score.")
+        return 1
+    pred = [{k: v for k, v in r.items() if k not in ("status", "forecast_created", "resolved_at")} for r in scored]
+    for r in pred:
+        r["correct"], r["brier"], r["p_outcome"] = int(r["correct"]), float(r["brier"]), float(r["p_outcome"])
+    events = [by_id[i] for i in dict.fromkeys(r["event"] for r in pred)]
+    base_rows = baseline_forecasts(events, sc.baselines)
+    scores, detail = analyse(pred, base_rows, meta.get("cutoff_overrides") or {}, seed=int(meta.get("seed", 0) or 0))
+    if sc.config.get("directions"):
+        detail["direction"] = direction_summary(pred + base_rows, sc.config["directions"], sc.config.get("choice_bp"))
+    meta["resolved"] = now
+    write_outputs(run_dir, sc, pred, base_rows, scores, detail, meta)
+    print(f"Resolved {len(scored)} forecast(s) in {run_dir}.")
+    print_table(scores, detail)
+    print_direction(detail.get("direction"))
+    print(f"Wrote {run_dir / 'report.html'}, predictions.csv, scores.csv, summary.md")
+    return 0
 
 
 def build_manifest(sc, args, lead, budget, models, modes, shuffle, context, opts, max_fetches, llm, ep, rows) -> dict:

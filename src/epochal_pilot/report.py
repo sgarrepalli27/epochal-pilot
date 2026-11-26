@@ -13,6 +13,7 @@ import csv
 import html
 import json
 import shutil
+import sys
 from pathlib import Path
 
 from epochal_pilot.scoring import analyse, baseline_forecasts, norm_rows, paired_compare
@@ -42,6 +43,12 @@ NOTE = (
 )
 
 
+NO_RESULTS_MD = (
+    "**No results.** Nothing was scored in this run, so there is no table. The run stopped before the first "
+    "forecast (see `stopped` in run.json) or the filters matched no events."
+)
+
+
 # ------------------------------------------------------------------------------------------------ loading
 
 
@@ -52,11 +59,32 @@ def read_csv(path: Path) -> list[dict]:
         return list(csv.DictReader(f))
 
 
+def latest_run(runs_dir: Path, live: bool = False) -> Path | None:
+    """Newest run folder under ``runs_dir`` (by run.json time): scored runs, or live forecasts with ``live``."""
+    runs_dir = Path(runs_dir)
+    if not runs_dir.is_dir():
+        return None
+    want = "forecast.csv" if live else "predictions.csv"
+    cands = [d for d in runs_dir.iterdir() if d.is_dir() and (d / want).is_file()]
+    if not cands:
+        return None
+    return max(cands, key=lambda d: ((d / "run.json").stat().st_mtime if (d / "run.json").is_file() else 0, d.name))
+
+
 def load_run(run_dir: Path, scenarios_dir: Path | None = None) -> dict:
     """Load a run folder and re-score it (works offline on any saved run, including v0.1 runs)."""
     run_dir = Path(run_dir)
     if not (run_dir / "predictions.csv").is_file():
-        raise FileNotFoundError(f"{run_dir}: no predictions.csv (is this a run folder?)")
+        if (run_dir / "forecast.csv").is_file():
+            raise FileNotFoundError(
+                f"{run_dir}: a live forecast with nothing scored yet. Run `epochal-pilot score {run_dir}` "
+                "after the outcome is known."
+            )
+        hint = "" if run_dir.is_dir() else " (folder not found)"
+        raise FileNotFoundError(
+            f"{run_dir}: no predictions.csv{hint}. Run folders look like runs/<scenario>-<context>-<time>; "
+            "use `epochal-pilot report --latest` for the newest one."
+        )
     meta = json.loads((run_dir / "run.json").read_text(encoding="utf-8")) if (run_dir / "run.json").is_file() else {}
     rows = read_csv(run_dir / "predictions.csv")
     base = read_csv(run_dir / "baseline_predictions.csv")
@@ -71,6 +99,16 @@ def load_run(run_dir: Path, scenarios_dir: Path | None = None) -> dict:
         except (FileNotFoundError, KeyError, ValueError):
             base = []
     scores, detail = analyse(rows, base, meta.get("cutoff_overrides") or {}, seed=int(meta.get("seed", 0) or 0))
+    if scenarios_dir and meta.get("scenario"):
+        from epochal_pilot.scenario import load_scenario
+        from epochal_pilot.scoring import direction_summary
+
+        try:
+            cfg = load_scenario(Path(scenarios_dir), meta["scenario"]).config
+            if cfg.get("directions"):
+                detail["direction"] = direction_summary(rows + base, cfg["directions"], cfg.get("choice_bp"))
+        except (FileNotFoundError, KeyError, ValueError):
+            pass
     return {"dir": run_dir, "meta": meta, "rows": rows, "base": base, "scores": scores, "detail": detail}
 
 
@@ -150,6 +188,9 @@ def markdown(meta: dict, scores: list[dict], detail: dict, rows: list[dict]) -> 
     w = _warning(scores)
     if w:
         L += [f"> **Warning:** {w}", ""]
+    if not _model_rows(scores):
+        L += [NO_RESULTS_MD, "", "## Cost ledger", ""] + [f"- {k}: {v}" for k, v in _ledger(meta)]
+        return "\n".join([*L, "", NOTE, ""])
     L += [
         "| forecaster | n | accuracy [95% CI] | Brier [95% CI] | log loss | BSS [95% CI] | p vs ref "
         "| pre/post cutoff acc |",
@@ -170,6 +211,11 @@ def markdown(meta: dict, scores: list[dict], detail: dict, rows: list[dict]) -> 
     refs = sorted({s["reference"] for s in scores if s.get("reference")})
     if refs:
         L += ["", f"Skill reference (best non-hindsight baseline): {', '.join(refs)}."]
+    if detail.get("direction"):
+        L += ["", "## Direction and size", "", "| forecaster | n | direction accuracy | mean abs. error (bp) |"]
+        L.append("|---|---|---|---|")
+        for name, v in detail["direction"].items():
+            L.append(f"| {name} | {v['n']} | {_f(v['direction_accuracy'])} | {_f(v.get('mae_bp'), 1)} |")
     if detail.get("pairs"):
         L += [
             "",
@@ -304,6 +350,12 @@ def html_report(meta: dict, scores: list[dict], detail: dict, rows: list[dict], 
     w = _warning(scores)
     if w:
         out.append(f"<p class='warn'><b>Small sample.</b> {e(w)}</p>")
+    if not _model_rows(scores):
+        out.append(
+            "<p class='warn'><b>No results.</b> Nothing was scored in this run, so there is no table. "
+            "See <code>stopped</code> in run.json.</p></body></html>"
+        )
+        return "".join(out)
     out.append("<h2>Scores</h2>")
     body = []
     for s in scores:
@@ -350,6 +402,13 @@ def html_report(meta: dict, scores: list[dict], detail: dict, rows: list[dict], 
     refs = sorted({s["reference"] for s in scores if s.get("reference")})
     if refs:
         out.append(f"<p class='muted'>Skill reference (best non-hindsight baseline): {e(', '.join(refs))}.</p>")
+    if detail.get("direction"):
+        out.append("<h2>Direction and size</h2>")
+        rows_d = [
+            [e(name), str(v["n"]), _f(v["direction_accuracy"]), _f(v.get("mae_bp"), 1)]
+            for name, v in detail["direction"].items()
+        ]
+        out.append(_table(["forecaster", "n", "direction accuracy", "mean abs. error (bp)"], rows_d))
     if detail.get("pairs"):
         out.append("<h2>Paired tests</h2>")
         pb = []
@@ -468,7 +527,18 @@ def export_share(run: dict, dest: Path | None = None) -> Path:
 
 
 def cmd_report(args) -> int:
+    if args.latest or not args.run_dir:
+        d = latest_run(Path(args.runs_dir))
+        if d is None:
+            live = latest_run(Path(args.runs_dir), live=True)
+            hint = f" (only a live forecast, {live}: score it with `epochal-pilot score --latest`)" if live else ""
+            print(f"error: no run folders with predictions.csv under {args.runs_dir}{hint}", file=sys.stderr)
+            return 2
+        print(f"Latest run: {d}")
+        args.run_dir = str(d)
     run = load_run(Path(args.run_dir), Path(args.scenarios_dir))
+    if not _model_rows(run["scores"]):
+        print("No results: this run scored nothing (see `stopped` in run.json); writing an empty report.")
     h, m = write_report(run)
     print(f"Wrote {h} and {m}")
     if args.share:

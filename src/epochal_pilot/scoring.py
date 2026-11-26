@@ -355,3 +355,37 @@ def _round_bins(bins: list[dict]) -> list[dict]:
 
 def norm_rows(rows: list[dict]) -> list[dict]:
     return [_norm(r) for r in rows]
+
+
+def direction_summary(rows: list[dict], directions: dict[str, str], choice_bp: dict[str, int] | None = None) -> dict:
+    """Per forecaster: share of events where the top choice's direction (down/hold/up) matches the truth,
+    and the mean absolute error in bp of the top choice. Works on prediction and baseline rows alike."""
+    out: dict[str, dict] = {}
+    groups: dict[str, list[tuple[list[str], str]]] = {}
+    for r in rows:
+        if not r.get("outcome"):
+            continue
+        probs = json.loads(r.get("probabilities") or "{}")
+        if r.get("answer"):
+            picks = [r["answer"]]
+        elif probs:
+            top = max(probs.values())
+            picks = [c for c, p in probs.items() if p == top]  # ties (e.g. uniform): average over them
+        else:
+            continue
+        mode = r.get("mode", "")
+        name = r["model"] if r["model"].startswith("baseline:") else f"{r['model']} {mode}[{r.get('context', '')}]"
+        groups.setdefault(name, []).append((picks, r["outcome"]))
+    for name, pairs in groups.items():
+        hits = [sum(directions.get(p) == directions.get(o) for p in ps) / len(ps) for ps, o in pairs]
+        errs = [
+            sum(abs(choice_bp[p] - choice_bp[o]) for p in ps) / len(ps)
+            for ps, o in pairs
+            if choice_bp and o in choice_bp and all(p in choice_bp for p in ps)
+        ]
+        out[name] = {
+            "n": len(pairs),
+            "direction_accuracy": round(sum(hits) / len(hits), 4),
+            "mae_bp": round(sum(errs) / len(errs), 2) if errs else None,
+        }
+    return out
