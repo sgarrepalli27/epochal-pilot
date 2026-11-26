@@ -1,0 +1,10 @@
+{
+  "_comment": "Stated training-data cutoffs (YYYY-MM) with a public source. Used for the pre/post-cutoff leak split. Override per run with --cutoff.",
+  "openai/gpt-4.1-mini": {"cutoff": "2024-06", "source": "https://developers.openai.com/api/docs/models/gpt-4.1-mini"},
+  "google/gemini-2.5-flash": {"cutoff": "2025-01", "source": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash"},
+  "meta-llama/llama-3.1-8b-instruct": {"cutoff": "2023-12", "source": "https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/MODEL_CARD.md"},
+  "claude-haiku-5-5": {"cutoff": "2026-06", "source": "https://docs.anthropic.com/en/docs/about-claude/models/overview"},
+  "llama3.2:3b": {"cutoff": "2023-12", "source": "https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD.md"},
+  "qwen2.5:3b": {"cutoff": "2023-12", "source": "https://github.com/QwenLM/Qwen3/issues/525"},
+  "gemma3:1b": {"cutoff": "2024-08", "source": "https://huggingface.co/google/gemma-3-1b-it"}
+}
