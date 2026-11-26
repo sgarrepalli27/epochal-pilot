@@ -186,7 +186,17 @@ def test_dry_run_public_backtest(scenarios_dir, tmp_path, capsys):
 
 
 def test_turning_points_estimate_is_ten_requests(scenarios_dir, tmp_path, capsys):
-    rc = _cli(scenarios_dir, tmp_path, "run", "fed-quarterly", "--only", "turning-point", "--estimate")
+    rc = _cli(
+        scenarios_dir,
+        tmp_path,
+        "run",
+        "fed-quarterly",
+        "--backend",
+        "openrouter",
+        "--only",
+        "turning-point",
+        "--estimate",
+    )
     out = capsys.readouterr().out
     assert rc == 0 and "New requests needed: 10." in out
 
@@ -253,7 +263,19 @@ def test_no_results_message_instead_of_empty_table(scenarios_dir, tmp_path, caps
 
     monkeypatch.setattr(runner, "mock_transport", broken)
     out = tmp_path / "runs" / "empty"
-    rc = _cli(scenarios_dir, tmp_path, "run", "fed-quarterly", "--dry-run", "--context", "public", "--out", str(out))
+    rc = _cli(
+        scenarios_dir,
+        tmp_path,
+        "run",
+        "fed-quarterly",
+        "--backend",
+        "openrouter",
+        "--dry-run",
+        "--context",
+        "public",
+        "--out",
+        str(out),
+    )
     text = capsys.readouterr().out
     assert rc == 1
     assert "No results: nothing was scored (claude-cli: OAuth session expired)" in text
@@ -272,9 +294,22 @@ def test_prompt_shows_no_answer_columns(scenarios_dir, tmp_path, monkeypatch):
 
     monkeypatch.setattr(runner, "mock_transport", spy)
     rc = _cli(
-        scenarios_dir, tmp_path, "run", "fed-quarterly", "--dry-run", "--context", "public", "--only", "fq_2020q1",
-        "--modes", "gated,ungated", "--out", str(tmp_path / "o"),
-    )  # fmt: skip
+        scenarios_dir,
+        tmp_path,
+        "run",
+        "fed-quarterly",
+        "--backend",
+        "openrouter",
+        "--dry-run",
+        "--context",
+        "public",
+        "--only",
+        "fq_2020q1",
+        "--modes",
+        "gated,ungated",
+        "--out",
+        str(tmp_path / "o"),
+    )
     assert rc == 0 and len(seen) == 2
     for p in seen:
         assert "1.50-1.75%" in p and "18 March 2020" in p  # range at T and the scheduled meeting
