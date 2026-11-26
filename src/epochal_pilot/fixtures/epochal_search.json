@@ -1,0 +1,5 @@
+{"as_of": "", "request_id": "mock", "results": [
+ {"title": "Preview: what to expect", "url": "https://news.example.com/preview", "snippet": "Analysts expect a close outcome.", "text": "Mock pre-event preview article. Analysts and polls point in several directions; no outcome is known yet. This text is long enough to skip a fetch. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.", "published_at": "2024-01-01T00:00:00Z", "domain": "example.com", "language": "en", "entity": null},
+ {"title": "Short item", "url": "https://news.example.org/short", "snippet": "A short snippet only.", "published_at": null, "domain": "example.org", "language": "en", "entity": null},
+ {"title": "Future article (must be dropped)", "url": "https://news.example.net/after", "snippet": "RESULT ANNOUNCED", "published_at": "2099-01-01T00:00:00Z", "domain": "example.net", "language": "en", "entity": null}
+]}
